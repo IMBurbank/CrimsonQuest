@@ -1,2 +1,0 @@
-# CrimsonQuest
-RogueLike Dungeon Crawler
