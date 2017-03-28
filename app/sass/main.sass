@@ -1,0 +1,150 @@
+
+$pg-width: 100vw
+$gm-width: 992px
+$gm-height: 640px
+$stg-size: 480px
+$side-col: 224px
+$tile-size: 32px
+$prim-color: rgb(16,16,16)
+$head-font-color: White
+$std-border: 1px solid black
+
+
+
+/**
+	*		Classes to @extend
+	*/
+
+.head-foot-style
+	position: relative
+	width: 100%
+	margin: 0
+	padding: 3px 0
+	text-align: center
+	background-color: $prim-color
+	color: $head-font-color
+
+
+/**
+	*		Styling
+	*/
+
+// reset sass
+html, body,
+div, p, span,
+button, select,
+ul, ol,
+h1, h2, h3, h4,
+	margin:  0
+	padding: 0
+
+.pg
+	position: relative
+	display: flex
+	flex-direction: column
+	min-height: 100vh
+	width: 100%
+	min-width: $gm-width
+
+	&-header
+		@extend .head-foot-style
+
+	&-content
+		flex-grow: 1
+		width: 100%
+		padding: $tile-size 0
+		background: rgba(255,255,0,0.2)
+		text-align: center
+
+	&-footer
+		@extend .head-foot-style
+		&> *:first-child
+			margin-right: $tile-size/4
+
+.game
+	display: flex
+	justify-content: space-around
+	margin: auto
+	width: $gm-width
+	height: $gm-height
+	background: rgba(0,255,0,0.1)
+	border: $std-border
+
+.col-lft
+	height: 100%
+	background: rgba(50,90,240,0.2)
+
+.level
+	width: $side-col
+	height: $tile-size
+	margin-bottom: $tile-size
+	border: $std-border
+	background: white
+
+.char-info
+	width: $side-col
+	height: 512px
+	border: $std-border
+	background: white
+
+.col-mid
+	display: flex
+	flex-direction: column
+	align-items: center
+	height: 100%
+	background: rgba(50,90,240,0.2)
+
+.title
+	width: $stg-size
+	height: 2*$tile-size
+	border: $std-border
+	background: white
+
+.stage
+	width: $stg-size
+	height: $stg-size
+	margin-bottom: $tile-size
+	border: $std-border
+	background: white
+
+.items
+	width: 8*$tile-size
+	height: $tile-size
+	border: $std-border
+	background: white
+
+.col-rgt
+	display: flex
+	flex-direction: column
+	justify-content: space-between
+	height: 100%
+	background: rgba(50,90,240,0.2)
+
+.enemies-remaining
+	height: $tile-size
+	border: $std-border
+	background: white
+
+.enemy-stats
+	width: $side-col
+	height: 160px
+	border: $std-border
+	background: white
+
+.activity-log
+	width: $side-col
+	height: 288px
+	border: $std-border
+	background: white
+
+.enemy-stats
+	width: $side-col
+	height: 160px
+	border: $std-border
+	background: white
+
+.tips
+	width: $side-col
+	height: 2*$tile-size
+	border: $std-border
+	background: white
