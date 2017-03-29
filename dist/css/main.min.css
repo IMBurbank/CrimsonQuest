@@ -1,6 +1,6 @@
 /**
-	*		Classes to @extend
-	*/
+  *		Classes to @extend
+  */
 .head-foot-style, .pg-header, .pg-footer {
   position: relative;
   width: 100%;
@@ -11,8 +11,8 @@
   color: White; }
 
 /**
-	*		Styling
-	*/
+  *		Styling
+  */
 html, body,
 div, p, span,
 button, select,
