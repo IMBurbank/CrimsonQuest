@@ -8,10 +8,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 var roomSize = {
-  '2': { min: 15, max: 29 },
-  '3': { min: 12, max: 18 },
-  '4': { min: 9, max: 13 }
+  '4': { min: 16, max: 30 },
+  '6': { min: 14, max: 20 },
+  '8': { min: 11, max: 15 }
 };
 
 /**
@@ -22,26 +24,32 @@ var randInt = function randomIntFromRange(min, max) {
   return Math.floor(min + Math.random() * (max - min + 1));
 };
 
+//Rectangular
 var newRoomOne = function createNewRoomOne(rows, cols) {
-  //Subtract two to leave room for permimeter walls
-  var xMin = roomSize[cols].min - 2,
-      xMax = roomSize[cols].max - 2,
-      yMin = roomSize[rows].min - 2,
-      yMax = roomSize[rows].max - 2,
-      w = randInt(xMin, xMax),
-      h = randInt(yMin, yMax),
-      xOffset = randInt(0, xMax - w),
-      yOffset = randInt(0, yMax - h),
+  var xMin = roomSize[cols].min,
+      xMax = roomSize[cols].max,
+      yMin = roomSize[rows].min,
+      yMax = roomSize[rows].max,
+      xFloorMin = xMin - 4,
+      xFloorMax = xMax - 4,
+      yFloorMin = yMin - 4,
+      yFloorMax = yMax - 4,
+      w = randInt(xFloorMin, xFloorMax),
+      h = randInt(yFloorMin, yFloorMax),
+      xPadL = randInt(2, xMax - w - 2),
+      xPadR = xMax - w - xPadL,
+      yPadT = randInt(2, yMax - h - 2),
+      yPadB = yMax - h - yPadT,
       roomFloorArr = [];
 
   var i = 0,
       j = 0;
 
   roomFloorArr.length = yMax;
-  for (; i < yMax; i++) {
+  for (i = 0; i < yMax; i++) {
     roomFloorArr[i] = [];
-    for (; j < xMax; j++) {
-      if (j + 1 > xOffSet && j + 1 < xOffset + w && i + 1 > yOffset && i + 1 < yOffset + h) {
+    for (j = 0; j < xMax; j++) {
+      if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
         roomFloorArr[i][j] = 1;
       } else {
         roomFloorArr[i][j] = 0;
@@ -50,13 +58,186 @@ var newRoomOne = function createNewRoomOne(rows, cols) {
   }
 
   return {
-    xOffset: xOffset,
-    yOffset: yOffset,
-    roomFloorArr: roomFloorArr,
-    areaWidth: xMax,
-    areaHeight: yMax,
-    floorWidth: w,
-    floorHeight: h
+    xPadL: xPadL,
+    xPadR: xPadR,
+    yPadT: yPadT,
+    yPadB: yPadB,
+    xMax: xMax,
+    yMax: yMax,
+    roomFloorArr: roomFloorArr
+  };
+};
+
+//random out on each tile from min rectangle size
+var newRoomTwo = function createNewRoomTwo(rows, cols) {
+  //Subtract two to leave room for permimeter walls
+  var xMin = roomSize[cols].min,
+      xMax = roomSize[cols].max,
+      yMin = roomSize[rows].min,
+      yMax = roomSize[rows].max,
+      xFloorMin = xMin - 4,
+      yFloorMin = yMin - 4;
+
+  var xPadL = randInt(2, xMax - xFloorMin - 2),
+      xPadR = xMax - xFloorMin - xPadL,
+      yPadT = randInt(2, yMax - yFloorMin - 2),
+      yPadB = yMax - yFloorMin - yPadT,
+      roomFloorArr = [],
+      floorExtendArr = [],
+      ext = 0,
+      s = 0,
+      i = 0,
+      j = 0;
+
+  //create arrays to extend min floor size
+  floorExtendArr.length = 4;
+  for (i = 0; i < 4; i++) {
+    floorExtendArr[i] = [];
+
+    if (i === 0) ext = yPadT - 2, s = xFloorMin;else if (i === 1) ext = xPadR - 2, s = yFloorMin;else if (i === 2) ext = yPadB - 2, s = xFloorMin;else ext = xPadL - 2, s = yFloorMin;
+
+    for (j = 0; j < s; j++) {
+      floorExtendArr[i][j] = randInt(0, ext);
+    }
+  }
+
+  //Set min floor size to 1's in roomFloorArr
+  roomFloorArr.length = yMax;
+  for (i = 0; i < yMax; i++) {
+    roomFloorArr[i] = [];
+
+    for (j = 0; j < xMax; j++) {
+      if (j + 1 > xPadL && j < xPadL + xFloorMin && i + 1 > yPadT && i < yPadT + yFloorMin) {
+        roomFloorArr[i][j] = 1;
+      } else {
+        roomFloorArr[i][j] = 0;
+      }
+    }
+  }
+
+  //Extend top, right, bottom, left floor edges per floorExtendArr
+  floorExtendArr[0].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT - 1 - i][xPadL + index] = 1;
+    }
+  });
+  floorExtendArr[1].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT + index][xPadL + xFloorMin + i] = 1;
+    }
+  });
+  floorExtendArr[2].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT + yFloorMin + i][xPadL + index] = 1;
+    }
+  });
+  floorExtendArr[3].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT + index][xPadL - 1 - i] = 1;
+    }
+  });
+
+  yPadT = yPadT - Math.max.apply(Math, _toConsumableArray(floorExtendArr[0]));
+  xPadR = xPadR - Math.max.apply(Math, _toConsumableArray(floorExtendArr[1]));
+  yPadB = yPadB - Math.max.apply(Math, _toConsumableArray(floorExtendArr[2]));
+  xPadL = xPadL - Math.max.apply(Math, _toConsumableArray(floorExtendArr[3]));
+
+  return {
+    xPadL: xPadL,
+    xPadR: xPadR,
+    yPadT: yPadT,
+    yPadB: yPadB,
+    xMax: xMax,
+    yMax: yMax,
+    roomFloorArr: roomFloorArr
+  };
+};
+
+var newRoomThree = function createNewRoomThree(rows, cols) {
+  var xMin = roomSize[cols].min,
+      xMax = roomSize[cols].max,
+      yMin = roomSize[rows].min,
+      yMax = roomSize[rows].max,
+      xFloorMax = xMax - 4,
+      xFloorMin = xMin - 4,
+      yFloorMax = yMax - 4,
+      yFloorMin = yMin - 4,
+      w = randInt(xFloorMin, xFloorMax),
+      h = randInt(yFloorMin, yFloorMax),
+      sidesToExtend = [randInt(0, 1), randInt(0, 1), randInt(0, 1), randInt(0, 1)];
+
+  var xPadL = randInt(2, xMax - w - 2),
+      xPadR = xMax - w - xPadL,
+      yPadT = randInt(2, yMax - h - 2),
+      yPadB = yMax - h - yPadT,
+      roomFloorArr = [],
+      floorExtendArr = [],
+      ext = 0,
+      s = 0,
+      i = 0,
+      j = 0;
+
+  //create arrays to extend min floor size
+  floorExtendArr.length = 4;
+  for (i = 0; i < 4; i++) {
+    floorExtendArr[i] = [];
+
+    if (i === 0) ext = yPadT - 2, s = w;else if (i === 1) ext = xPadR - 2, s = h;else if (i === 2) ext = yPadB - 2, s = w;else ext = xPadL - 2, s = h;
+
+    for (j = 0; j < s; j++) {
+      floorExtendArr[i][j] = randInt(0, ext);
+    }
+  }
+
+  //Set min floor size to 1's in roomFloorArr
+  roomFloorArr.length = yMax;
+  for (i = 0; i < yMax; i++) {
+    roomFloorArr[i] = [];
+
+    for (j = 0; j < xMax; j++) {
+      if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
+        roomFloorArr[i][j] = 1;
+      } else {
+        roomFloorArr[i][j] = 0;
+      }
+    }
+  }
+
+  //Extend top, right, bottom, left floor edges per floorExtendArr
+  sidesToExtend[0] && floorExtendArr[0].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT - 1 - i][xPadL + index] = 1;
+    }
+  });
+  sidesToExtend[1] && floorExtendArr[1].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT + index][xPadL + w + i] = 1;
+    }
+  });
+  sidesToExtend[2] && floorExtendArr[2].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT + h + i][xPadL + index] = 1;
+    }
+  });
+  sidesToExtend[3] && floorExtendArr[3].forEach(function (el, index) {
+    for (i = 0; i < el; i++) {
+      roomFloorArr[yPadT + index][xPadL - 1 - i] = 1;
+    }
+  });
+
+  yPadT = sidesToExtend[0] ? yPadT - Math.max.apply(Math, _toConsumableArray(floorExtendArr[0])) : yPadT;
+  xPadR = sidesToExtend[1] ? xPadR - Math.max.apply(Math, _toConsumableArray(floorExtendArr[1])) : xPadR;
+  yPadB = sidesToExtend[2] ? yPadB - Math.max.apply(Math, _toConsumableArray(floorExtendArr[2])) : yPadB;
+  xPadL = sidesToExtend[3] ? xPadL - Math.max.apply(Math, _toConsumableArray(floorExtendArr[3])) : xPadL;
+
+  return {
+    xPadL: xPadL,
+    xPadR: xPadR,
+    yPadT: yPadT,
+    yPadB: yPadB,
+    xMax: xMax,
+    yMax: yMax,
+    roomFloorArr: roomFloorArr
   };
 };
 
@@ -233,47 +414,136 @@ var BackgroundLayer = function (_React$Component8) {
 
     var _this8 = _possibleConstructorReturn(this, (BackgroundLayer.__proto__ || Object.getPrototypeOf(BackgroundLayer)).call(this, props));
 
-    _this8.createRooms = _this8.createRooms.bind(_this8);
+    _this8.createFloors = _this8.createFloors.bind(_this8);
+    _this8.stitchRooms = _this8.stitchRooms.bind(_this8);
+    _this8.createPaths = _this8.createPaths.bind(_this8);
+
+    _this8.state = {
+      boardSize: 120,
+      bgArr: []
+    };
     return _this8;
   }
 
   _createClass(BackgroundLayer, [{
-    key: 'createRooms',
-    value: function createRooms() {
+    key: 'createFloors',
+    value: function createFloors() {
       var rows = 0,
-          cols = [],
+          colsArr = [],
+          cols = 0,
+          xPadL = 0,
+          xPadR = 0,
+          yPadT = 0,
+          yPadB = 0,
+          xMax = 0,
+          yMax = 0,
+          roomType = 0,
           rooms = [],
           rmsRow = [],
+          roomFloorArr = [],
           i = 0,
           j = 0;
 
-      rows = randInt(3, 4);
-      cols.length = rows;
+      rows = randInt(3, 4) * 2;
+      colsArr.length = rows;
       for (; i < rows; i++) {
-        cols[i] = randInt(2, 4);
+        colsArr[i] = randInt(2, 4) * 2;
       }
-      console.log('rows: ' + rows, 'cols: ' + cols);
 
-      rooms = cols.map(function (el, index) {
+      rooms = colsArr.map(function (el, index) {
         rmsRow = [];
 
         for (j = 0; j < el; j++) {
+          roomType = randInt(1, 10);
+          cols = el;
+
+          if (roomType === 1) {
+            var _newRoomOne = newRoomOne(rows, cols);
+
+            xPadL = _newRoomOne.xPadL;
+            xPadR = _newRoomOne.xPadR;
+            yPadT = _newRoomOne.yPadT;
+            yPadB = _newRoomOne.yPadB;
+            xMax = _newRoomOne.xMax;
+            yMax = _newRoomOne.yMax;
+            roomFloorArr = _newRoomOne.roomFloorArr;
+          } else if (roomType > 1 && roomType < 8) {
+            var _newRoomTwo = newRoomTwo(rows, cols);
+
+            xPadL = _newRoomTwo.xPadL;
+            xPadR = _newRoomTwo.xPadR;
+            yPadT = _newRoomTwo.yPadT;
+            yPadB = _newRoomTwo.yPadB;
+            xMax = _newRoomTwo.xMax;
+            yMax = _newRoomTwo.yMax;
+            roomFloorArr = _newRoomTwo.roomFloorArr;
+          } else {
+            var _newRoomThree = newRoomThree(rows, cols);
+
+            xPadL = _newRoomThree.xPadL;
+            xPadR = _newRoomThree.xPadR;
+            yPadT = _newRoomThree.yPadT;
+            yPadB = _newRoomThree.yPadB;
+            xMax = _newRoomThree.xMax;
+            yMax = _newRoomThree.yMax;
+            roomFloorArr = _newRoomThree.roomFloorArr;
+          }
+
           rmsRow[j] = {
             rows: rows,
-            columns: el,
-            roomType: randInt(1, 3)
+            cols: cols,
+            xPadL: xPadL,
+            xPadR: xPadR,
+            yPadT: yPadT,
+            yPadB: yPadB,
+            xMax: xMax,
+            yMax: yMax,
+            roomFloorArr: roomFloorArr,
+            connections: [0, 0, 0, 0]
           };
         }
 
         return rmsRow;
       });
-
-      console.log('rooms: ', rooms);
+      //console.log(JSON.stringify(rooms));
+      return rooms;
     }
+  }, {
+    key: 'stitchRooms',
+    value: function stitchRooms(rooms) {
+      var bgArr = [],
+          boardSize = this.state.boardSize;
+
+      var c = 0,
+          i = 0,
+          j = 0,
+          k = 0,
+          r = 0;
+
+      bgArr.length = boardSize;
+      while (r < boardSize) {
+        while (c < boardSize) {
+          //console.log('TEST2');
+          //console.log(bgArr[r]);
+          bgArr[r] = c === 0 ? rooms[k][i].roomFloorArr[j] : [].concat(_toConsumableArray(bgArr[r]), _toConsumableArray(rooms[k][i].roomFloorArr[j]));
+          c += rooms[k][i].xMax;
+          i++;
+        }
+        if (j === rooms[k][i - 1].yMax - 1) j = 0, k++;else j++;
+        c = 0, i = 0;
+        r++;
+      }
+      console.log(JSON.stringify(bgArr));
+      return bgArr;
+    }
+  }, {
+    key: 'createPaths',
+    value: function createPaths(rooms, bgArr) {}
   }, {
     key: 'render',
     value: function render() {
-      this.createRooms();
+      var rooms = this.createFloors();
+      var bgArr = this.stitchRooms(rooms);
       return React.createElement('div', null);
     }
   }]);

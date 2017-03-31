@@ -4,146 +4,152 @@ $gm-height: 640px
 $stg-size: 480px
 $side-col: 224px
 $tile-size: 32px
-$prim-color: rgb(16,16,16)
-$head-font-color: White
-$std-border: 1px solid black
+$prim-color: rgb(16, 16, 16)
+$head-font-color: #fff
+$std-border: 1px solid #000
 
+//
+//		Classes to @extend
+//
 
+%head-foot-style
+  position: relative
+  width: 100%
+  margin: 0
+  padding: 3px 0
+  color: $head-font-color
+  text-align: center
+  background-color: $prim-color
 
-/**
-  *		Classes to @extend
-  */
-
-.head-foot-style
-	position: relative
-	width: 100%
-	margin: 0
-	padding: 3px 0
-	text-align: center
-	background-color: $prim-color
-	color: $head-font-color
-
-
-/**
-  *		Styling
-  */
+//
+//		Styling
+//
 
 // reset sass
-html, body,
-div, p, span,
-button, select,
-ul, ol,
-h1, h2, h3, h4,
-	margin:  0
-	padding: 0
+html,
+body,
+div,
+p,
+span,
+button,
+select,
+ul,
+ol,
+h1,
+h2,
+h3,
+h4
+  margin: 0
+  padding: 0
 
 .pg
-	position: relative
-	display: flex
-	flex-direction: column
-	min-height: 100vh
-	width: 100%
-	min-width: $gm-width
+  position: relative
+  display: flex
+  flex-direction: column
+  width: 100%
+  min-width: $gm-width
+  min-height: 100vh
 
-	&-header
-		@extend .head-foot-style
+  &-header
+    @extend %head-foot-style
 
-	&-content
-		flex-grow: 1
-		width: 100%
-		padding: $tile-size 0
-		background: rgba(255,255,0,0.2)
-		text-align: center
+  &-content
+    flex-grow: 1
+    width: 100%
+    padding: $tile-size 0
+    text-align: center
+    background: rgba(255, 255, 0, 0.2)
 
-	&-footer
-		@extend .head-foot-style
-		&> *:first-child
-			margin-right: $tile-size/4
+  &-footer
+    @extend %head-foot-style
+
+    & > *:first-child
+      margin-right: $tile-size / 4
 
 .game
-	display: flex
-	justify-content: space-around
-	margin: auto
-	width: $gm-width
-	height: $gm-height
-	background: rgba(0,255,0,0.1)
-	border: $std-border
+  display: flex
+  justify-content: space-around
+  width: $gm-width
+  height: $gm-height
+  margin: auto
+  border: $std-border
+  background: rgba(0, 255, 0, 0.1)
 
 .col-lft
-	height: 100%
-	background: rgba(50,90,240,0.2)
+  height: 100%
+  background: rgba(50, 90, 240, 0.2)
 
 .level
-	width: $side-col
-	height: $tile-size
-	margin-bottom: $tile-size
-	border: $std-border
-	background: white
+  width: $side-col
+  height: $tile-size
+  margin-bottom: $tile-size
+  border: $std-border
+  background: #fff
 
 .char-info
-	width: $side-col
-	height: 512px
-	border: $std-border
-	background: white
+  width: $side-col
+  height: 512px
+  border: $std-border
+  background: #fff
 
 .col-mid
-	display: flex
-	flex-direction: column
-	align-items: center
-	height: 100%
-	background: rgba(50,90,240,0.2)
+  display: flex
+  flex-direction: column
+  align-items: center
+  height: 100%
+  background: rgba(50, 90, 240, 0.2)
 
 .title
-	width: $stg-size
-	height: 2*$tile-size
-	border: $std-border
-	background: white
+  width: $stg-size
+  height: 2 * $tile-size
+  border: $std-border
+  background: #fff
 
 .stage
-	width: $stg-size
-	height: $stg-size
-	margin-bottom: $tile-size
-	border: $std-border
-	background: white
+  width: $stg-size
+  height: $stg-size
+  margin-bottom: $tile-size
+  border: $std-border
+  background: #fff
 
 .items
-	width: 8*$tile-size
-	height: $tile-size
-	border: $std-border
-	background: white
+  width: 8 * $tile-size
+  height: $tile-size
+  border: $std-border
+  background: #fff
 
 .col-rgt
-	display: flex
-	flex-direction: column
-	justify-content: space-between
-	height: 100%
-	background: rgba(50,90,240,0.2)
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  height: 100%
+  background: rgba(50, 90, 240, 0.2)
 
 .enemies-remaining
-	height: $tile-size
-	border: $std-border
-	background: white
+  height: $tile-size
+  border: $std-border
+  background: #fff
 
 .enemy-stats
-	width: $side-col
-	height: 160px
-	border: $std-border
-	background: white
+  width: $side-col
+  height: 160px
+  border: $std-border
+  background: #fff
 
 .activity-log
-	width: $side-col
-	height: 288px
-	border: $std-border
-	background: white
+  width: $side-col
+  height: 288px
+  border: $std-border
+  background: #fff
 
 .enemy-stats
-	width: $side-col
-	height: 160px
-	border: $std-border
-	background: white
+  width: $side-col
+  height: 160px
+  border: $std-border
+  background: #fff
 
 .tips
-	width: $side-col
-	height: 2*$tile-size
-	border: $std-border
-	background: white
+  width: $side-col
+  height: 2 * $tile-size
+  border: $std-border
+  background: #fff
