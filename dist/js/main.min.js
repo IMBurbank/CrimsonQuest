@@ -21,7 +21,15 @@ var roomSize = {
   */
 
 var randInt = function randomIntFromRange(min, max) {
-  return Math.floor(min + Math.random() * (max - min + 1));
+  return ~~(min + Math.random() * (max - min + 1));
+};
+
+var devError = function createDevError() {
+  var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'Default Error';
+
+  this.name = 'DevError';
+  this.message = message;
+  this.stack = new Error().stack;
 };
 
 //Rectangular
@@ -50,9 +58,9 @@ var newRoomOne = function createNewRoomOne(rows, cols) {
     roomFloorArr[i] = [];
     for (j = 0; j < xMax; j++) {
       if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
-        roomFloorArr[i][j] = 1;
+        roomFloorArr[i][j] = 40;
       } else {
-        roomFloorArr[i][j] = 0;
+        roomFloorArr[i][j] = 10;
       }
     }
   }
@@ -101,16 +109,16 @@ var newRoomTwo = function createNewRoomTwo(rows, cols) {
     }
   }
 
-  //Set min floor size to 1's in roomFloorArr
+  //Set min floor size to 40's in roomFloorArr
   roomFloorArr.length = yMax;
   for (i = 0; i < yMax; i++) {
     roomFloorArr[i] = [];
 
     for (j = 0; j < xMax; j++) {
       if (j + 1 > xPadL && j < xPadL + xFloorMin && i + 1 > yPadT && i < yPadT + yFloorMin) {
-        roomFloorArr[i][j] = 1;
+        roomFloorArr[i][j] = 40;
       } else {
-        roomFloorArr[i][j] = 0;
+        roomFloorArr[i][j] = 10;
       }
     }
   }
@@ -118,22 +126,22 @@ var newRoomTwo = function createNewRoomTwo(rows, cols) {
   //Extend top, right, bottom, left floor edges per floorExtendArr
   floorExtendArr[0].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT - 1 - i][xPadL + index] = 1;
+      roomFloorArr[yPadT - 1 - i][xPadL + index] = 40;
     }
   });
   floorExtendArr[1].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT + index][xPadL + xFloorMin + i] = 1;
+      roomFloorArr[yPadT + index][xPadL + xFloorMin + i] = 40;
     }
   });
   floorExtendArr[2].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT + yFloorMin + i][xPadL + index] = 1;
+      roomFloorArr[yPadT + yFloorMin + i][xPadL + index] = 40;
     }
   });
   floorExtendArr[3].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT + index][xPadL - 1 - i] = 1;
+      roomFloorArr[yPadT + index][xPadL - 1 - i] = 40;
     }
   });
 
@@ -196,9 +204,9 @@ var newRoomThree = function createNewRoomThree(rows, cols) {
 
     for (j = 0; j < xMax; j++) {
       if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
-        roomFloorArr[i][j] = 1;
+        roomFloorArr[i][j] = 40;
       } else {
-        roomFloorArr[i][j] = 0;
+        roomFloorArr[i][j] = 10;
       }
     }
   }
@@ -206,22 +214,22 @@ var newRoomThree = function createNewRoomThree(rows, cols) {
   //Extend top, right, bottom, left floor edges per floorExtendArr
   sidesToExtend[0] && floorExtendArr[0].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT - 1 - i][xPadL + index] = 1;
+      roomFloorArr[yPadT - 1 - i][xPadL + index] = 40;
     }
   });
   sidesToExtend[1] && floorExtendArr[1].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT + index][xPadL + w + i] = 1;
+      roomFloorArr[yPadT + index][xPadL + w + i] = 40;
     }
   });
   sidesToExtend[2] && floorExtendArr[2].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT + h + i][xPadL + index] = 1;
+      roomFloorArr[yPadT + h + i][xPadL + index] = 40;
     }
   });
   sidesToExtend[3] && floorExtendArr[3].forEach(function (el, index) {
     for (i = 0; i < el; i++) {
-      roomFloorArr[yPadT + index][xPadL - 1 - i] = 1;
+      roomFloorArr[yPadT + index][xPadL - 1 - i] = 40;
     }
   });
 
@@ -416,7 +424,12 @@ var BackgroundLayer = function (_React$Component8) {
 
     _this8.createFloors = _this8.createFloors.bind(_this8);
     _this8.stitchRooms = _this8.stitchRooms.bind(_this8);
+    _this8.choosePaths = _this8.choosePaths.bind(_this8);
+    _this8.applyPaths = _this8.applyPaths.bind(_this8);
     _this8.createPaths = _this8.createPaths.bind(_this8);
+    _this8.randomizeOrientation = _this8.randomizeOrientation.bind(_this8);
+    _this8.addWalls = _this8.addWalls.bind(_this8);
+    _this8.addFloors = _this8.addFloors.bind(_this8);
 
     _this8.state = {
       boardSize: 120,
@@ -499,13 +512,13 @@ var BackgroundLayer = function (_React$Component8) {
             xMax: xMax,
             yMax: yMax,
             roomFloorArr: roomFloorArr,
-            connections: [0, 0, 0, 0]
+            cnxns: [0, 0, 0, 0],
+            curRow: index
           };
         }
 
         return rmsRow;
       });
-      //console.log(JSON.stringify(rooms));
       return rooms;
     }
   }, {
@@ -523,8 +536,6 @@ var BackgroundLayer = function (_React$Component8) {
       bgArr.length = boardSize;
       while (r < boardSize) {
         while (c < boardSize) {
-          //console.log('TEST2');
-          //console.log(bgArr[r]);
           bgArr[r] = c === 0 ? rooms[k][i].roomFloorArr[j] : [].concat(_toConsumableArray(bgArr[r]), _toConsumableArray(rooms[k][i].roomFloorArr[j]));
           c += rooms[k][i].xMax;
           i++;
@@ -533,17 +544,478 @@ var BackgroundLayer = function (_React$Component8) {
         c = 0, i = 0;
         r++;
       }
-      console.log(JSON.stringify(bgArr));
       return bgArr;
     }
   }, {
+    key: 'choosePaths',
+    value: function choosePaths(rm, stitchArr, rooms, chkRow, chkCol, tieRule, tiedRow) {
+      var boardSize = this.state.boardSize,
+          xMax = rm.xMax,
+          yMax = rm.yMax,
+          flr = 40;
+
+      var pathOpts = [],
+          paths = [],
+          goUp = false,
+          goRt = false,
+          goDn = false,
+          goLt = false,
+          chk = false,
+          val = 0,
+          i = 0,
+          j = 0,
+          k = 0;
+
+      if (tieRule === 1 || tieRule === 2 && rm.cnxns[3] || tieRule === 4 && rm.cnxns[0]) {
+        val = randInt(1, 3);
+        goRt = val === 1 || val === 3 ? true : false;
+        goDn = val === 2 || val === 3 ? true : false;
+      } else if (tieRule === 2) {
+        goRt = randInt(0, 1) ? true : false;
+        goDn = true;
+      } else if (tieRule === 3) {
+        goDn = !rm.cnxns[3] || !tiedRow || randInt(0, 1) ? true : false;
+      } else if (tieRule === 4) {
+        goRt = true;
+        goDn = randInt(0, 1) ? true : false;
+      } else if (tieRule === 5) {
+        goRt = !rm.cnxns[0] || !rooms[rm.curRow - 1][~~(chkCol / rooms[rm.curRow - 1][0].xMax)].cnxns[1] || randInt(0, 1) ? true : false;
+      } else {
+        goUp = !rm.cnxns[0] ? true : false;
+        goLt = !rm.cnxns[3] ? true : false;
+      }
+      tiedRow = goDn ? true : tiedRow;
+
+      if (goUp) {
+        i = 0;
+
+        while (i < xMax) {
+          if (stitchArr[chkRow][chkCol - ~~(xMax / 2) + i] === flr) {
+            k = chkCol - ~~(xMax / 2) + i;
+            chk = false;
+            j = 0;
+
+            while (!chk) {
+              j++;
+
+              if (j > ~~(yMax / 2) && (j > 1.5 * yMax || chkRow - j < 2 || stitchArr[chkRow - j][k] === flr || stitchArr[chkRow - j - 1][k] === flr || stitchArr[chkRow - j][k + 1] === flr || stitchArr[chkRow - j][k - 1] === flr)) {
+                chk = true;
+              }
+            }
+            if (j < 1.5 * yMax && chkRow - j > 1) pathOpts.push([1, k, chkRow, j]);
+          }
+          i++;
+        }
+        if (pathOpts.length > 0) paths.push(pathOpts[randInt(0, pathOpts.length - 1)]);else {
+          goRt = true;
+          try {
+            throw new devError('No pathOpts up. Set right. -> BackgroundLayer.choosePaths');
+          } catch (e) {
+            console.log(e.name, e.message, e.stack);
+          }
+        }
+      }
+      if (goDn) {
+        pathOpts.length = 0;
+        i = 0;
+
+        while (i < xMax) {
+          if (stitchArr[chkRow][chkCol - ~~(xMax / 2) + i] === flr) {
+            k = chkCol - ~~(xMax / 2) + i;
+            chk = false;
+            j = 0;
+
+            while (!chk) {
+              j++;
+
+              if (j > ~~(yMax / 2) && (j > 1.5 * yMax || chkRow + j > boardSize - 3 || stitchArr[chkRow + j][k] === flr || stitchArr[chkRow + j][k + 1] === flr || stitchArr[chkRow + j + 1][k] === flr || stitchArr[chkRow + j][k - 1] === flr)) {
+                chk = true;
+              }
+            }
+            if (j < 1.5 * yMax && chkRow + j < boardSize - 3) pathOpts.push([3, k, chkRow, j]);
+          }
+          i++;
+        }
+        if (pathOpts.length > 0) paths.push(pathOpts[randInt(0, pathOpts.length - 1)]);else {
+          goRt = true;
+          try {
+            throw new devError('No pathOpts down. Set right. -> BackgroundLayer.choosePaths');
+          } catch (e) {
+            console.log(e.name, e.message, e.stack, chkRow, chkCol, rm.curRow, tieRule);
+          }
+        }
+      }
+      if (goRt) {
+        pathOpts.length = 0;
+        i = 0;
+
+        while (i < yMax) {
+          if (stitchArr[chkRow - ~~(yMax / 2) + i][chkCol] === flr) {
+            k = chkRow - ~~(yMax / 2) + i;
+            chk = false;
+            j = 0;
+
+            while (!chk) {
+              j++;
+
+              if (j > ~~(xMax / 2) && (j > 1.5 * xMax || chkCol + j > boardSize - 3 || stitchArr[k][chkCol + j] === flr || stitchArr[k - 1][chkCol + j] === flr || stitchArr[k][chkCol + j + 1] === flr || stitchArr[k + 1][chkCol + j] === flr)) {
+                chk = true;
+              }
+            }
+            if (j < 1.5 * xMax && chkCol + j < boardSize - 3) pathOpts.push([2, chkCol, k, j]);
+          }
+          i++;
+        }
+        if (pathOpts.length > 0) paths.push(pathOpts[randInt(0, pathOpts.length - 1)]);else {
+          try {
+            throw new devError('no pathOpts right -> BackgroundLayer.choosePaths');
+          } catch (e) {
+            console.error(e.name, e.message, e.stack);
+          }
+        }
+      }
+      if (goLt) {
+        pathOpts.length = 0;
+        i = 0;
+
+        while (i < yMax) {
+          if (stitchArr[chkRow - ~~(yMax / 2) + i][chkCol] === flr) {
+            k = chkRow - ~~(yMax / 2) + i;
+            chk = false;
+            j = 0;
+
+            while (!chk) {
+              j++;
+
+              if (j > ~~(yMax / 2) && (j > 1.5 * xMax || chkCol - j < 2 || stitchArr[k][chkCol - j] === flr || stitchArr[k - 1][chkCol - j] === flr || stitchArr[k + 1][chkCol - j] === flr || stitchArr[k][chkCol - j - 1] === flr)) {
+                chk = true;
+              }
+            }
+            if (j < 1.5 * xMax && chkCol - j > 1) pathOpts.push([4, chkCol, k, j]);
+          }
+          i++;
+        }
+        if (pathOpts.length > 0) paths.push(pathOpts[randInt(0, pathOpts.length - 1)]);else {
+          try {
+            throw new devError('no pathOpts left -> BackgroundLayer.choosePaths');
+          } catch (e) {
+            console.error(e.name, e.message, e.stack);
+          }
+        }
+      }
+
+      if (paths.length === 1) paths.push([0, 0, 0, 0]);else if (paths.length > 2) {
+        try {
+          throw new devError('paths.length > 2 -> BackgroundLayer.choosePaths');
+        } catch (e) {
+          console.error(e.name, e.message, e.stack);
+        }
+      }
+
+      return { paths: paths, tiedRow: tiedRow };
+    }
+  }, {
+    key: 'applyPaths',
+    value: function applyPaths(rm, stitchArr, rooms, paths) {
+      var flr = 40;
+      var i = 0;
+
+      paths.forEach(function (el) {
+        if (el[0] === 1) {
+          i = 0;
+          while (i < el[3]) {
+            i++;
+            stitchArr[el[2] - i][el[1]] = flr;
+          }
+          rm.cnxns[0] = 1;
+          rooms[rm.curRow - 1][~~(el[1] / rooms[rm.curRow - 1][0].xMax)].cnxns[2] = 1;
+        } else if (el[0] === 2) {
+          i = 0;
+          while (i < el[3]) {
+            i++;
+            stitchArr[el[2]][el[1] + i] = flr;
+          }
+          rm.cnxns[1] = 1;
+          rooms[rm.curRow][~~(el[1] / rooms[rm.curRow][0].xMax) + 1].cnxns[3] = 1;
+        } else if (el[0] === 3) {
+          i = 0;
+          while (i < el[3]) {
+            i++;
+            stitchArr[el[2] + i][el[1]] = flr;
+          }
+          rm.cnxns[2] = 1;
+          rooms[rm.curRow + 1][~~(el[1] / rooms[rm.curRow + 1][0].xMax)].cnxns[0] = 1;
+        } else if (el[0] === 4) {
+          i = 0;
+          while (i < el[3]) {
+            i++;
+            stitchArr[el[2]][el[1] - i] = flr;
+          }
+          rm.cnxns[3] = 1;
+          rooms[rm.curRow][~~(el[1] / rooms[rm.curRow][0].xMax) - 1].cnxns[1] = 1;
+        }
+      });
+
+      return true;
+    }
+  }, {
     key: 'createPaths',
-    value: function createPaths(rooms, bgArr) {}
+    value: function createPaths(rooms, stitchArr) {
+      var boardSize = this.state.boardSize;
+
+      var tiedRow = false,
+          paths = [],
+          rm = void 0,
+          //{} pointer
+      chkRow = 0,
+          chkCol = 0,
+          tieRule = 0,
+          r = 0,
+          c = 0,
+          i = 0,
+          j = 0;
+
+      paths.length = ~~(boardSize / 4);
+
+      while (r < boardSize) {
+        while (c < boardSize) {
+          rm = rooms[j][i];
+          chkRow = r + ~~(rm.yMax / 2);
+          chkCol = c + ~~(rm.xMax / 2);
+          tieRule = j === 0 && i === 0 ? 1 : j === 0 && i < rooms[j].length - 1 ? 2 : j < rooms.length - 1 && i === rooms[j].length - 1 ? 3 : j < rooms.length - 1 && i < rooms[j].length - 1 ? 4 : j === rooms.length - 1 && i < rooms[j].length - 1 ? 5 : 6;
+
+          var _choosePaths = this.choosePaths(rm, stitchArr, rooms, chkRow, chkCol, tieRule, tiedRow);
+
+          paths = _choosePaths.paths;
+          tiedRow = _choosePaths.tiedRow;
+
+          this.applyPaths(rm, stitchArr, rooms, paths);
+
+          c += rm.xMax;
+          i++;
+        }
+        r += rooms[j][i - 1].yMax;
+        j++;
+        tiedRow = false;
+        c = 0;
+        i = 0;
+      }
+
+      return stitchArr;
+    }
+  }, {
+    key: 'randomizeOrientation',
+    value: function randomizeOrientation(connectedArr) {
+      var boardSize = this.state.boardSize,
+          orientation = randInt(3, 4);
+
+      var orientedArr = [].concat(_toConsumableArray(connectedArr)),
+          i = 0,
+          j = 0;
+
+      //Set orientation to randInt(1,4) when mapings work
+      /*
+      if (orientation === 2) {
+        i = boardSize - 1;
+        while (i > -1) {
+          j = 0;
+          while (j < boardSize) {
+            arr[boardSize - i - 1][j] = connectedArr[j][i];
+            j++;
+          }
+          i--;
+        }
+      } else */if (orientation === 3) {
+        i = boardSize - 1;
+        while (i > -1) {
+          orientedArr[boardSize - i - 1] = connectedArr[i].reverse();
+          i--;
+        }
+      } /* else if (orientation === 4) {
+         i = 0;
+         while (i < boardSize) {
+           j = boardSize - 1;
+           while (j > -1) {
+             arr[i][boardSize - j - 1] = connectedArr[j][i];
+             j--;
+           }
+           i++;
+         }
+        }
+        */
+
+      return { orientation: orientation, orientedArr: orientedArr };
+    }
+  }, {
+    key: 'addWalls',
+    value: function addWalls(orientedArr) {
+      var nArr = [0, 0, 0, 0, 0, 0, 0, 0],
+          boardSize = this.state.boardSize - 1,
+          flr = 40,
+          air = 10;
+
+      var i = 1,
+          j = 1,
+          el = 0;
+
+      while (i < boardSize) {
+        j = 1;
+
+        while (j < boardSize) {
+          el = 0;
+
+          if (orientedArr[i][j] === air) {
+            nArr[0] = orientedArr[i - 1][j - 1];
+            nArr[1] = orientedArr[i - 1][j];
+            nArr[2] = orientedArr[i - 1][j + 1];
+            nArr[3] = orientedArr[i][j - 1];
+            nArr[4] = orientedArr[i][j + 1];
+            nArr[5] = orientedArr[i + 1][j - 1];
+            nArr[6] = orientedArr[i + 1][j];
+            nArr[7] = orientedArr[i + 1][j + 1];
+
+            if (nArr.indexOf(flr) === 7 || nArr[1] === flr && nArr[3] === flr && nArr[4] !== flr && nArr[6] !== flr) {
+              el = 21;
+            } else if (nArr[3] !== flr && nArr[4] !== flr && (nArr[1] === flr || nArr[6] === flr) || nArr[1] === flr && nArr[6] === flr && (nArr[3] === flr && nArr[4] !== flr || nArr[4] === flr && nArr[3] !== flr)) {
+              el = 22;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 1 && nArr[5] === flr || nArr[1] === flr && nArr[4] === flr && nArr[3] !== flr && nArr[6] !== flr) {
+              el = 23;
+            } else if (nArr[1] !== flr && nArr[6] !== flr && (nArr[3] === flr || nArr[4] === flr) || nArr[3] === flr && nArr[4] === flr && (nArr[1] === flr && nArr[6] !== flr || nArr[6] === flr && nArr[1] !== flr)) {
+              el = 24;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 1 && nArr[2] === flr || nArr[3] === flr && nArr[6] === flr && nArr[1] !== flr && nArr[4] !== flr) {
+              el = 25;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 8) {
+              el = 26;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 1 && nArr[0] === flr || nArr[6] === flr && nArr[4] === flr && nArr[1] !== flr && nArr[3] !== flr) {
+              el = 27;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 2 && nArr[5] === flr && nArr[7] === flr) {
+              el = 31;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 2 && nArr[2] === flr && nArr[7] === flr) {
+              el = 32;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 4 && nArr[0] === flr && nArr[2] === flr && nArr[5] === flr && nArr[7] === flr) {
+              el = 33;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 2 && nArr[0] === flr && nArr[5] === flr) {
+              el = 34;
+            } else if (nArr.filter(function (el) {
+              return el === flr;
+            }).length === 2 && nArr[0] === flr && nArr[2] === flr) {
+              el = 35;
+            }
+
+            if (el) orientedArr[i][j] = el;
+          }
+          j++;
+        }
+        i++;
+      }
+
+      return orientedArr;
+    }
+  }, {
+    key: 'addFloors',
+    value: function addFloors(walledArr) {
+      var nArr = [0, 0, 0, 0, 0, 0, 0, 0],
+          boardSize = this.state.boardSize - 1,
+          flr = 40,
+          sFlr = flr - 1;
+
+      var i = 1,
+          j = 1,
+          el = 0;
+
+      while (i < boardSize) {
+        j = 1;
+
+        while (j < boardSize) {
+          el = 0;
+
+          if (walledArr[i][j] > flr - 1) {
+            nArr[0] = walledArr[i - 1][j - 1];
+            nArr[1] = walledArr[i - 1][j];
+            nArr[2] = walledArr[i - 1][j + 1];
+            nArr[3] = walledArr[i][j - 1];
+            nArr[4] = walledArr[i][j + 1];
+            nArr[5] = walledArr[i + 1][j - 1];
+            nArr[6] = walledArr[i + 1][j];
+            nArr[7] = walledArr[i + 1][j + 1];
+
+            if (nArr[1] < flr && nArr[3] < flr && nArr[4] > sFlr && nArr[6] > sFlr) {
+              el = 41;
+            } else if (nArr[1] < flr && nArr[3] > sFlr && nArr[4] > sFlr && nArr[6] > sFlr) {
+              el = 42;
+            } else if (nArr[1] < flr && nArr[3] > sFlr && nArr[4] < flr && nArr[6] > sFlr) {
+              el = 43;
+            } else if (nArr[1] > sFlr && nArr[3] < flr && nArr[4] > sFlr && nArr[6] > sFlr) {
+              el = 44;
+            } else if (nArr[1] > sFlr && nArr[3] > sFlr && nArr[4] > sFlr && nArr[6] > sFlr) {
+              el = 45;
+            } else if (nArr[1] > sFlr && nArr[3] > sFlr && nArr[4] < flr && nArr[6] > sFlr) {
+              el = 46;
+            } else if (nArr[1] > sFlr && nArr[3] < flr && nArr[4] > sFlr && nArr[6] < flr) {
+              el = 47;
+            } else if (nArr[1] > sFlr && nArr[3] > sFlr && nArr[4] > sFlr && nArr[6] < flr) {
+              el = 48;
+            } else if (nArr[1] > sFlr && nArr[3] > sFlr && nArr[4] < flr && nArr[6] < flr) {
+              el = 49;
+            } else if (nArr[1] < flr && nArr[3] < flr && nArr[4] < flr && nArr[6] > sFlr) {
+              el = 51;
+            } else if (nArr[1] > sFlr && nArr[3] < flr && nArr[4] < flr && nArr[6] > sFlr) {
+              el = 52;
+            } else if (nArr[1] > sFlr && nArr[3] < flr && nArr[4] < flr && nArr[6] < flr) {
+              el = 53;
+            } else if (nArr[1] < flr && nArr[3] < flr && nArr[4] > sFlr && nArr[6] < flr) {
+              el = 54;
+            } else if (nArr[1] < flr && nArr[3] > sFlr && nArr[4] > sFlr && nArr[6] < flr) {
+              el = 55;
+            } else if (nArr[1] < flr && nArr[3] > sFlr && nArr[4] < flr && nArr[6] < flr) {
+              el = 56;
+            } else if (nArr[1] < flr && nArr[3] < flr && nArr[4] < flr && nArr[6] < flr) {
+              el = 57;
+            }
+
+            if (el) walledArr[i][j] = el;
+          }
+          j++;
+        }
+        i++;
+      }
+
+      return walledArr;
+    }
   }, {
     key: 'render',
     value: function render() {
       var rooms = this.createFloors();
-      var bgArr = this.stitchRooms(rooms);
+      var stitchArr = this.stitchRooms(rooms);
+      var connectedArr = this.createPaths(rooms, stitchArr);
+      //Use to compare random orientations
+      //console.log(JSON.stringify(connectedArr));
+
+      var _randomizeOrientation = this.randomizeOrientation(connectedArr),
+          orientation = _randomizeOrientation.orientation,
+          orientedArr = _randomizeOrientation.orientedArr;
+
+      var walledArr = this.addWalls(orientedArr);
+      var bgArr = this.addFloors(walledArr);
+
+      console.log(JSON.stringify(bgArr));
+
       return React.createElement('div', null);
     }
   }]);
