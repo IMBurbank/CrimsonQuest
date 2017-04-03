@@ -295,10 +295,11 @@ class GameTips extends React.Component {
   }
 }
 
-class BackgroundLayer extends React.Component {
+//props: boardSize, gameLevel, bgArr, updateBgArr
+class BackgroundArray extends React.Component {
   constructor(props) {
     super(props);
-    this.createFloors = this.createFloors.bind(this);
+    this.createRooms = this.createRooms.bind(this);
     this.stitchRooms = this.stitchRooms.bind(this);
     this.choosePaths = this.choosePaths.bind(this);
     this.applyPaths = this.applyPaths.bind(this);
@@ -306,15 +307,10 @@ class BackgroundLayer extends React.Component {
     this.randomizeOrientation = this.randomizeOrientation.bind(this);
     this.addWalls = this.addWalls.bind(this);
     this.addFloors = this.addFloors.bind(this);
-
-
-    this.state = ({
-      boardSize: 120,
-      bgArr: []
-    });
+    this.createBgArr = this.createBgArr.bind(this);
   }
 
-  createFloors() {
+  createRooms() {
     let rows = 0,
       colsArr = [],
       cols = 0,
@@ -373,8 +369,8 @@ class BackgroundLayer extends React.Component {
   }
 
   stitchRooms(rooms) {
-    const bgArr = [],
-      boardSize = this.state.boardSize;
+    const stitchArr = [],
+      len = this.props.boardSize;
 
     let c = 0,
       i = 0,
@@ -382,11 +378,11 @@ class BackgroundLayer extends React.Component {
       k = 0,
       r = 0;
 
-    bgArr.length = boardSize;
-    while (r < boardSize) {
-      while (c < boardSize) {
-        bgArr[r] = c === 0 ? rooms[k][i].roomFloorArr[j] :
-          [...bgArr[r], ...rooms[k][i].roomFloorArr[j]];
+    stitchArr.length = len;
+    while (r < len) {
+      while (c < len) {
+        stitchArr[r] = c === 0 ? rooms[k][i].roomFloorArr[j] :
+          [...stitchArr[r], ...rooms[k][i].roomFloorArr[j]];
         c += rooms[k][i].xMax;
         i++;
       }
@@ -395,11 +391,11 @@ class BackgroundLayer extends React.Component {
       c = 0, i = 0;
       r++;
     }
-    return bgArr;
+    return stitchArr;
   }
 
-  choosePaths(rm, stitchArr, rooms, chkRow, chkCol, tieRule, tiedRow) {
-    const boardSize = this.state.boardSize,
+  choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow) {
+    const len = stitchArr.length,
       xMax = rm.xMax,
       yMax = rm.yMax,
       flr = 40;
@@ -487,7 +483,7 @@ class BackgroundLayer extends React.Component {
 
             if (j > ~~(yMax / 2) &&
               (j > 1.5 * yMax ||
-              chkRow + j > boardSize - 3 ||
+              chkRow + j > len - 3 ||
               stitchArr[chkRow + j][k] === flr ||
               stitchArr[chkRow + j][k + 1] === flr ||
               stitchArr[chkRow + j + 1][k] === flr ||
@@ -495,7 +491,7 @@ class BackgroundLayer extends React.Component {
               chk = true;
             }
           }
-          if (j < 1.5 * yMax && chkRow + j < boardSize - 3) pathOpts.push([3, k, chkRow, j]);
+          if (j < 1.5 * yMax && chkRow + j < len - 3) pathOpts.push([3, k, chkRow, j]);
         }
         i++;
       }
@@ -521,7 +517,7 @@ class BackgroundLayer extends React.Component {
 
             if (j > ~~(xMax / 2) &&
               (j > 1.5 * xMax ||
-              chkCol + j > boardSize - 3 ||
+              chkCol + j > len - 3 ||
               stitchArr[k][chkCol + j] === flr ||
               stitchArr[k - 1][chkCol + j] === flr ||
               stitchArr[k][chkCol + j + 1] === flr ||
@@ -529,7 +525,7 @@ class BackgroundLayer extends React.Component {
               chk = true;
             }
           }
-          if (j < 1.5 * xMax && chkCol + j < boardSize - 3) pathOpts.push([2, chkCol, k, j]);
+          if (j < 1.5 * xMax && chkCol + j < len - 3) pathOpts.push([2, chkCol, k, j]);
         }
         i++;
       }
@@ -582,7 +578,7 @@ class BackgroundLayer extends React.Component {
     return {paths, tiedRow};
   }
 
-  applyPaths(rm, stitchArr, rooms, paths) {
+  applyPaths(rm, rooms, stitchArr, paths) {
     const flr = 40;
     let i = 0;
 
@@ -626,7 +622,7 @@ class BackgroundLayer extends React.Component {
   }
 
   createPaths(rooms, stitchArr) {
-    const boardSize = this.state.boardSize;
+    const len = stitchArr.length;
 
     let tiedRow = false,
       paths = [],
@@ -639,10 +635,10 @@ class BackgroundLayer extends React.Component {
       i = 0,
       j = 0;
 
-    paths.length = ~~(boardSize / 4);
+    paths.length = ~~(len / 4);
 
-    while (r < boardSize) {
-      while (c < boardSize) {
+    while (r < len) {
+      while (c < len) {
         rm = rooms[j][i];
         chkRow = r + ~~(rm.yMax / 2);
         chkCol = c + ~~(rm.xMax / 2);
@@ -652,8 +648,8 @@ class BackgroundLayer extends React.Component {
           (j < rooms.length - 1 && i < rooms[j].length - 1) ? 4 :
           (j === rooms.length - 1 && i < rooms[j].length - 1) ? 5 : 6;
 
-        ({paths, tiedRow} = this.choosePaths(rm, stitchArr, rooms, chkRow, chkCol, tieRule, tiedRow));
-        this.applyPaths(rm, stitchArr, rooms, paths);
+        ({paths, tiedRow} = this.choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow));
+        this.applyPaths(rm, rooms, stitchArr, paths);
 
         c += rm.xMax
         i++;
@@ -669,50 +665,48 @@ class BackgroundLayer extends React.Component {
   }
 
   randomizeOrientation(connectedArr) {
-    const boardSize = this.state.boardSize,
-      orientation = randInt(3,4);
+    const len = connectedArr.length,
+      orientation = randInt(1,4);
 
-    let orientedArr = [...connectedArr],
+    let orientedArr = [],
       i = 0,
       j = 0;
 
-    //Set orientation to randInt(1,4) when mapings work
-    /*
-    if (orientation === 2) {
-      i = boardSize - 1;
-      while (i > -1) {
+    const transposed = function transposeSquareArr(arr) {
+      const tArr = [],
+        len = arr.length;
+
+      while (i < len) {
+        tArr[i] = [];
         j = 0;
-        while (j < boardSize) {
-          arr[boardSize - i - 1][j] = connectedArr[j][i];
-          j++;
-        }
-        i--;
-      }
-    } else */if (orientation === 3) {
-      i = boardSize - 1;
-      while (i > -1) {
-        orientedArr[boardSize - i - 1] = connectedArr[i].reverse();
-        i--;
-      }
-    }/* else if (orientation === 4) {
-      i = 0;
-      while (i < boardSize) {
-        j = boardSize - 1;
-        while (j > -1) {
-          arr[i][boardSize - j - 1] = connectedArr[j][i];
-          j--;
-        }
+
+        while (j < len) tArr[i][j] = arr[j][i], j++;
         i++;
       }
+      return tArr;
     }
-    */
 
+    if (orientation === 1 ) {
+      orientedArr = [...connectedArr];
+    }
+    if (orientation === 2) { //Rotate +90 deg
+      orientedArr = transposed(connectedArr);
+      orientedArr.forEach( el => el.reverse() );
+    } else if (orientation === 3) { //Rotate 180 deg
+      while (i < len) {
+        orientedArr[i] = connectedArr[len - 1 - i].reverse();
+        i++;
+      }
+    } else if (orientation === 4) { //Rotate -90 deg
+      connectedArr.forEach( el => el.reverse() );
+      orientedArr = transposed(connectedArr);
+    }
     return {orientation, orientedArr};
   }
 
   addWalls(orientedArr) {
     const nArr = [0,0,0,0,0,0,0,0],
-      boardSize = this.state.boardSize - 1,
+      len = orientedArr.length - 1,
       flr = 40,
       air = 10;
 
@@ -721,10 +715,10 @@ class BackgroundLayer extends React.Component {
       el = 0;
 
 
-    while (i < boardSize) {
+    while (i < len) {
       j = 1;
 
-      while (j < boardSize) {
+      while (j < len) {
         el = 0;
 
         if (orientedArr[i][j] === air) {
@@ -789,7 +783,7 @@ class BackgroundLayer extends React.Component {
 
   addFloors(walledArr) {
     const nArr = [0,0,0,0,0,0,0,0],
-      boardSize = this.state.boardSize - 1,
+      len = walledArr.length - 1,
       flr = 40,
       sFlr = flr - 1;
 
@@ -797,10 +791,10 @@ class BackgroundLayer extends React.Component {
       j = 1,
       el = 0;
 
-    while (i < boardSize) {
+    while (i < len) {
       j = 1;
 
-      while (j < boardSize) {
+      while (j < len) {
         el = 0;
 
         if (walledArr[i][j] > flr - 1) {
@@ -857,21 +851,55 @@ class BackgroundLayer extends React.Component {
     return walledArr;
   }
 
-  render() {
-    const rooms = this.createFloors();
+  createBgArr() {
+    const rooms = this.createRooms();
     const stitchArr = this.stitchRooms(rooms);
     const connectedArr = this.createPaths(rooms, stitchArr);
-    //Use to compare random orientations
-    //console.log(JSON.stringify(connectedArr));
-
     const {orientation, orientedArr} = this.randomizeOrientation(connectedArr);
     const walledArr = this.addWalls(orientedArr);
     const bgArr = this.addFloors(walledArr);
 
+    this.props.updateBgArr(bgArr);
+    console.log(orientation);
     console.log(JSON.stringify(bgArr));
+  }
+
+  componentWillRecieveProps(nextProps) {
+    if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
+      createBgArr();
+    }
+  }
+
+  componentWillMount() {
+    this.createBgArr();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return false;
+  }
+
+  render() {
 
     return (
-      <div></div>
+      <a></a>
+    );
+  }
+}
+
+class BackgroundLayer extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className = 'backgroundLayer'>
+        <BackgroundArray
+          boardSize  = {this.props.boardSize}
+          gameLevel = {this.props.gameLevel}
+          bgArr = {this.props.bgArr}
+          updateBgArr = {this.props.updateBgArr}  />
+      </div>
     );
   }
 }
@@ -879,13 +907,26 @@ class BackgroundLayer extends React.Component {
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
+    this.updateBgArr = this.updateBgArr.bind(this);
 
+    this.state = ({
+      bgArr: []
+    });
+  }
+
+  updateBgArr(bgArr) {
+    this.setState({ bgArr });
   }
 
   render() {
     return (
       <div className='stage'>
-        <BackgroundLayer/> {/*<AccentLayer	/>*/}
+        <BackgroundLayer
+          boardSize = {this.props.boardSize}
+          gameLevel = {this.props.gameLevel}
+          bgArr = {this.state.bgArr}
+          updateBgArr = {this.updateBgArr}  />
+        {/*<AccentLayer	/>*/}
         {/*<ItemLayer	/>*/}
         {/*<EnemyLayer	/>*/}
         {/*<FogLayer	/>*/}
@@ -896,16 +937,27 @@ class GameStage extends React.Component {
 }
 
 class Game extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = ({
+      boardSize: 120,
+      gameLevel: 0
+    });
+  }
+
   render() {
     return (
       <div className='game'>
         <div className='col-lft'>
-          <GameLevel/>
+          <GameLevel />
           <CharacterInfo/>
         </div>
         <div className='col-mid'>
           <div className='title'>CrimsonQuest</div>
-          <GameStage/>
+          <GameStage
+            boardSize =  {this.state.boardSize}
+            gameLevel =  {this.state.gameLevel} />
           <GameItems/>
         </div>
         <div className='col-rgt'>

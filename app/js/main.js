@@ -414,15 +414,18 @@ var GameTips = function (_React$Component7) {
   return GameTips;
 }(React.Component);
 
-var BackgroundLayer = function (_React$Component8) {
-  _inherits(BackgroundLayer, _React$Component8);
+//props: boardSize, gameLevel, bgArr, updateBgArr
 
-  function BackgroundLayer(props) {
-    _classCallCheck(this, BackgroundLayer);
 
-    var _this8 = _possibleConstructorReturn(this, (BackgroundLayer.__proto__ || Object.getPrototypeOf(BackgroundLayer)).call(this, props));
+var BackgroundArray = function (_React$Component8) {
+  _inherits(BackgroundArray, _React$Component8);
 
-    _this8.createFloors = _this8.createFloors.bind(_this8);
+  function BackgroundArray(props) {
+    _classCallCheck(this, BackgroundArray);
+
+    var _this8 = _possibleConstructorReturn(this, (BackgroundArray.__proto__ || Object.getPrototypeOf(BackgroundArray)).call(this, props));
+
+    _this8.createRooms = _this8.createRooms.bind(_this8);
     _this8.stitchRooms = _this8.stitchRooms.bind(_this8);
     _this8.choosePaths = _this8.choosePaths.bind(_this8);
     _this8.applyPaths = _this8.applyPaths.bind(_this8);
@@ -430,17 +433,13 @@ var BackgroundLayer = function (_React$Component8) {
     _this8.randomizeOrientation = _this8.randomizeOrientation.bind(_this8);
     _this8.addWalls = _this8.addWalls.bind(_this8);
     _this8.addFloors = _this8.addFloors.bind(_this8);
-
-    _this8.state = {
-      boardSize: 120,
-      bgArr: []
-    };
+    _this8.createBgArr = _this8.createBgArr.bind(_this8);
     return _this8;
   }
 
-  _createClass(BackgroundLayer, [{
-    key: 'createFloors',
-    value: function createFloors() {
+  _createClass(BackgroundArray, [{
+    key: 'createRooms',
+    value: function createRooms() {
       var rows = 0,
           colsArr = [],
           cols = 0,
@@ -524,8 +523,8 @@ var BackgroundLayer = function (_React$Component8) {
   }, {
     key: 'stitchRooms',
     value: function stitchRooms(rooms) {
-      var bgArr = [],
-          boardSize = this.state.boardSize;
+      var stitchArr = [],
+          len = this.props.boardSize;
 
       var c = 0,
           i = 0,
@@ -533,10 +532,10 @@ var BackgroundLayer = function (_React$Component8) {
           k = 0,
           r = 0;
 
-      bgArr.length = boardSize;
-      while (r < boardSize) {
-        while (c < boardSize) {
-          bgArr[r] = c === 0 ? rooms[k][i].roomFloorArr[j] : [].concat(_toConsumableArray(bgArr[r]), _toConsumableArray(rooms[k][i].roomFloorArr[j]));
+      stitchArr.length = len;
+      while (r < len) {
+        while (c < len) {
+          stitchArr[r] = c === 0 ? rooms[k][i].roomFloorArr[j] : [].concat(_toConsumableArray(stitchArr[r]), _toConsumableArray(rooms[k][i].roomFloorArr[j]));
           c += rooms[k][i].xMax;
           i++;
         }
@@ -544,12 +543,12 @@ var BackgroundLayer = function (_React$Component8) {
         c = 0, i = 0;
         r++;
       }
-      return bgArr;
+      return stitchArr;
     }
   }, {
     key: 'choosePaths',
-    value: function choosePaths(rm, stitchArr, rooms, chkRow, chkCol, tieRule, tiedRow) {
-      var boardSize = this.state.boardSize,
+    value: function choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow) {
+      var len = stitchArr.length,
           xMax = rm.xMax,
           yMax = rm.yMax,
           flr = 40;
@@ -628,11 +627,11 @@ var BackgroundLayer = function (_React$Component8) {
             while (!chk) {
               j++;
 
-              if (j > ~~(yMax / 2) && (j > 1.5 * yMax || chkRow + j > boardSize - 3 || stitchArr[chkRow + j][k] === flr || stitchArr[chkRow + j][k + 1] === flr || stitchArr[chkRow + j + 1][k] === flr || stitchArr[chkRow + j][k - 1] === flr)) {
+              if (j > ~~(yMax / 2) && (j > 1.5 * yMax || chkRow + j > len - 3 || stitchArr[chkRow + j][k] === flr || stitchArr[chkRow + j][k + 1] === flr || stitchArr[chkRow + j + 1][k] === flr || stitchArr[chkRow + j][k - 1] === flr)) {
                 chk = true;
               }
             }
-            if (j < 1.5 * yMax && chkRow + j < boardSize - 3) pathOpts.push([3, k, chkRow, j]);
+            if (j < 1.5 * yMax && chkRow + j < len - 3) pathOpts.push([3, k, chkRow, j]);
           }
           i++;
         }
@@ -658,11 +657,11 @@ var BackgroundLayer = function (_React$Component8) {
             while (!chk) {
               j++;
 
-              if (j > ~~(xMax / 2) && (j > 1.5 * xMax || chkCol + j > boardSize - 3 || stitchArr[k][chkCol + j] === flr || stitchArr[k - 1][chkCol + j] === flr || stitchArr[k][chkCol + j + 1] === flr || stitchArr[k + 1][chkCol + j] === flr)) {
+              if (j > ~~(xMax / 2) && (j > 1.5 * xMax || chkCol + j > len - 3 || stitchArr[k][chkCol + j] === flr || stitchArr[k - 1][chkCol + j] === flr || stitchArr[k][chkCol + j + 1] === flr || stitchArr[k + 1][chkCol + j] === flr)) {
                 chk = true;
               }
             }
-            if (j < 1.5 * xMax && chkCol + j < boardSize - 3) pathOpts.push([2, chkCol, k, j]);
+            if (j < 1.5 * xMax && chkCol + j < len - 3) pathOpts.push([2, chkCol, k, j]);
           }
           i++;
         }
@@ -716,7 +715,7 @@ var BackgroundLayer = function (_React$Component8) {
     }
   }, {
     key: 'applyPaths',
-    value: function applyPaths(rm, stitchArr, rooms, paths) {
+    value: function applyPaths(rm, rooms, stitchArr, paths) {
       var flr = 40;
       var i = 0;
 
@@ -761,7 +760,7 @@ var BackgroundLayer = function (_React$Component8) {
   }, {
     key: 'createPaths',
     value: function createPaths(rooms, stitchArr) {
-      var boardSize = this.state.boardSize;
+      var len = stitchArr.length;
 
       var tiedRow = false,
           paths = [],
@@ -775,21 +774,21 @@ var BackgroundLayer = function (_React$Component8) {
           i = 0,
           j = 0;
 
-      paths.length = ~~(boardSize / 4);
+      paths.length = ~~(len / 4);
 
-      while (r < boardSize) {
-        while (c < boardSize) {
+      while (r < len) {
+        while (c < len) {
           rm = rooms[j][i];
           chkRow = r + ~~(rm.yMax / 2);
           chkCol = c + ~~(rm.xMax / 2);
           tieRule = j === 0 && i === 0 ? 1 : j === 0 && i < rooms[j].length - 1 ? 2 : j < rooms.length - 1 && i === rooms[j].length - 1 ? 3 : j < rooms.length - 1 && i < rooms[j].length - 1 ? 4 : j === rooms.length - 1 && i < rooms[j].length - 1 ? 5 : 6;
 
-          var _choosePaths = this.choosePaths(rm, stitchArr, rooms, chkRow, chkCol, tieRule, tiedRow);
+          var _choosePaths = this.choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow);
 
           paths = _choosePaths.paths;
           tiedRow = _choosePaths.tiedRow;
 
-          this.applyPaths(rm, stitchArr, rooms, paths);
+          this.applyPaths(rm, rooms, stitchArr, paths);
 
           c += rm.xMax;
           i++;
@@ -806,51 +805,57 @@ var BackgroundLayer = function (_React$Component8) {
   }, {
     key: 'randomizeOrientation',
     value: function randomizeOrientation(connectedArr) {
-      var boardSize = this.state.boardSize,
-          orientation = randInt(3, 4);
+      var len = connectedArr.length,
+          orientation = randInt(1, 4);
 
-      var orientedArr = [].concat(_toConsumableArray(connectedArr)),
+      var orientedArr = [],
           i = 0,
           j = 0;
 
-      //Set orientation to randInt(1,4) when mapings work
-      /*
-      if (orientation === 2) {
-        i = boardSize - 1;
-        while (i > -1) {
-          j = 0;
-          while (j < boardSize) {
-            arr[boardSize - i - 1][j] = connectedArr[j][i];
-            j++;
-          }
-          i--;
-        }
-      } else */if (orientation === 3) {
-        i = boardSize - 1;
-        while (i > -1) {
-          orientedArr[boardSize - i - 1] = connectedArr[i].reverse();
-          i--;
-        }
-      } /* else if (orientation === 4) {
-         i = 0;
-         while (i < boardSize) {
-           j = boardSize - 1;
-           while (j > -1) {
-             arr[i][boardSize - j - 1] = connectedArr[j][i];
-             j--;
-           }
-           i++;
-         }
-        }
-        */
+      var transposed = function transposeSquareArr(arr) {
+        var tArr = [],
+            len = arr.length;
 
+        while (i < len) {
+          tArr[i] = [];
+          j = 0;
+
+          while (j < len) {
+            tArr[i][j] = arr[j][i], j++;
+          }i++;
+        }
+        return tArr;
+      };
+
+      if (orientation === 1) {
+        orientedArr = [].concat(_toConsumableArray(connectedArr));
+      }
+      if (orientation === 2) {
+        //Rotate +90 deg
+        orientedArr = transposed(connectedArr);
+        orientedArr.forEach(function (el) {
+          return el.reverse();
+        });
+      } else if (orientation === 3) {
+        //Rotate 180 deg
+        while (i < len) {
+          orientedArr[i] = connectedArr[len - 1 - i].reverse();
+          i++;
+        }
+      } else if (orientation === 4) {
+        //Rotate -90 deg
+        connectedArr.forEach(function (el) {
+          return el.reverse();
+        });
+        orientedArr = transposed(connectedArr);
+      }
       return { orientation: orientation, orientedArr: orientedArr };
     }
   }, {
     key: 'addWalls',
     value: function addWalls(orientedArr) {
       var nArr = [0, 0, 0, 0, 0, 0, 0, 0],
-          boardSize = this.state.boardSize - 1,
+          len = orientedArr.length - 1,
           flr = 40,
           air = 10;
 
@@ -858,10 +863,10 @@ var BackgroundLayer = function (_React$Component8) {
           j = 1,
           el = 0;
 
-      while (i < boardSize) {
+      while (i < len) {
         j = 1;
 
-        while (j < boardSize) {
+        while (j < len) {
           el = 0;
 
           if (orientedArr[i][j] === air) {
@@ -931,7 +936,7 @@ var BackgroundLayer = function (_React$Component8) {
     key: 'addFloors',
     value: function addFloors(walledArr) {
       var nArr = [0, 0, 0, 0, 0, 0, 0, 0],
-          boardSize = this.state.boardSize - 1,
+          len = walledArr.length - 1,
           flr = 40,
           sFlr = flr - 1;
 
@@ -939,10 +944,10 @@ var BackgroundLayer = function (_React$Component8) {
           j = 1,
           el = 0;
 
-      while (i < boardSize) {
+      while (i < len) {
         j = 1;
 
-        while (j < boardSize) {
+        while (j < len) {
           el = 0;
 
           if (walledArr[i][j] > flr - 1) {
@@ -999,13 +1004,11 @@ var BackgroundLayer = function (_React$Component8) {
       return walledArr;
     }
   }, {
-    key: 'render',
-    value: function render() {
-      var rooms = this.createFloors();
+    key: 'createBgArr',
+    value: function createBgArr() {
+      var rooms = this.createRooms();
       var stitchArr = this.stitchRooms(rooms);
       var connectedArr = this.createPaths(rooms, stitchArr);
-      //Use to compare random orientations
-      //console.log(JSON.stringify(connectedArr));
 
       var _randomizeOrientation = this.randomizeOrientation(connectedArr),
           orientation = _randomizeOrientation.orientation,
@@ -1014,32 +1017,97 @@ var BackgroundLayer = function (_React$Component8) {
       var walledArr = this.addWalls(orientedArr);
       var bgArr = this.addFloors(walledArr);
 
+      this.props.updateBgArr(bgArr);
+      console.log(orientation);
       console.log(JSON.stringify(bgArr));
+    }
+  }, {
+    key: 'componentWillRecieveProps',
+    value: function componentWillRecieveProps(nextProps) {
+      if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
+        createBgArr();
+      }
+    }
+  }, {
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      this.createBgArr();
+    }
+  }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      return false;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
 
-      return React.createElement('div', null);
+      return React.createElement('a', null);
+    }
+  }]);
+
+  return BackgroundArray;
+}(React.Component);
+
+var BackgroundLayer = function (_React$Component9) {
+  _inherits(BackgroundLayer, _React$Component9);
+
+  function BackgroundLayer(props) {
+    _classCallCheck(this, BackgroundLayer);
+
+    return _possibleConstructorReturn(this, (BackgroundLayer.__proto__ || Object.getPrototypeOf(BackgroundLayer)).call(this, props));
+  }
+
+  _createClass(BackgroundLayer, [{
+    key: 'render',
+    value: function render() {
+      return React.createElement(
+        'div',
+        { className: 'backgroundLayer' },
+        React.createElement(BackgroundArray, {
+          boardSize: this.props.boardSize,
+          gameLevel: this.props.gameLevel,
+          bgArr: this.props.bgArr,
+          updateBgArr: this.props.updateBgArr })
+      );
     }
   }]);
 
   return BackgroundLayer;
 }(React.Component);
 
-var GameStage = function (_React$Component9) {
-  _inherits(GameStage, _React$Component9);
+var GameStage = function (_React$Component10) {
+  _inherits(GameStage, _React$Component10);
 
   function GameStage(props) {
     _classCallCheck(this, GameStage);
 
-    return _possibleConstructorReturn(this, (GameStage.__proto__ || Object.getPrototypeOf(GameStage)).call(this, props));
+    var _this10 = _possibleConstructorReturn(this, (GameStage.__proto__ || Object.getPrototypeOf(GameStage)).call(this, props));
+
+    _this10.updateBgArr = _this10.updateBgArr.bind(_this10);
+
+    _this10.state = {
+      bgArr: []
+    };
+    return _this10;
   }
 
   _createClass(GameStage, [{
+    key: 'updateBgArr',
+    value: function updateBgArr(bgArr) {
+      this.setState({ bgArr: bgArr });
+    }
+  }, {
     key: 'render',
     value: function render() {
       return React.createElement(
         'div',
         { className: 'stage' },
-        React.createElement(BackgroundLayer, null),
-        ' '
+        React.createElement(BackgroundLayer, {
+          boardSize: this.props.boardSize,
+          gameLevel: this.props.gameLevel,
+          bgArr: this.state.bgArr,
+          updateBgArr: this.updateBgArr })
       );
     }
   }]);
@@ -1047,13 +1115,19 @@ var GameStage = function (_React$Component9) {
   return GameStage;
 }(React.Component);
 
-var Game = function (_React$Component10) {
-  _inherits(Game, _React$Component10);
+var Game = function (_React$Component11) {
+  _inherits(Game, _React$Component11);
 
-  function Game() {
+  function Game(props) {
     _classCallCheck(this, Game);
 
-    return _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).apply(this, arguments));
+    var _this11 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+
+    _this11.state = {
+      boardSize: 120,
+      gameLevel: 0
+    };
+    return _this11;
   }
 
   _createClass(Game, [{
@@ -1076,7 +1150,9 @@ var Game = function (_React$Component10) {
             { className: 'title' },
             'CrimsonQuest'
           ),
-          React.createElement(GameStage, null),
+          React.createElement(GameStage, {
+            boardSize: this.state.boardSize,
+            gameLevel: this.state.gameLevel }),
           React.createElement(GameItems, null)
         ),
         React.createElement(
@@ -1104,8 +1180,8 @@ var Game = function (_React$Component10) {
 	*/
 
 
-var PageHeader = function (_React$Component11) {
-  _inherits(PageHeader, _React$Component11);
+var PageHeader = function (_React$Component12) {
+  _inherits(PageHeader, _React$Component12);
 
   function PageHeader() {
     _classCallCheck(this, PageHeader);
@@ -1142,8 +1218,8 @@ var PageHeader = function (_React$Component11) {
 	*/
 
 
-var PageFooter = function (_React$Component12) {
-  _inherits(PageFooter, _React$Component12);
+var PageFooter = function (_React$Component13) {
+  _inherits(PageFooter, _React$Component13);
 
   function PageFooter() {
     _classCallCheck(this, PageFooter);
@@ -1194,8 +1270,8 @@ var PageFooter = function (_React$Component12) {
 	*/
 
 
-var App = function (_React$Component13) {
-  _inherits(App, _React$Component13);
+var App = function (_React$Component14) {
+  _inherits(App, _React$Component14);
 
   function App() {
     _classCallCheck(this, App);
