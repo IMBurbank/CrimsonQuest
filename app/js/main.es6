@@ -18,299 +18,215 @@ const devError = function createDevError(message = 'Default Error') {
   this.stack = (new Error()).stack;
 }
 
-//Rectangular
-const newRoomOne = function createNewRoomOne (rows, cols) {
-  const xMin = roomSize[cols].min,
-    xMax = roomSize[cols].max,
-    yMin = roomSize[rows].min,
-    yMax = roomSize[rows].max,
-    xFloorMin = xMin - 4,
-    xFloorMax = xMax - 4,
-    yFloorMin = yMin - 4,
-    yFloorMax = yMax - 4,
-    w = randInt(xFloorMin, xFloorMax),
-    h = randInt(yFloorMin, yFloorMax),
-    xPadL = randInt(2, xMax - w - 2),
-    xPadR = xMax - w - xPadL,
-    yPadT = randInt(2, yMax - h - 2),
-    yPadB = yMax - h - yPadT,
-    roomFloorArr = [];
+const backgroundArray = function createBackgroundArray(arrSize) {
+  const air = 10,
+    flr = 40;
 
-  let i = 0, j = 0;
+  //Random rectangle
+  const newRoomOne = function createNewRoomOne (rows, cols) {
+    const xMin = roomSize[cols].min,
+      xMax = roomSize[cols].max,
+      yMin = roomSize[rows].min,
+      yMax = roomSize[rows].max,
+      xFloorMin = xMin - 4,
+      xFloorMax = xMax - 4,
+      yFloorMin = yMin - 4,
+      yFloorMax = yMax - 4,
+      w = randInt(xFloorMin, xFloorMax),
+      h = randInt(yFloorMin, yFloorMax),
+      xPadL = randInt(2, xMax - w - 2),
+      xPadR = xMax - w - xPadL,
+      yPadT = randInt(2, yMax - h - 2),
+      yPadB = yMax - h - yPadT,
+      roomFloorArr = [];
 
-  roomFloorArr.length = yMax;
-  for (i = 0; i < yMax; i++) {
-    roomFloorArr[i] = [];
-    for (j = 0; j < xMax; j++) {
-      if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
-        roomFloorArr[i][j] = 40;
-      } else {
-        roomFloorArr[i][j] = 10;
+    let i = 0, j = 0;
+
+    roomFloorArr.length = yMax;
+    for (i = 0; i < yMax; i++) {
+      roomFloorArr[i] = [];
+      for (j = 0; j < xMax; j++) {
+        if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
+          roomFloorArr[i][j] = flr;
+        } else {
+          roomFloorArr[i][j] = air;
+        }
       }
     }
+
+    return {
+      xPadL,
+      xPadR,
+      yPadT,
+      yPadB,
+      xMax,
+      yMax,
+      roomFloorArr
+    };
   }
 
-  return {
-    xPadL,
-    xPadR,
-    yPadT,
-    yPadB,
-    xMax,
-    yMax,
-    roomFloorArr
-  };
-}
+  //Random out on each tile from min rectangle size
+  const newRoomTwo = function createNewRoomTwo(rows, cols) {
+    //Subtract two to leave room for permimeter walls
+    const xMin = roomSize[cols].min,
+      xMax = roomSize[cols].max,
+      yMin = roomSize[rows].min,
+      yMax = roomSize[rows].max,
+      xFloorMin = xMin - 4,
+      yFloorMin = yMin - 4;
 
-//random out on each tile from min rectangle size
-const newRoomTwo = function createNewRoomTwo(rows, cols) {
-  //Subtract two to leave room for permimeter walls
-  const xMin = roomSize[cols].min,
-    xMax = roomSize[cols].max,
-    yMin = roomSize[rows].min,
-    yMax = roomSize[rows].max,
-    xFloorMin = xMin - 4,
-    yFloorMin = yMin - 4;
+    let xPadL = randInt(2, xMax - xFloorMin - 2),
+      xPadR = xMax - xFloorMin - xPadL,
+      yPadT = randInt(2, yMax - yFloorMin - 2),
+      yPadB = yMax - yFloorMin - yPadT,
+      roomFloorArr = [],
+      floorExtendArr = [],
+      ext = 0,
+      s = 0,
+      i = 0,
+      j = 0;
 
-  let xPadL = randInt(2, xMax - xFloorMin - 2),
-    xPadR = xMax - xFloorMin - xPadL,
-    yPadT = randInt(2, yMax - yFloorMin - 2),
-    yPadB = yMax - yFloorMin - yPadT,
-    roomFloorArr = [],
-    floorExtendArr = [],
-    ext = 0,
-    s = 0,
-    i = 0,
-    j = 0;
+    //create arrays to extend min floor area
+    floorExtendArr.length = 4;
+    for (i = 0; i < 4; i++) {
+      floorExtendArr[i] = [];
 
-  //create arrays to extend min floor size
-  floorExtendArr.length = 4;
-  for (i = 0; i < 4; i++) {
-    floorExtendArr[i] = [];
+      if (i === 0) ext = yPadT - 2, s = xFloorMin;
+      else if (i === 1) ext = xPadR - 2, s = yFloorMin;
+      else if (i === 2) ext = yPadB - 2, s = xFloorMin;
+      else ext = xPadL - 2, s = yFloorMin;
 
-    if (i === 0) ext = yPadT - 2, s = xFloorMin;
-    else if (i === 1) ext = xPadR - 2, s = yFloorMin;
-    else if (i === 2) ext = yPadB - 2, s = xFloorMin;
-    else ext = xPadL - 2, s = yFloorMin;
+      for (j = 0; j < s; j++) floorExtendArr[i][j] = randInt(0, ext);
+    }
 
-    for (j = 0; j < s; j++) floorExtendArr[i][j] = randInt(0, ext);
-  }
+    //Set min floor area flr val in roomFloorArr
+    roomFloorArr.length = yMax;
+    for (i = 0; i < yMax; i++) {
+      roomFloorArr[i] = [];
 
-  //Set min floor size to 40's in roomFloorArr
-  roomFloorArr.length = yMax;
-  for (i = 0; i < yMax; i++) {
-    roomFloorArr[i] = [];
-
-    for (j = 0; j < xMax; j++) {
-      if (j + 1 > xPadL && j < xPadL + xFloorMin && i + 1 > yPadT && i < yPadT + yFloorMin) {
-        roomFloorArr[i][j] = 40;
-      } else {
-        roomFloorArr[i][j] = 10;
+      for (j = 0; j < xMax; j++) {
+        if (j + 1 > xPadL && j < xPadL + xFloorMin && i + 1 > yPadT && i < yPadT + yFloorMin) {
+          roomFloorArr[i][j] = flr;
+        } else {
+          roomFloorArr[i][j] = air;
+        }
       }
     }
+
+    //Extend top, right, bottom, left floor edges per floorExtendArr
+    floorExtendArr[0].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT - 1 - i][xPadL + index] = flr;
+    });
+    floorExtendArr[1].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL + xFloorMin + i] = flr;
+    });
+    floorExtendArr[2].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT + yFloorMin + i][xPadL + index] = flr;
+    });
+    floorExtendArr[3].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL - 1 - i] = flr;
+    });
+
+    yPadT = yPadT - Math.max(...floorExtendArr[0]);
+    xPadR = xPadR - Math.max(...floorExtendArr[1]);
+    yPadB = yPadB - Math.max(...floorExtendArr[2]);
+    xPadL = xPadL - Math.max(...floorExtendArr[3]);
+
+    return {
+      xPadL,
+      xPadR,
+      yPadT,
+      yPadB,
+      xMax,
+      yMax,
+      roomFloorArr
+    };
   }
 
-  //Extend top, right, bottom, left floor edges per floorExtendArr
-  floorExtendArr[0].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT - 1 - i][xPadL + index] = 40;
-  });
-  floorExtendArr[1].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL + xFloorMin + i] = 40;
-  });
-  floorExtendArr[2].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT + yFloorMin + i][xPadL + index] = 40;
-  });
-  floorExtendArr[3].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL - 1 - i] = 40;
-  });
+  //Random out from random sides of rectangle
+  const newRoomThree = function createNewRoomThree(rows, cols) {
+    const xMin = roomSize[cols].min,
+      xMax = roomSize[cols].max,
+      yMin = roomSize[rows].min,
+      yMax = roomSize[rows].max,
+      xFloorMax = xMax - 4,
+      xFloorMin = xMin - 4,
+      yFloorMax = yMax - 4,
+      yFloorMin = yMin - 4,
+      w = randInt(xFloorMin, xFloorMax),
+      h = randInt(yFloorMin, yFloorMax),
+      sidesToExtend = [randInt(0,1), randInt(0,1), randInt(0,1), randInt(0,1)];
 
-  yPadT = yPadT - Math.max(...floorExtendArr[0]);
-  xPadR = xPadR - Math.max(...floorExtendArr[1]);
-  yPadB = yPadB - Math.max(...floorExtendArr[2]);
-  xPadL = xPadL - Math.max(...floorExtendArr[3]);
+    let xPadL = randInt(2, xMax - w - 2),
+      xPadR = xMax - w - xPadL,
+      yPadT = randInt(2, yMax - h - 2),
+      yPadB = yMax - h - yPadT,
+      roomFloorArr = [],
+      floorExtendArr = [],
+      ext = 0,
+      s = 0,
+      i = 0,
+      j = 0;
 
-  return {
-    xPadL,
-    xPadR,
-    yPadT,
-    yPadB,
-    xMax,
-    yMax,
-    roomFloorArr
-  };
-}
+    //create arrays to extend min floor size
+    floorExtendArr.length = 4;
+    for (i = 0; i < 4; i++) {
+      floorExtendArr[i] = [];
 
-const newRoomThree = function createNewRoomThree(rows, cols) {
-  const xMin = roomSize[cols].min,
-    xMax = roomSize[cols].max,
-    yMin = roomSize[rows].min,
-    yMax = roomSize[rows].max,
-    xFloorMax = xMax - 4,
-    xFloorMin = xMin - 4,
-    yFloorMax = yMax - 4,
-    yFloorMin = yMin - 4,
-    w = randInt(xFloorMin, xFloorMax),
-    h = randInt(yFloorMin, yFloorMax),
-    sidesToExtend = [randInt(0,1), randInt(0,1), randInt(0,1), randInt(0,1)];
+      if (i === 0) ext = yPadT - 2, s = w;
+      else if (i === 1) ext = xPadR - 2, s = h;
+      else if (i === 2) ext = yPadB - 2, s = w;
+      else ext = xPadL - 2, s = h;
 
-  let xPadL = randInt(2, xMax - w - 2),
-    xPadR = xMax - w - xPadL,
-    yPadT = randInt(2, yMax - h - 2),
-    yPadB = yMax - h - yPadT,
-    roomFloorArr = [],
-    floorExtendArr = [],
-    ext = 0,
-    s = 0,
-    i = 0,
-    j = 0;
+      for (j = 0; j < s; j++) floorExtendArr[i][j] = randInt(0, ext);
+    }
 
-  //create arrays to extend min floor size
-  floorExtendArr.length = 4;
-  for (i = 0; i < 4; i++) {
-    floorExtendArr[i] = [];
+    //Set min floor size to 1's in roomFloorArr
+    roomFloorArr.length = yMax;
+    for (i = 0; i < yMax; i++) {
+      roomFloorArr[i] = [];
 
-    if (i === 0) ext = yPadT - 2, s = w;
-    else if (i === 1) ext = xPadR - 2, s = h;
-    else if (i === 2) ext = yPadB - 2, s = w;
-    else ext = xPadL - 2, s = h;
-
-    for (j = 0; j < s; j++) floorExtendArr[i][j] = randInt(0, ext);
-  }
-
-  //Set min floor size to 1's in roomFloorArr
-  roomFloorArr.length = yMax;
-  for (i = 0; i < yMax; i++) {
-    roomFloorArr[i] = [];
-
-    for (j = 0; j < xMax; j++) {
-      if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
-        roomFloorArr[i][j] = 40;
-      } else {
-        roomFloorArr[i][j] = 10;
+      for (j = 0; j < xMax; j++) {
+        if (j + 1 > xPadL && j < xPadL + w && i + 1 > yPadT && i < yPadT + h) {
+          roomFloorArr[i][j] = flr;
+        } else {
+          roomFloorArr[i][j] = air;
+        }
       }
     }
-  }
 
-  //Extend top, right, bottom, left floor edges per floorExtendArr
-  (sidesToExtend[0] && floorExtendArr[0].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT - 1 - i][xPadL + index] = 40;
-  }));
-  (sidesToExtend[1] && floorExtendArr[1].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL + w + i] = 40;
-  }));
-  (sidesToExtend[2] && floorExtendArr[2].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT + h + i][xPadL + index] = 40;
-  }));
-  (sidesToExtend[3] && floorExtendArr[3].forEach( (el, index) => {
-    for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL - 1 - i] = 40;
-  }));
+    //Extend top, right, bottom, left floor edges per floorExtendArr
+    (sidesToExtend[0] && floorExtendArr[0].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT - 1 - i][xPadL + index] = flr;
+    }));
+    (sidesToExtend[1] && floorExtendArr[1].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL + w + i] = flr;
+    }));
+    (sidesToExtend[2] && floorExtendArr[2].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT + h + i][xPadL + index] = flr;
+    }));
+    (sidesToExtend[3] && floorExtendArr[3].forEach( (el, index) => {
+      for (i = 0; i < el; i++) roomFloorArr[yPadT + index][xPadL - 1 - i] = flr;
+    }));
 
-  yPadT = sidesToExtend[0] ? yPadT - Math.max(...floorExtendArr[0]) : yPadT;
-  xPadR = sidesToExtend[1] ? xPadR - Math.max(...floorExtendArr[1]) : xPadR;
-  yPadB = sidesToExtend[2] ? yPadB - Math.max(...floorExtendArr[2]) : yPadB;
-  xPadL = sidesToExtend[3] ? xPadL - Math.max(...floorExtendArr[3]) : xPadL;
+    yPadT = sidesToExtend[0] ? yPadT - Math.max(...floorExtendArr[0]) : yPadT;
+    xPadR = sidesToExtend[1] ? xPadR - Math.max(...floorExtendArr[1]) : xPadR;
+    yPadB = sidesToExtend[2] ? yPadB - Math.max(...floorExtendArr[2]) : yPadB;
+    xPadL = sidesToExtend[3] ? xPadL - Math.max(...floorExtendArr[3]) : xPadL;
 
-  return {
-    xPadL,
-    xPadR,
-    yPadT,
-    yPadB,
-    xMax,
-    yMax,
-    roomFloorArr
+    return {
+      xPadL,
+      xPadR,
+      yPadT,
+      yPadB,
+      xMax,
+      yMax,
+      roomFloorArr
+    };
+
   };
 
-};
-
-/**
-  * React Components
-  */
-
-class GameLevel extends React.Component {
-  render() {
-    return (
-      <div className='level'>
-        Game Level
-      </div>
-    );
-  }
-}
-
-class CharacterInfo extends React.Component {
-  render() {
-    return (
-      <div className='char-info'>
-        Character Info
-      </div>
-    );
-  }
-}
-
-class GameItems extends React.Component {
-  render() {
-    return (
-      <div className='items'>
-        Game Items
-      </div>
-    );
-  }
-}
-
-class EnemiesRemaining extends React.Component {
-  render() {
-    return (
-      <div className='enemies-remaining'>
-        Enemies Remaining
-      </div>
-    );
-  }
-}
-
-class EnemyStats extends React.Component {
-  render() {
-    return (
-      <div className='enemy-stats'>
-        Enemy Stats
-      </div>
-    );
-  }
-}
-
-class ActivityLog extends React.Component {
-  render() {
-    return (
-      <div className='activity-log'>
-        Activity Log
-      </div>
-    );
-  }
-}
-
-class GameTips extends React.Component {
-  render() {
-    return (
-      <div className='tips'>
-        Game Tips
-      </div>
-    );
-  }
-}
-
-//props: boardSize, gameLevel, bgArr, updateBgArr
-class BackgroundArray extends React.Component {
-  constructor(props) {
-    super(props);
-    this.createRooms = this.createRooms.bind(this);
-    this.stitchRooms = this.stitchRooms.bind(this);
-    this.choosePaths = this.choosePaths.bind(this);
-    this.applyPaths = this.applyPaths.bind(this);
-    this.createPaths = this.createPaths.bind(this);
-    this.randomizeOrientation = this.randomizeOrientation.bind(this);
-    this.addWalls = this.addWalls.bind(this);
-    this.addFloors = this.addFloors.bind(this);
-    this.createBgArr = this.createBgArr.bind(this);
-  }
-
-  createRooms() {
+  const createRooms = function createNewRooms() {
     let rows = 0,
       colsArr = [],
       cols = 0,
@@ -368,9 +284,9 @@ class BackgroundArray extends React.Component {
     return rooms;
   }
 
-  stitchRooms(rooms) {
+  const stitchRooms = function stitchRoomArray(rooms) {
     const stitchArr = [],
-      len = this.props.boardSize;
+      len = arrSize;
 
     let c = 0,
       i = 0,
@@ -394,11 +310,10 @@ class BackgroundArray extends React.Component {
     return stitchArr;
   }
 
-  choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow) {
+  const choosePaths = function newPaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow) {
     const len = stitchArr.length,
       xMax = rm.xMax,
-      yMax = rm.yMax,
-      flr = 40;
+      yMax = rm.yMax;
 
     let pathOpts = [],
       paths = [],
@@ -578,8 +493,7 @@ class BackgroundArray extends React.Component {
     return {paths, tiedRow};
   }
 
-  applyPaths(rm, rooms, stitchArr, paths) {
-    const flr = 40;
+  const applyPaths = function applyNewPaths(rm, rooms, stitchArr, paths) {
     let i = 0;
 
     paths.forEach( el => {
@@ -621,7 +535,7 @@ class BackgroundArray extends React.Component {
     return true;
   }
 
-  createPaths(rooms, stitchArr) {
+  const createPaths = function createNewPaths(rooms, stitchArr) {
     const len = stitchArr.length;
 
     let tiedRow = false,
@@ -648,8 +562,8 @@ class BackgroundArray extends React.Component {
           (j < rooms.length - 1 && i < rooms[j].length - 1) ? 4 :
           (j === rooms.length - 1 && i < rooms[j].length - 1) ? 5 : 6;
 
-        ({paths, tiedRow} = this.choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow));
-        this.applyPaths(rm, rooms, stitchArr, paths);
+        ({paths, tiedRow} = choosePaths(rm, rooms, stitchArr, chkRow, chkCol, tieRule, tiedRow));
+        applyPaths(rm, rooms, stitchArr, paths);
 
         c += rm.xMax
         i++;
@@ -664,7 +578,7 @@ class BackgroundArray extends React.Component {
     return stitchArr;
   }
 
-  randomizeOrientation(connectedArr) {
+  const randomizeOrientation = function randomizeArrOrientation(connectedArr) {
     const len = connectedArr.length,
       orientation = randInt(1,4);
 
@@ -704,13 +618,14 @@ class BackgroundArray extends React.Component {
     return {orientation, orientedArr};
   }
 
-  addWalls(orientedArr) {
-    const nArr = [0,0,0,0,0,0,0,0],
-      len = orientedArr.length - 1,
-      flr = 40,
-      air = 10;
+  const addWalls = function addArrWalls(orientedArr) {
+    const walledArr = orientedArr,
+      nArr = [0,0,0,0,0,0,0,0],
+      len = walledArr.length - 1;
 
-    let i = 1,
+    let hWallCoords = [],
+      vWallCoords = [],
+      i = 1,
       j = 1,
       el = 0;
 
@@ -722,14 +637,14 @@ class BackgroundArray extends React.Component {
         el = 0;
 
         if (orientedArr[i][j] === air) {
-          nArr[0] = orientedArr[i - 1][j - 1];
-          nArr[1] = orientedArr[i - 1][j];
-          nArr[2] = orientedArr[i - 1][j + 1];
-          nArr[3] = orientedArr[i][j - 1];
-          nArr[4] = orientedArr[i][j + 1];
-          nArr[5] = orientedArr[i + 1][j - 1];
-          nArr[6] = orientedArr[i + 1][j];
-          nArr[7] = orientedArr[i + 1][j + 1];
+          nArr[0] = walledArr[i - 1][j - 1];
+          nArr[1] = walledArr[i - 1][j];
+          nArr[2] = walledArr[i - 1][j + 1];
+          nArr[3] = walledArr[i][j - 1];
+          nArr[4] = walledArr[i][j + 1];
+          nArr[5] = walledArr[i + 1][j - 1];
+          nArr[6] = walledArr[i + 1][j];
+          nArr[7] = walledArr[i + 1][j + 1];
 
           if (nArr.indexOf(flr) === 7 ||
             (nArr[1] === flr && nArr[3] === flr && nArr[4] !== flr && nArr[6] !== flr)) {
@@ -739,6 +654,7 @@ class BackgroundArray extends React.Component {
             ((nArr[3] === flr && nArr[4] !== flr) ||
             (nArr[4] === flr && nArr[3] !== flr)))) {
             el = 22;
+            hWallCoords.push([i,j]);
           } else if ((nArr.filter( el => el === flr ).length === 1 && nArr[5] === flr) ||
             (nArr[1] === flr && nArr[4] === flr && nArr[3] !== flr && nArr[6] !== flr)) {
             el = 23;
@@ -747,6 +663,7 @@ class BackgroundArray extends React.Component {
             ((nArr[1] === flr && nArr[6] !== flr) ||
             (nArr[6] === flr && nArr[1] !== flr)))) {
             el = 24;
+            vWallCoords.push([i,j]);
           } else if ((nArr.filter( el => el === flr ).length === 1 && nArr[2] === flr) ||
             (nArr[3] === flr && nArr[6] === flr && nArr[1] !== flr && nArr[4] !== flr)) {
             el = 25;
@@ -771,23 +688,24 @@ class BackgroundArray extends React.Component {
             el = 35;
           }
 
-          if (el) orientedArr[i][j] = el;
+          if (el) walledArr[i][j] = el;
         }
         j++;
       }
       i++;
     }
 
-    return orientedArr;
+    return {walledArr, hWallCoords, vWallCoords};
   }
 
-  addFloors(walledArr) {
-    const nArr = [0,0,0,0,0,0,0,0],
-      len = walledArr.length - 1,
-      flr = 40,
+  const addFloors = function addArrFloors(walledArr) {
+    const bgArr = walledArr,
+      nArr = [0,0,0,0,0,0,0,0],
+      len = bgArr.length - 1,
       sFlr = flr - 1;
 
-    let i = 1,
+    let floorCoords = [],
+      i = 1,
       j = 1,
       el = 0;
 
@@ -798,14 +716,15 @@ class BackgroundArray extends React.Component {
         el = 0;
 
         if (walledArr[i][j] > flr - 1) {
-          nArr[0] = walledArr[i - 1][j - 1];
-          nArr[1] = walledArr[i - 1][j];
-          nArr[2] = walledArr[i - 1][j + 1];
-          nArr[3] = walledArr[i][j - 1];
-          nArr[4] = walledArr[i][j + 1];
-          nArr[5] = walledArr[i + 1][j - 1];
-          nArr[6] = walledArr[i + 1][j];
-          nArr[7] = walledArr[i + 1][j + 1];
+          nArr[0] = bgArr[i - 1][j - 1];
+          nArr[1] = bgArr[i - 1][j];
+          nArr[2] = bgArr[i - 1][j + 1];
+          nArr[3] = bgArr[i][j - 1];
+          nArr[4] = bgArr[i][j + 1];
+          nArr[5] = bgArr[i + 1][j - 1];
+          nArr[6] = bgArr[i + 1][j];
+          nArr[7] = bgArr[i + 1][j + 1];
+          floorCoords.push([i,j]);
 
           if (nArr[1] < flr && nArr[3] < flr && nArr[4] > sFlr && nArr[6] > sFlr) {
             el = 41;
@@ -841,88 +760,288 @@ class BackgroundArray extends React.Component {
             el = 57;
           }
 
-          if (el) walledArr[i][j] = el;
+          if (el) bgArr[i][j] = el;
         }
         j++;
       }
       i++;
     }
 
-    return walledArr;
+    return {bgArr, floorCoords};
   }
 
-  createBgArr() {
-    const rooms = this.createRooms();
-    const stitchArr = this.stitchRooms(rooms);
-    const connectedArr = this.createPaths(rooms, stitchArr);
-    const {orientation, orientedArr} = this.randomizeOrientation(connectedArr);
-    const walledArr = this.addWalls(orientedArr);
-    const bgArr = this.addFloors(walledArr);
+  const rooms = createRooms();
+  const stitchArr = stitchRooms(rooms);
+  const connectedArr = createPaths(rooms, stitchArr);
+  const {orientation, orientedArr} = randomizeOrientation(connectedArr);
+  const {walledArr, hWallCoords, vWallCoords} = addWalls(orientedArr);
+  const {bgArr, floorCoords} = addFloors(walledArr);
 
-    this.props.updateBgArr(bgArr);
-    console.log(orientation);
-    console.log(JSON.stringify(bgArr));
-  }
-
-  componentWillRecieveProps(nextProps) {
-    if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
-      createBgArr();
-    }
-  }
-
-  componentWillMount() {
-    this.createBgArr();
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return false;
-  }
-
-  render() {
-
-    return (
-      <a></a>
-    );
-  }
+  console.log(orientation);
+  console.log(JSON.stringify(bgArr));
+  return {bgArr, floorCoords, hWallCoords, vWallCoords};
 }
 
-class BackgroundLayer extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+/**
+  * React Components
+  */
 
+class GameLevel extends React.Component {
   render() {
     return (
-      <div className = 'backgroundLayer'>
-        <BackgroundArray
-          boardSize  = {this.props.boardSize}
-          gameLevel = {this.props.gameLevel}
-          bgArr = {this.props.bgArr}
-          updateBgArr = {this.props.updateBgArr}  />
+      <div className='level'>
+        Game Level
       </div>
     );
   }
 }
 
+class CharacterInfo extends React.Component {
+  render() {
+    return (
+      <div className='char-info'>
+        Character Info
+      </div>
+    );
+  }
+}
+
+class GameItems extends React.Component {
+  render() {
+    return (
+      <div className='items'>
+        Game Items
+      </div>
+    );
+  }
+}
+
+class EnemiesRemaining extends React.Component {
+  render() {
+    return (
+      <div className='enemies-remaining'>
+        Enemies Remaining
+      </div>
+    );
+  }
+}
+
+class EnemyStats extends React.Component {
+  render() {
+    return (
+      <div className='enemy-stats'>
+        Enemy Stats
+      </div>
+    );
+  }
+}
+
+class ActivityLog extends React.Component {
+  render() {
+    return (
+      <div className='activity-log'>
+        Activity Log
+      </div>
+    );
+  }
+}
+
+class GameTips extends React.Component {
+  render() {
+    return (
+      <div className='tips'>
+        Game Tips
+      </div>
+    );
+  }
+}
+
+//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr
+class BackgroundLayer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.getBgImages = this.getBgImages.bind(this);
+    this.initPaletteMaps = this.initPaletteMaps.bind(this);
+    this.setPalettes = this.setPalettes.bind(this);
+
+    this.state = ({
+      srcTileSize: 16,
+      floorImage: null,
+      wallImage: null,
+      floorPalette: {},
+      wallPalette: {},
+      floorPaletteMap: {},
+      wallPaletteMap: {},
+    });
+  }
+
+  getBgImages() {
+    const floorImage = new Image(),
+      wallImage = new Image(),
+      that = this;
+
+    let i = 0;
+
+    const handleLoad = function handleImageLoad() {
+      i++;
+      if (i === 2) {
+        that.setState({ floorImage, wallImage });
+      }
+    }
+
+    floorImage.src = 'img/terrain/Floor.png';
+    wallImage.src = 'img/terrain/Wall.png';
+    floorImage.addEventListener('load', handleLoad);
+    wallImage.addEventListener('load', handleLoad);
+  }
+
+  initPaletteMaps() {
+    const ts = this.props.tileSize;
+
+    const floorPaletteMap = {
+      '41': [0,0],
+      '42': [ts, 0],
+      '43': [2*ts, 0],
+      '44': [0, ts],
+      '45': [ts, ts],
+      '46': [2*ts, ts],
+      '47': [0, 2*ts],
+      '48': [ts, 2*ts],
+      '49': [2*ts, 2*ts],
+      '51': [3*ts, 0],
+      '52': [3*ts, ts],
+      '53': [3*ts, 2*ts],
+      '54': [4*ts, ts],
+      '55': [5*ts, ts],
+      '56': [6*ts, ts],
+      '57': [5*ts, 0],
+    };
+
+    const wallPaletteMap = {
+      '21': [0,0],
+      '22': [ts, 0],
+      '23': [2*ts, 0],
+      '24': [0, ts],
+      '25': [0, 2*ts],
+      '26': [ts, ts],
+      '27': [2*ts, 2*ts],
+      '31': [4*ts, 0],
+      '32': [3*ts, ts],
+      '33': [4*ts, ts],
+      '34': [5*ts, ts],
+      '35': [4*ts, 2*ts],
+      '36': [3*ts, 0],
+    };
+
+    this.setState({ floorPaletteMap, wallPaletteMap });
+  }
+
+  setPalettes() {
+    const fSrcImg = this.state.floorImage,
+      wSrcImg = this.state.wallImage,
+      gmTileSize = this.props.tileSize,
+      srcTileSize = this.state.srcTileSize,
+      scale = gmTileSize / srcTileSize,
+      h = 3 * gmTileSize,
+      fw = 7 * gmTileSize,
+      ww = 6 * gmTileSize;
+
+    let fCanvas = document.createElement('canvas'),
+      fCtx = fCanvas.getContext('2d'),
+      wCanvas = document.createElement('canvas'),
+      wCtx = fCanvas.getContext('2d'),
+      srcY = 3 * srcTileSize;
+
+    srcY *= lvl === 1 ? 5 :
+      lvl === 2 ? 6 :
+      lvl === 3 ? 7 :
+      lvl === 4 ? 8 :
+      lvl === 5 ? 1 :
+      lvl < 8 ? 2 :
+      lvl < 10 ? 3 :
+      lvl === 10 ? 4 : 1;
+
+    fCanvas.width = fw;
+    fCanvas.height = h;
+    fCtx.drawImage(fSrcImg, 0, srcY, fw/scale, h/scale, 0, 0, w, h);
+
+    wCanvas.width = ww;
+    wCanvas.height = h;
+    wCtx.drawImage(wSrcImg, 0, srcY, ww/scale, h/scale, 0, 0, w, h);
+
+    this.setState({
+      floorPalette: { canvas: fCanvas, ctx: fCtx },
+      wallPalette: { canvas: wCanvas, ctx: wCtx }
+    });
+    this.updatePaletteMaps()
+  }
+
+  componentWillMount() {
+    this.getBgImages();
+    this.initPaletteMaps();
+    this.props.updateBgArr(backgroundArray(this.props.boardSize));
+  }
+
+  componentWillRecieveProps(nextProps) {
+    if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
+      this.props.updateBgArr(backgroundArray(this.props.boardSize));
+      this.setPalettes();
+    }
+  }
+
+  render() {
+    return (
+      <div className = 'backgroundLayer'>
+
+      </div>
+    );
+  }
+}
+
+//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, floorCoords
+class PlayerLayer extends React.Component {
+  constructor(props) {
+    super(props);
+    //this.initPlayerArr = this.initPlayerArr.bind(this);
+
+  }
+
+  render() {
+    return (
+      <div className = 'player-layer'>
+
+      </div>
+    );
+  }
+}
+
+//props: boardSize, gameLevel
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
     this.updateBgArr = this.updateBgArr.bind(this);
 
     this.state = ({
-      bgArr: []
+      stageSize: 480,
+      tileSize: 32,
+      bgArr: [],
+      floorCoords: [],
+      hWallCoords: [],
+      vWallCoords: []
     });
   }
 
-  updateBgArr(bgArr) {
-    this.setState({ bgArr });
+  updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords) {
+    this.setState({ bgArr, floorCoords, hWallCoords, vWallCoords });
   }
 
   render() {
     return (
       <div className='stage'>
         <BackgroundLayer
+          stageSize = {this.state.stageSize}
           boardSize = {this.props.boardSize}
+          tileSize =  {this.state.tileSize}
           gameLevel = {this.props.gameLevel}
           bgArr = {this.state.bgArr}
           updateBgArr = {this.updateBgArr}  />
@@ -930,7 +1049,14 @@ class GameStage extends React.Component {
         {/*<ItemLayer	/>*/}
         {/*<EnemyLayer	/>*/}
         {/*<FogLayer	/>*/}
-        {/*<PlayerLayer	/>*/}
+        <PlayerLayer
+          stageSize = {this.state.stageSize}
+          boardSize = {this.props.boardSize}
+          tileSize =  {this.state.tileSize}
+          gameLevel = {this.props.gameLevel}
+          bgArr = {this.state.bgArr}
+          updateBgArr = {this.updateBgArr}
+          floorCoords = {this.state.floorCoords}  />
       </div>
     );
   }

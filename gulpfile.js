@@ -21,6 +21,13 @@ gulp.task('browserSync', function() {
   })
 })
 
+gulp.task('reload', function(){
+  return gulp.src('dist')
+    .pipe(browserSync.reload({
+      stream: true
+    }))
+});
+
 gulp.task('sass', function() {
   return gulp.src('app/sass/*.sass')
     .pipe(sass())
@@ -40,7 +47,7 @@ gulp.task('clean:dist', function() {
   return del.sync('dist/*');
 })
 
-gulp.task('useref', ['clean:dist'], function(){
+gulp.task('useref', function(){
   return gulp.src('app/*.html')
     .pipe(useref())
     .pipe(gulpIf('app/js/*.js', uglify()))
@@ -51,23 +58,34 @@ gulp.task('useref', ['clean:dist'], function(){
     }))
 });
 
+gulp.task('images', function(){
+  return gulp.src('app/img/**')
+    .pipe(gulp.dest('dist/img/'))
+});
+
+gulp.task('update', function (callback) {
+  runSequence('clean:dist', 'useref', 'images', 'reload',
+    callback
+  )
+})
+
 gulp.task('watch', ['browserSync'], function(){
   gulp.watch('app/sass/*.sass', ['sass']);
   gulp.watch('app/js/*.es6', ['babel']);
-  gulp.watch('app/*.html', ['useref']);
-  gulp.watch('app/css/**/*.css', ['useref']);
-  gulp.watch('app/js/**/*.js', ['useref']);
+  gulp.watch('app/*.html', ['update']);
+  gulp.watch('app/css/**/*.css', ['update']);
+  gulp.watch('app/js/**/*.js', ['update']);
   // Other watchers
 })
 
 gulp.task('default', function (callback) {
-  runSequence('sass', 'babel', 'useref', ['watch'],
+  runSequence('sass', 'babel', 'update', ['watch'],
     callback
   )
 })
 
 gulp.task('build', function (callback) {
-  runSequence('sass', 'babel', ['useref'],
+  runSequence('sass', 'babel', ['update'],
     callback
   )
 })
