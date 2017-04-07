@@ -106,11 +106,20 @@ h4
   background: #fff
 
 .stage
+  position: relative
   width: $stg-size
   height: $stg-size
   margin-bottom: $tile-size
   border: $std-border
   background: #fff
+
+  .player-layer
+    position: absolute
+    top: 0
+    left: 0
+    z-index: 5
+    margin: 0
+    padding: 0
 
 .items
   width: 8 * $tile-size

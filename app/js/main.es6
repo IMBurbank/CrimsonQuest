@@ -363,7 +363,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
             j++;
 
             if (j > ~~(yMax / 2) &&
-              (j > 1.5 * yMax ||
+              (j > 2 * yMax ||
               chkRow - j < 2 ||
               stitchArr[chkRow - j][k] === flr ||
               stitchArr[chkRow - j - 1][k] === flr ||
@@ -372,7 +372,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
               chk = true;
             }
           }
-          if (j < 1.5 * yMax && chkRow - j > 1) pathOpts.push([1, k, chkRow, j]);
+          if (j < 2 * yMax && chkRow - j > 1) pathOpts.push([1, k, chkRow, j]);
         }
         i++;
       }
@@ -380,7 +380,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
       else {
         goRt = true;
         try { throw new devError('No pathOpts up. Set right. -> BackgroundLayer.choosePaths'); }
-        catch(e) { console.log(e.name, e.message, e.stack); }
+        catch(e) { console.log(e.name, e.message, e.stack, chkRow, chkCol, rm.curRow, tieRule); }
       }
     }
     if (goDn) {
@@ -397,7 +397,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
             j++;
 
             if (j > ~~(yMax / 2) &&
-              (j > 1.5 * yMax ||
+              (j > 2 * yMax ||
               chkRow + j > len - 3 ||
               stitchArr[chkRow + j][k] === flr ||
               stitchArr[chkRow + j][k + 1] === flr ||
@@ -406,7 +406,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
               chk = true;
             }
           }
-          if (j < 1.5 * yMax && chkRow + j < len - 3) pathOpts.push([3, k, chkRow, j]);
+          if (j < 2 * yMax && chkRow + j < len - 3) pathOpts.push([3, k, chkRow, j]);
         }
         i++;
       }
@@ -431,7 +431,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
             j++;
 
             if (j > ~~(xMax / 2) &&
-              (j > 1.5 * xMax ||
+              (j > 2 * xMax ||
               chkCol + j > len - 3 ||
               stitchArr[k][chkCol + j] === flr ||
               stitchArr[k - 1][chkCol + j] === flr ||
@@ -440,14 +440,14 @@ const backgroundArray = function createBackgroundArray(arrSize) {
               chk = true;
             }
           }
-          if (j < 1.5 * xMax && chkCol + j < len - 3) pathOpts.push([2, chkCol, k, j]);
+          if (j < 2 * xMax && chkCol + j < len - 3) pathOpts.push([2, chkCol, k, j]);
         }
         i++;
       }
       if (pathOpts.length > 0) paths.push(pathOpts[randInt(0, pathOpts.length - 1)]);
       else {
         try { throw new devError('no pathOpts right -> BackgroundLayer.choosePaths'); }
-        catch(e) { console.error(e.name, e.message, e.stack); }
+        catch(e) { console.error(e.name, e.message, e.stack, chkRow, chkCol, rm.curRow, tieRule); }
       }
     }
     if (goLt) {
@@ -464,7 +464,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
             j++;
 
             if (j > ~~(yMax / 2) &&
-              (j > 1.5 * xMax ||
+              (j > 2 * xMax ||
               chkCol - j < 2  ||
               stitchArr[k][chkCol - j] === flr ||
               stitchArr[k - 1][chkCol - j] === flr ||
@@ -473,21 +473,21 @@ const backgroundArray = function createBackgroundArray(arrSize) {
               chk = true;
             }
           }
-          if (j < 1.5 * xMax && chkCol - j > 1) pathOpts.push([4, chkCol, k, j]);
+          if (j < 2 * xMax && chkCol - j > 1) pathOpts.push([4, chkCol, k, j]);
         }
         i++;
       }
       if (pathOpts.length > 0) paths.push(pathOpts[randInt(0, pathOpts.length - 1)]);
       else {
         try { throw new devError('no pathOpts left -> BackgroundLayer.choosePaths'); }
-        catch(e) { console.error(e.name, e.message, e.stack); }
+        catch(e) { console.error(e.name, e.message, e.stack, chkRow, chkCol, rm.curRow, tieRule); }
       }
     }
 
     if (paths.length === 1) paths.push([0,0,0,0]);
     else if (paths.length > 2) {
       try { throw new devError('paths.length > 2 -> BackgroundLayer.choosePaths'); }
-      catch(e) { console.error(e.name, e.message, e.stack); }
+      catch(e) { console.error(e.name, e.message, e.stack, chkRow, chkCol, rm.curRow, tieRule); }
     }
 
     return {paths, tiedRow};
@@ -646,49 +646,76 @@ const backgroundArray = function createBackgroundArray(arrSize) {
           nArr[6] = walledArr[i + 1][j];
           nArr[7] = walledArr[i + 1][j + 1];
 
-          if (nArr.indexOf(flr) === 7 ||
-            (nArr[1] === flr && nArr[3] === flr && nArr[4] !== flr && nArr[6] !== flr)) {
-            el = 21;
-          } else if ((nArr[3] !== flr && nArr[4] !== flr && (nArr[1] === flr || nArr[6] === flr)) ||
-            ((nArr[1] === flr && nArr[6] === flr) &&
-            ((nArr[3] === flr && nArr[4] !== flr) ||
-            (nArr[4] === flr && nArr[3] !== flr)))) {
-            el = 22;
-            hWallCoords.push([i,j]);
-          } else if ((nArr.filter( el => el === flr ).length === 1 && nArr[5] === flr) ||
-            (nArr[1] === flr && nArr[4] === flr && nArr[3] !== flr && nArr[6] !== flr)) {
-            el = 23;
-          } else if ((nArr[1] !== flr && nArr[6] !== flr && (nArr[3] === flr || nArr[4] === flr)) ||
-            ((nArr[3] === flr && nArr[4] === flr) &&
-            ((nArr[1] === flr && nArr[6] !== flr) ||
-            (nArr[6] === flr && nArr[1] !== flr)))) {
-            el = 24;
-            vWallCoords.push([i,j]);
-          } else if ((nArr.filter( el => el === flr ).length === 1 && nArr[2] === flr) ||
-            (nArr[3] === flr && nArr[6] === flr && nArr[1] !== flr && nArr[4] !== flr)) {
-            el = 25;
-          } else if (nArr.filter( el => el === flr ).length === 8) {
-            el = 26;
-          } else if ((nArr.filter( el => el === flr ).length === 1 && nArr[0] === flr) ||
-            (nArr[6] === flr && nArr[4] === flr && nArr[1] !== flr && nArr[3] !== flr)) {
-            el = 27;
-          } else if (nArr.filter( el => el === flr ).length === 2 && nArr[5] === flr && nArr[7] === flr) {
-            el = 31;
-          } else if (nArr.filter( el => el === flr ).length === 2 && nArr[2] === flr && nArr[7] === flr) {
-            el = 32;
-          } else if (nArr.filter( el => el === flr ).length === 4 &&
-            nArr[0] === flr &&
-            nArr[2] === flr &&
-            nArr[5] === flr &&
-            nArr[7] === flr) {
-            el = 33;
-          } else if (nArr.filter( el => el === flr ).length === 2 && nArr[0] === flr && nArr[5] === flr) {
-            el = 34;
-          } else if (nArr.filter( el => el === flr ).length === 2 && nArr[0] === flr && nArr[2] === flr) {
-            el = 35;
-          }
 
-          if (el) walledArr[i][j] = el;
+          if (nArr.indexOf(flr) > -1) {
+            if (nArr[3] > air && nArr[3] < flr &&
+              nArr[4] === air &&
+              nArr[6] === air &&
+              (nArr[1] === air || nArr[1] === flr) &&
+              ((nArr[5] === flr && nArr[7] === flr) ||
+              (nArr[1] === flr &&
+              (nArr[5] === flr || nArr[7] === flr)))) {
+              el = 31;
+            } else if (nArr[1] > air && nArr[1] < flr &&
+              nArr[4] === air &&
+              nArr[6] === air &&
+              (nArr[3] === air || nArr[3] === flr) &&
+              ((nArr[2] === flr && nArr[7] === flr) ||
+              (nArr[3] === flr &&
+              (nArr[2] === flr || nArr[7] === flr)))) {
+              el = 32;
+            } else if (nArr[1] > air && nArr[1] < flr &&
+              nArr[3] > air && nArr[3] < flr &&
+              nArr[4] === air &&
+              nArr[6] === air &&
+              nArr[2] === flr &&
+              nArr[7] === flr) {
+              el = 33;
+            } else if (nArr[1] > air && nArr[1] < flr &&
+              nArr[3] > air && nArr[3] < flr &&
+              nArr[6] === air &&
+              ((nArr[0] === flr && nArr[5] === flr) ||
+              ((nArr[0] === flr || nArr[5] === flr) &&
+              nArr[4] === flr))) {
+              el = 34;
+            } else if (nArr[1] > air && nArr[1] < flr &&
+              nArr[3] > air && nArr[3] < flr &&
+              nArr[4] === air &&
+              ((nArr[0] === flr && nArr[2] === flr) ||
+              (nArr[0] === flr || nArr[2] === flr) && nArr[6] === flr)) {
+              el = 35;
+            } else if (nArr[4] === air && nArr[6] === air &&
+              ((nArr[1] === flr && nArr[3] === flr) || nArr[7] === flr)) {
+              el = 21;
+            } else if (nArr[3] > air && nArr[3] < flr &&
+              nArr[6] === air &&
+              ((nArr[1] === flr && nArr[4] === flr) || nArr[5] === flr)) {
+              el = 23;
+            } else if (nArr[1] > air && nArr[1] < flr &&
+              nArr[4] === air &&
+              ((nArr[3] === flr && nArr[6] === flr) || nArr[2] === flr)) {
+              el = 25;
+            } else if (nArr[1] > air && nArr[1] < flr &&
+              nArr[3] > air && nArr[3] < flr &&
+              (nArr[0] === flr || (nArr[4] === flr && nArr[6] === flr))) {
+              el = 27;
+            } else if ((nArr[3] > air && nArr[3] < flr && (nArr[1] === flr || nArr[6] === flr)) ||
+              (nArr[4] === air &&
+              ((nArr[1] === flr && nArr[2] === flr) || (nArr[5] === flr && nArr[6] === flr)))) {
+              el = 22;
+              hWallCoords.push([i,j]);
+            } else if ((nArr[1] > air && nArr[1] < flr && (nArr[3] === flr || nArr[4] === flr)) ||
+              (nArr[1] === flr && nArr[3] === flr && nArr[4] === flr && nArr[6] === air) ||
+              (nArr[3] === flr && nArr[5] === flr) ||
+              (nArr[4] === flr && nArr[7] === flr)) {
+              el = 24;
+              vWallCoords.push([i,j]);
+            } else if (nArr[1] === flr || nArr[3] === flr || nArr[4] === flr || nArr[6] === flr) {
+              el = 26;
+            }
+
+            if (el) walledArr[i][j] = el;
+          }
         }
         j++;
       }
@@ -715,7 +742,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
       while (j < len) {
         el = 0;
 
-        if (walledArr[i][j] > flr - 1) {
+        if (walledArr[i][j] > sFlr) {
           nArr[0] = bgArr[i - 1][j - 1];
           nArr[1] = bgArr[i - 1][j];
           nArr[2] = bgArr[i - 1][j + 1];
@@ -766,7 +793,6 @@ const backgroundArray = function createBackgroundArray(arrSize) {
       }
       i++;
     }
-
     return {bgArr, floorCoords};
   }
 
@@ -779,6 +805,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
 
   console.log(orientation);
   console.log(JSON.stringify(bgArr));
+  // console.log('BgArr floorCoords: ', JSON.stringify(floorCoords));
   return {bgArr, floorCoords, hWallCoords, vWallCoords};
 }
 
@@ -856,28 +883,32 @@ class GameTips extends React.Component {
   }
 }
 
-//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr
+//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, playerArr
 class BackgroundLayer extends React.Component {
   constructor(props) {
     super(props);
+    this.initTempCanvas = this.initTempCanvas.bind(this);
     this.getBgImages = this.getBgImages.bind(this);
     this.initPaletteMaps = this.initPaletteMaps.bind(this);
     this.setPalettes = this.setPalettes.bind(this);
+    this.drawBackground = this.drawBackground.bind(this);
 
     this.state = ({
       srcTileSize: 16,
-      floorImage: null,
-      wallImage: null,
+      floorImg: null,
+      wallImg: null,
       floorPalette: {},
       wallPalette: {},
       floorPaletteMap: {},
       wallPaletteMap: {},
+      tempCanv: {},
+      playerLoc: []
     });
   }
 
   getBgImages() {
-    const floorImage = new Image(),
-      wallImage = new Image(),
+    const floorImg = new Image(),
+      wallImg = new Image(),
       that = this;
 
     let i = 0;
@@ -885,14 +916,29 @@ class BackgroundLayer extends React.Component {
     const handleLoad = function handleImageLoad() {
       i++;
       if (i === 2) {
-        that.setState({ floorImage, wallImage });
+        that.setState({ floorImg, wallImg });
+
+        //Delete after start screen created
+        that.setPalettes(floorImg, wallImg, that.props.gameLevel);
       }
     }
 
-    floorImage.src = 'img/terrain/Floor.png';
-    wallImage.src = 'img/terrain/Wall.png';
-    floorImage.addEventListener('load', handleLoad);
-    wallImage.addEventListener('load', handleLoad);
+    floorImg.src = 'img/terrain/Floor.png';
+    wallImg.src = 'img/terrain/Wall.png';
+    floorImg.addEventListener('load', handleLoad);
+    wallImg.addEventListener('load', handleLoad);
+  }
+
+  initTempCanvas() {
+    let canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d'),
+      size = this.props.stageSize;
+
+    canvas.width = size;
+    canvas.height = size;
+    ctx.imageSmoothingEnabled = false;
+
+    this.setState({ tempCanv: { canvas, ctx } });
   }
 
   initPaletteMaps() {
@@ -936,9 +982,8 @@ class BackgroundLayer extends React.Component {
     this.setState({ floorPaletteMap, wallPaletteMap });
   }
 
-  setPalettes() {
-    const fSrcImg = this.state.floorImage,
-      wSrcImg = this.state.wallImage,
+  setPalettes(floorImg, wallImg, gameLevel) {
+    const lvl = gameLevel,
       gmTileSize = this.props.tileSize,
       srcTileSize = this.state.srcTileSize,
       scale = gmTileSize / srcTileSize,
@@ -949,7 +994,7 @@ class BackgroundLayer extends React.Component {
     let fCanvas = document.createElement('canvas'),
       fCtx = fCanvas.getContext('2d'),
       wCanvas = document.createElement('canvas'),
-      wCtx = fCanvas.getContext('2d'),
+      wCtx = wCanvas.getContext('2d'),
       srcY = 3 * srcTileSize;
 
     srcY *= lvl === 1 ? 5 :
@@ -963,63 +1008,289 @@ class BackgroundLayer extends React.Component {
 
     fCanvas.width = fw;
     fCanvas.height = h;
-    fCtx.drawImage(fSrcImg, 0, srcY, fw/scale, h/scale, 0, 0, w, h);
+    fCtx.imageSmoothingEnabled = false;
+    fCtx.drawImage(floorImg, 0, srcY, fw/scale, h/scale, 0, 0, fw, h);
 
     wCanvas.width = ww;
     wCanvas.height = h;
-    wCtx.drawImage(wSrcImg, 0, srcY, ww/scale, h/scale, 0, 0, w, h);
+    wCtx.imageSmoothingEnabled = false;
+    wCtx.drawImage(wallImg, 0, srcY, ww/scale, h/scale, 0, 0, ww, h);
 
     this.setState({
       floorPalette: { canvas: fCanvas, ctx: fCtx },
       wallPalette: { canvas: wCanvas, ctx: wCtx }
     });
-    this.updatePaletteMaps()
+
+    //Delete after start screen created
+    (this.props.playerArr !== [0,0] && this.drawBackground(this.props, this.state));
+  }
+
+  drawBackground(nextProps, nextState) {
+    const flrImg = nextState.floorPalette.canvas,
+      wallImg = nextState.wallPalette.canvas,
+      flrImgMap = nextState.floorPaletteMap,
+      wallImgMap = nextState.wallPaletteMap,
+      bgArr = nextProps.bgArr,
+      playerArr = nextProps.playerArr,
+      ts = nextProps.tileSize,
+      px = nextProps.stageSize,
+      bgLen = bgArr.length,
+      rLen = px / ts,
+      air = 10,
+      flr = 40;
+
+    let dCtx = document.getElementById('bg-layer').getContext('2d'),
+      tempCanv = nextState.tempCanv.canvas,
+      tempCtx = nextState.tempCanv.ctx,
+      renderArr = [],
+      sr = 0,
+      sc = 0,
+      pr = 0,
+      pc = 0,
+      sx = 0,
+      sy = 0,
+      img = null,
+      map = {},
+      el = 0,
+      srcX = 0,
+      srcY = 0,
+      i = 0,
+      j = 0;
+
+    if (playerArr[0] - ~~(rLen / 2) < 0) {
+      sr = 0;
+      pr = -1 * (playerArr[0] - ~~(rLen / 2));
+    } else if (playerArr[0] + ~~(rLen / 2) + 1 > bgLen) {
+      pr =  playerArr[0] + ~~(rLen / 2) + 1 - bgLen;
+      sr = bgLen - rLen + pr;
+    } else {
+      sr = playerArr[0] - ~~(rLen / 2);
+      pr = 0;
+    }
+    if (playerArr[1] - ~~(rLen / 2) < 0) {
+      sc = 0;
+      pc = -1 * (playerArr[1] - ~~(rLen / 2));
+    } else if (playerArr[1] + ~~(rLen / 2) + 1 > bgLen ) {
+      pc =  playerArr[1] + ~~(rLen / 2) + 1 - bgLen;
+      sc = bgLen - rLen + pc;
+    } else {
+      sc = playerArr[1] - ~~(rLen / 2);
+      pc = 0;
+    }
+
+    renderArr.length = rLen - pr;
+    while(i < rLen - pr) {
+      renderArr[i] = [];
+      renderArr[i].length = rLen - pc;
+      while (j < rLen - pc) renderArr[i][j] = bgArr[sr + i][sc + j], j++;
+      j = 0, i++;
+    }
+
+    sx = (!sc && pc) ? pc * ts : 0;
+    sy = (!sr && pr) ? pr * ts : 0;
+
+    tempCtx.fillRect(0, 0, px, px);
+    for (i = 0; i < renderArr.length; i++) {
+      for (j = 0; j < renderArr[i].length; j++) {
+        el = renderArr[i][j];
+        if (el > air) {
+          img = el < flr ? wallImg : flrImg;
+          map = el < flr ? wallImgMap : flrImgMap;
+          srcX = map['' + el][0];
+          srcY = map['' + el][1];
+          tempCtx.drawImage(img, srcX, srcY, ts, ts, sx + j * ts, sy + i * ts, ts, ts);
+        }
+      }
+    }
+
+    dCtx.drawImage(tempCanv, 0, 0);
+    this.setState({ playerLoc: [...playerArr] });
   }
 
   componentWillMount() {
     this.getBgImages();
+    this.initTempCanvas();
     this.initPaletteMaps();
-    this.props.updateBgArr(backgroundArray(this.props.boardSize));
+
+    const { bgArr, floorCoords, hWallCoords, vWallCoords } = backgroundArray(this.props.boardSize);
+    this.props.updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords);
   }
 
-  componentWillRecieveProps(nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
-      this.props.updateBgArr(backgroundArray(this.props.boardSize));
-      this.setPalettes();
+      const { bgArr, floorCoords, hWallCoords, vWallCoords } = backgroundArray(this.props.boardSize);
+      this.props.updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords);
+
+      if (this.state.floorImg) {
+        this.setPalettes(this.state.floorImg, this.state.wallImg, nextProps.gameLevel);
+      }
+    }
+
+    if (nextProps.playerArr !== this.state.playerLoc &&
+      nextProps.playerArr !== [0,0] &&
+      this.state.floorPalette.canvas) {
+      this.drawBackground(nextProps, this.state);
     }
   }
 
   render() {
+    const size = this.props.stageSize;
     return (
-      <div className = 'backgroundLayer'>
-
-      </div>
+      <canvas
+        id = 'bg-layer'
+        className = 'bg-layer'
+        width = {size}
+        height = {size} />
     );
   }
 }
 
-//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, floorCoords
+//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updatePlayerArr, floorCoords
 class PlayerLayer extends React.Component {
   constructor(props) {
     super(props);
-    //this.initPlayerArr = this.initPlayerArr.bind(this);
+    this.getPlayerImages = this.getPlayerImages.bind(this);
+    this.initPaletteMap = this.initPaletteMap.bind(this);
+    this.setPalette = this.setPalette.bind(this);
+    this.pickPlayerStart = this.pickPlayerStart.bind(this);
+    this.drawPlayer = this.drawPlayer.bind(this);
 
+    this.state = ({
+      srcTileSize: 16,
+      mageImg: null,
+      rogueImg: null,
+      paladinImg: null,
+      warriorImg: null,
+      playerPalette: null,
+      playerPaletteMap: {},
+    });
+  }
+
+  getPlayerImages() {
+    const mageImg = new Image,
+      rogueImg = new Image,
+      paladinImg = new Image,
+      warriorImg = new Image,
+      that = this;
+
+    let i = 0;
+
+    const handleLoad = function handleImageLoad() {
+      i++;
+      if (i === 4) {
+        that.setState({ mageImg, rogueImg, paladinImg, warriorImg });
+
+        //temporary palette assignment until start screen is created
+        that.setPalette(that.props);
+      }
+    }
+
+    mageImg.src = 'img/heroes/Mage.png';
+    rogueImg.src = 'img/heroes/Rogue.png';
+    paladinImg.src = 'img/heroes/Paladin.png';
+    warriorImg.src = 'img/heroes/Warrior.png';
+    mageImg.addEventListener('load', handleLoad);
+    rogueImg.addEventListener('load', handleLoad);
+    paladinImg.addEventListener('load', handleLoad);
+    warriorImg.addEventListener('load', handleLoad);
+  }
+
+  initPaletteMap() {
+    const ts = this.props.tileSize,
+      w = 4;
+
+    let playerPaletteMap = {},
+      j = 0;
+
+    ['down', 'left', 'right', 'up'].forEach( (el, i) => {
+      for (j = 0; j < w; j++) {
+        playerPaletteMap[el + (j + 1)] = [i * ts, j * ts];
+      }
+    });
+
+    this.setState({ playerPaletteMap });
+  }
+
+  setPalette(nextProps) {
+    const hero = nextProps.hero.toLowerCase(),
+      srcImg = this.state[hero + 'Img'],
+      srcTileSize = this.state.srcTileSize,
+      gmTileSize = nextProps.tileSize,
+      scale = gmTileSize / srcTileSize,
+      w = 4 * gmTileSize,
+      h = 4 * gmTileSize;
+
+    let canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d');
+
+    canvas.width = w;
+    canvas.height = h;
+  	ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(srcImg, 0, 0, w/scale, h/scale, 0, 0, w, h);
+
+    this.setState({ playerPalette: {canvas, ctx} });
+  }
+
+  pickPlayerStart(nextProps) {
+    const playerArr = nextProps.floorCoords[randInt(0, nextProps.floorCoords.length - 1)];
+    nextProps.updatePlayerArr(playerArr);
+  }
+
+  drawPlayer(nextProps, nextState) {
+    const img = nextState.playerPalette.canvas,
+      imgD = nextProps.tileSize,
+      stageD = nextProps.stageSize,
+      sCoord = [0,0], //temp static
+      dx = (stageD - imgD) / 2,
+      dy = dx;
+
+    let canvas = document.getElementById('player-layer'),
+      ctx = canvas.getContext('2d');
+
+    ctx.drawImage(img, sCoord[0], sCoord[1], imgD, imgD, dx, dy, imgD, imgD);
+  }
+
+  componentWillMount() {
+    this.getPlayerImages();
+    this.initPaletteMap();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.bgArr !== nextProps.bgArr) {
+      this.pickPlayerStart(nextProps);
+    }
+    /*
+    if (!this.state.playerPalette && nextProps.hero && this.state.mageImg) {
+      this.setPalette(nextProps);
+    }
+    */
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    //stub rule
+    if (this.state.playerPalette !== nextState.playerPalette) {
+      this.drawPlayer(nextProps, nextState);
+    }
   }
 
   render() {
+    const size = this.props.stageSize;
     return (
-      <div className = 'player-layer'>
-
-      </div>
+      <canvas
+        id = 'player-layer'
+        className = 'player-layer'
+        width = {size}
+        height = {size} />
     );
   }
 }
 
-//props: boardSize, gameLevel
+//props: boardSize, gameLevel, hero, playerArr, updatePlayerArr
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
     this.updateBgArr = this.updateBgArr.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
 
     this.state = ({
       stageSize: 480,
@@ -1035,27 +1306,41 @@ class GameStage extends React.Component {
     this.setState({ bgArr, floorCoords, hWallCoords, vWallCoords });
   }
 
+  handleKeyDown(e) {
+    const el = e.nativeEvent.code,
+      arr = this.props.playerArr,
+      func = this.props.updatePlayerArr,
+      len = this.props.boardSize - 1;
+
+    if ((el === 'ArrowUp' || el === 'KeyW') && arr[0] > 0) arr[0]--, func(arr);
+    else if ((el === 'ArrowRight' || el === 'KeyD') && arr[1] < len) arr[1]++, func(arr);
+    else if ((el === 'ArrowDown' || el === 'KeyS') && arr[0] < len) arr[0]++, func(arr);
+    else if ((el === 'ArrowLeft' || el === 'KeyA') && arr[1] > 0) arr[1]--, func(arr);
+  }
+
   render() {
     return (
-      <div className='stage'>
+      <div className='stage' tabIndex='0' onKeyDown={this.handleKeyDown}>
         <BackgroundLayer
           stageSize = {this.state.stageSize}
           boardSize = {this.props.boardSize}
           tileSize =  {this.state.tileSize}
           gameLevel = {this.props.gameLevel}
           bgArr = {this.state.bgArr}
-          updateBgArr = {this.updateBgArr}  />
+          updateBgArr = {this.updateBgArr}
+          playerArr = {this.props.playerArr}  />
         {/*<AccentLayer	/>*/}
         {/*<ItemLayer	/>*/}
         {/*<EnemyLayer	/>*/}
         {/*<FogLayer	/>*/}
         <PlayerLayer
           stageSize = {this.state.stageSize}
-          boardSize = {this.props.boardSize}
           tileSize =  {this.state.tileSize}
+          hero = {this.props.hero}
           gameLevel = {this.props.gameLevel}
           bgArr = {this.state.bgArr}
-          updateBgArr = {this.updateBgArr}
+          playerArr = {this.props.playerArr}
+          updatePlayerArr = {this.props.updatePlayerArr}
           floorCoords = {this.state.floorCoords}  />
       </div>
     );
@@ -1065,11 +1350,18 @@ class GameStage extends React.Component {
 class Game extends React.Component {
   constructor(props) {
     super(props);
+    this.updatePlayerArr = this.updatePlayerArr.bind(this);
 
     this.state = ({
       boardSize: 120,
-      gameLevel: 0
+      gameLevel: 1,
+      hero: 'Rogue',
+      playerArr: [],
     });
+  }
+
+  updatePlayerArr(playerArr) {
+    this.setState({ playerArr });
   }
 
   render() {
@@ -1083,7 +1375,10 @@ class Game extends React.Component {
           <div className='title'>CrimsonQuest</div>
           <GameStage
             boardSize =  {this.state.boardSize}
-            gameLevel =  {this.state.gameLevel} />
+            gameLevel =  {this.state.gameLevel}
+            hero = {this.state.hero}
+            playerArr = {this.state.playerArr}
+            updatePlayerArr = {this.updatePlayerArr}  />
           <GameItems/>
         </div>
         <div className='col-rgt'>
