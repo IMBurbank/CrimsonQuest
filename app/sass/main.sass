@@ -21,6 +21,13 @@ $std-border: 1px solid #000
   text-align: center
   background-color: $prim-color
 
+%full-canvas
+  position: absolute
+  top: 0
+  left: 0
+  margin: 0
+  padding: 0
+
 //
 //		Styling
 //
@@ -113,13 +120,17 @@ h4
   border: $std-border
   background: #fff
 
+  .bg-layer
+    @extend %full-canvas
+    z-index: 10
+
+  .acc-layer
+    @extend %full-canvas
+    z-index: 11
+
   .player-layer
-    position: absolute
-    top: 0
-    left: 0
-    z-index: 5
-    margin: 0
-    padding: 0
+    @extend %full-canvas
+    z-index: 14
 
 .items
   width: 8 * $tile-size

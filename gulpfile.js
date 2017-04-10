@@ -53,9 +53,6 @@ gulp.task('useref', function(){
     .pipe(gulpIf('app/js/*.js', uglify()))
     .pipe(gulpIf('app/css/*.css', cssnano()))
     .pipe(gulp.dest('dist'))
-    .pipe(browserSync.reload({
-      stream: true
-    }))
 });
 
 gulp.task('images', function(){
@@ -64,7 +61,7 @@ gulp.task('images', function(){
 });
 
 gulp.task('update', function (callback) {
-  runSequence('clean:dist', 'useref', 'images', 'reload',
+  runSequence('clean:dist', 'images', 'useref', 'reload',
     callback
   )
 })

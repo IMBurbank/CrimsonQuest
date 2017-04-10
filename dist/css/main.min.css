@@ -7,6 +7,13 @@
   text-align: center;
   background-color: #101010; }
 
+.stage .bg-layer, .stage .acc-layer, .stage .player-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0; }
+
 html,
 body,
 div,
@@ -102,13 +109,12 @@ h4 {
   margin-bottom: 32px;
   border: 1px solid #000;
   background: #fff; }
+  .stage .bg-layer {
+    z-index: 10; }
+  .stage .acc-layer {
+    z-index: 11; }
   .stage .player-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 5;
-    margin: 0;
-    padding: 0; }
+    z-index: 14; }
 
 .items {
   width: 256px;
