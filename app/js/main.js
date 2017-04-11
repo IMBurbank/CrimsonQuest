@@ -189,28 +189,64 @@ var Game = function (_React$Component8) {
 
     var _this8 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
+    _this8.updateBgArr = _this8.updateBgArr.bind(_this8);
+    _this8.handleKeyDown = _this8.handleKeyDown.bind(_this8);
     _this8.updatePlayerArr = _this8.updatePlayerArr.bind(_this8);
 
     _this8.state = {
       boardSize: 120,
+      floor: 40,
       gameLevel: 1,
       hero: 'Paladin',
-      playerArr: []
+      playerArr: [],
+      bgArr: [],
+      floorCoords: []
     };
     return _this8;
   }
 
   _createClass(Game, [{
+    key: 'updateBgArr',
+    value: function updateBgArr(bgArr, floorCoords) {
+      this.setState({ bgArr: bgArr, floorCoords: floorCoords });
+    }
+  }, {
     key: 'updatePlayerArr',
     value: function updatePlayerArr(playerArr) {
       this.setState({ playerArr: [].concat(_toConsumableArray(playerArr)) });
+    }
+  }, {
+    key: 'handleKeyDown',
+    value: function handleKeyDown(e) {
+      var el = e.nativeEvent.code,
+          arr = this.state.playerArr,
+          bg = this.state.bgArr,
+          flr = this.state.floor,
+          len = this.state.boardSize - 1;
+
+      var r = arr[0],
+          c = arr[1];
+
+      if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r - 1][c] > flr) {
+        r--;
+        this.setState({ playerArr: [r, c] });
+      } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c + 1] > flr) {
+        c++;
+        this.setState({ playerArr: [r, c] });
+      } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r + 1][c] > flr) {
+        r++;
+        this.setState({ playerArr: [r, c] });
+      } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c - 1] > flr) {
+        c--;
+        this.setState({ playerArr: [r, c] });
+      }
     }
   }, {
     key: 'render',
     value: function render() {
       return React.createElement(
         'div',
-        { className: 'game' },
+        { className: 'game', tabIndex: '0', onKeyDown: this.handleKeyDown },
         React.createElement(
           'div',
           { className: 'col-lft' },
@@ -227,9 +263,13 @@ var Game = function (_React$Component8) {
           ),
           React.createElement(GameStage, {
             boardSize: this.state.boardSize,
+            floor: this.state.floor,
             gameLevel: this.state.gameLevel,
             hero: this.state.hero,
             playerArr: this.state.playerArr,
+            bgArr: this.state.bgArr,
+            updateBgArr: this.updateBgArr,
+            floorCoords: this.state.floorCoords,
             updatePlayerArr: this.updatePlayerArr }),
           React.createElement(GameItems, null)
         ),

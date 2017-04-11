@@ -81,23 +81,57 @@ class GameTips extends React.Component {
 class Game extends React.Component {
   constructor(props) {
     super(props);
+    this.updateBgArr = this.updateBgArr.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.updatePlayerArr = this.updatePlayerArr.bind(this);
 
     this.state = ({
       boardSize: 120,
+      floor: 40,
       gameLevel: 1,
       hero: 'Paladin',
       playerArr: [],
+      bgArr: [],
+      floorCoords: []
     });
+  }
+
+  updateBgArr(bgArr, floorCoords) {
+    this.setState({ bgArr, floorCoords });
   }
 
   updatePlayerArr(playerArr) {
     this.setState({ playerArr: [...playerArr] });
   }
 
+  handleKeyDown(e) {
+    const el = e.nativeEvent.code,
+      arr = this.state.playerArr,
+      bg = this.state.bgArr,
+      flr = this.state.floor,
+      len = this.state.boardSize - 1;
+
+    let r = arr[0],
+      c = arr[1];
+
+    if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r-1][c] > flr) {
+      r--;
+      this.setState({playerArr: [r,c]});
+    } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c+1] > flr) {
+      c++;
+      this.setState({playerArr: [r,c]});
+    } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r+1][c] > flr) {
+      r++;
+      this.setState({playerArr: [r,c]});
+    } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c-1] > flr) {
+      c--;
+      this.setState({playerArr: [r,c]});
+    }
+  }
+
   render() {
     return (
-      <div className='game'>
+      <div className='game' tabIndex='0' onKeyDown={this.handleKeyDown}>
         <div className='col-lft'>
           <GameLevel />
           <CharacterInfo/>
@@ -106,9 +140,13 @@ class Game extends React.Component {
           <div className='title'>CrimsonQuest</div>
           <GameStage
             boardSize =  {this.state.boardSize}
+            floor = {this.state.floor}
             gameLevel =  {this.state.gameLevel}
             hero = {this.state.hero}
             playerArr = {this.state.playerArr}
+            bgArr = {this.state.bgArr}
+            updateBgArr = {this.updateBgArr}
+            floorCoords = {this.state.floorCoords}
             updatePlayerArr = {this.updatePlayerArr}  />
           <GameItems/>
         </div>

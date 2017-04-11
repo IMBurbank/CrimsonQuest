@@ -8,7 +8,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: boardSize, gameLevel, hero, playerArr, updatePlayerArr
+//props: boardSize, floor gameLevel, hero, playerArr, bgArr,
+//updateBgArr, floorCoords, updatePlayerArr
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -17,61 +18,34 @@ var GameStage = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (GameStage.__proto__ || Object.getPrototypeOf(GameStage)).call(this, props));
 
-    _this.updateBgArr = _this.updateBgArr.bind(_this);
-    _this.handleKeyDown = _this.handleKeyDown.bind(_this);
     _this.updateAccArr = _this.updateAccArr.bind(_this);
 
     _this.state = {
       stageSize: 480,
       tileSize: 32,
-      floor: 40,
-      bgArr: [],
-      accArr: [],
-      floorCoords: [],
-      hWallCoords: [],
-      vWallCoords: []
+      accArr: []
     };
     return _this;
   }
 
   _createClass(GameStage, [{
-    key: 'updateBgArr',
-    value: function updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords) {
-      this.setState({ bgArr: bgArr, floorCoords: floorCoords, hWallCoords: hWallCoords, vWallCoords: vWallCoords });
-    }
-  }, {
     key: 'updateAccArr',
     value: function updateAccArr(accArr) {
       this.setState({ accArr: accArr });
-    }
-  }, {
-    key: 'handleKeyDown',
-    value: function handleKeyDown(e) {
-      var el = e.nativeEvent.code,
-          arr = this.props.playerArr,
-          bg = this.state.bgArr,
-          flr = this.state.floor,
-          func = this.props.updatePlayerArr,
-          len = this.props.boardSize - 1;
-
-      var r = arr[0],
-          c = arr[1];
-
-      if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r - 1][c] > flr) r--, func([r, c]);else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c + 1] > flr) c++, func([r, c]);else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r + 1][c] > flr) r++, func([r, c]);else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c - 1] > flr) c--, func([r, c]);
     }
   }, {
     key: 'render',
     value: function render() {
       return React.createElement(
         'div',
-        { className: 'stage', tabIndex: '0', onKeyDown: this.handleKeyDown },
+        { className: 'stage' },
         React.createElement(BackgroundLayer, {
           stageSize: this.state.stageSize,
           boardSize: this.props.boardSize,
           tileSize: this.state.tileSize,
           gameLevel: this.props.gameLevel,
-          bgArr: this.state.bgArr,
-          updateBgArr: this.updateBgArr,
+          bgArr: this.props.bgArr,
+          updateBgArr: this.props.updateBgArr,
           playerArr: this.props.playerArr }),
         React.createElement(AccentLayer, {
           stageSize: this.state.stageSize,
@@ -79,7 +53,7 @@ var GameStage = function (_React$Component) {
           tileSize: this.state.tileSize,
           gameLevel: this.props.gameLevel,
           playerArr: this.props.playerArr,
-          bgArr: this.state.bgArr,
+          bgArr: this.props.bgArr,
           accArr: this.state.accArr,
           updateAccArr: this.updateAccArr }),
         React.createElement(PlayerLayer, {
@@ -87,10 +61,10 @@ var GameStage = function (_React$Component) {
           tileSize: this.state.tileSize,
           hero: this.props.hero,
           gameLevel: this.props.gameLevel,
-          bgArr: this.state.bgArr,
+          bgArr: this.props.bgArr,
           playerArr: this.props.playerArr,
           updatePlayerArr: this.props.updatePlayerArr,
-          floorCoords: this.state.floorCoords })
+          floorCoords: this.props.floorCoords })
       );
     }
   }]);

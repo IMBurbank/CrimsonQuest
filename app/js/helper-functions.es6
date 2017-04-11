@@ -617,9 +617,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
       nArr = [0,0,0,0,0,0,0,0],
       len = walledArr.length - 1;
 
-    let hWallCoords = [],
-      vWallCoords = [],
-      i = 1,
+    let i = 1,
       j = 1,
       el = 0;
 
@@ -696,11 +694,9 @@ const backgroundArray = function createBackgroundArray(arrSize) {
               (nArr[4] === air &&
               ((nArr[1] === flr && nArr[2] === flr) || (nArr[5] === flr && nArr[6] === flr)))) {
               el = 22;
-              hWallCoords.push([i,j]);
             } else if ((nArr[1] > air && nArr[1] < flr) ||
               (nArr[6] === air && (nArr[3] === flr || nArr[4] === flr))) {
               el = 24;
-              vWallCoords.push([i,j]);
             } else if (nArr[1] === flr || nArr[3] === flr || nArr[4] === flr || nArr[6] === flr) {
               el = 26;
             }
@@ -713,7 +709,7 @@ const backgroundArray = function createBackgroundArray(arrSize) {
       i++;
     }
 
-    return {walledArr, hWallCoords, vWallCoords};
+    return walledArr;
   }
 
   const addFloors = function addArrFloors(walledArr) {
@@ -791,8 +787,8 @@ const backgroundArray = function createBackgroundArray(arrSize) {
   const stitchArr = stitchRooms(rooms);
   const connectedArr = createPaths(rooms, stitchArr);
   const {orientation, orientedArr} = randomizeOrientation(connectedArr);
-  const {walledArr, hWallCoords, vWallCoords} = addWalls(orientedArr);
+  const walledArr = addWalls(orientedArr);
   const {bgArr, floorCoords} = addFloors(walledArr);
 
-  return {bgArr, floorCoords, hWallCoords, vWallCoords};
+  return { bgArr, floorCoords };
 }

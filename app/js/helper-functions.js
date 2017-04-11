@@ -651,9 +651,7 @@ var backgroundArray = function createBackgroundArray(arrSize) {
         nArr = [0, 0, 0, 0, 0, 0, 0, 0],
         len = walledArr.length - 1;
 
-    var hWallCoords = [],
-        vWallCoords = [],
-        i = 1,
+    var i = 1,
         j = 1,
         el = 0;
 
@@ -694,10 +692,8 @@ var backgroundArray = function createBackgroundArray(arrSize) {
               el = 27;
             } else if (nArr[3] > air && nArr[3] < flr && (nArr[1] === flr || nArr[6] === flr) || nArr[4] === air && (nArr[1] === flr && nArr[2] === flr || nArr[5] === flr && nArr[6] === flr)) {
               el = 22;
-              hWallCoords.push([i, j]);
             } else if (nArr[1] > air && nArr[1] < flr || nArr[6] === air && (nArr[3] === flr || nArr[4] === flr)) {
               el = 24;
-              vWallCoords.push([i, j]);
             } else if (nArr[1] === flr || nArr[3] === flr || nArr[4] === flr || nArr[6] === flr) {
               el = 26;
             }
@@ -710,7 +706,7 @@ var backgroundArray = function createBackgroundArray(arrSize) {
       i++;
     }
 
-    return { walledArr: walledArr, hWallCoords: hWallCoords, vWallCoords: vWallCoords };
+    return walledArr;
   };
 
   var addFloors = function addArrFloors(walledArr) {
@@ -792,14 +788,11 @@ var backgroundArray = function createBackgroundArray(arrSize) {
       orientation = _randomizeOrientation.orientation,
       orientedArr = _randomizeOrientation.orientedArr;
 
-  var _addWalls = addWalls(orientedArr),
-      walledArr = _addWalls.walledArr,
-      hWallCoords = _addWalls.hWallCoords,
-      vWallCoords = _addWalls.vWallCoords;
+  var walledArr = addWalls(orientedArr);
 
   var _addFloors = addFloors(walledArr),
       bgArr = _addFloors.bgArr,
       floorCoords = _addFloors.floorCoords;
 
-  return { bgArr: bgArr, floorCoords: floorCoords, hWallCoords: hWallCoords, vWallCoords: vWallCoords };
+  return { bgArr: bgArr, floorCoords: floorCoords };
 };
