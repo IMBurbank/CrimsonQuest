@@ -92,7 +92,13 @@ class Game extends React.Component {
       hero: 'Paladin',
       playerArr: [],
       bgArr: [],
-      floorCoords: []
+      floorCoords: [],
+      interactItem: {count: 0, type: '', item: {}},
+      //type: pickup, use, equip, unequip, buy, sell
+      initAttack: {count: 0, stats: {}, coords: {}},
+      attackRound: {count: 0, attacks: []},
+      enemyDead: {count: 0, enemy: {}},
+      playerDead: false,
     });
   }
 
