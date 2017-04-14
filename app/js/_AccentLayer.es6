@@ -27,30 +27,19 @@ class AccentLayer extends React.Component {
       grnd1Canv: null,
       ore0Canv: null,
       ore1Canv: null,
-      decorMap: null,
-      groundMap: null,
-      oreMap: null,
-      corpseMap: null,
-      paletteArrMap: null,
+      decorMap: {},
+      groundMap: {},
+      oreMap: {},
+      corpseMap: [],
+      paletteArrMap: {},
       tempCanv: null,
     });
   }
 
   initAccArr() {
-    const len = this.props.boardSize;
+    const len = this.props.boardSize,
+      accArr = initZeroArray(len);
 
-    let accArr = [],
-      i = 0,
-      j = 0;
-
-    accArr.length = length;
-    while(i < len) {
-      accArr[i] = [];
-      accArr[i].length = len;
-      while(j < len) accArr[i][j] = 0, j++;
-      j = 0;
-      i++;
-    }
     this.props.updateAccArr(accArr);
   }
 
@@ -91,15 +80,11 @@ class AccentLayer extends React.Component {
   }
 
   initTempCanvas() {
-    let canvas = document.createElement('canvas'),
-      ctx = canvas.getContext('2d'),
-      size = this.props.stageSize;
+    const size = this.props.stageSize,
+      smoothRender = false,
+      tempCanv = initMemCanvas(size, size, smoothRender);
 
-    canvas.width = size;
-    canvas.height = size;
-    ctx.imageSmoothingEnabled = false;
-
-    this.setState({ tempCanv: canvas });
+    this.setState({ tempCanv });
   }
 
   initPaletteMaps() {
@@ -108,7 +93,7 @@ class AccentLayer extends React.Component {
     let decorMap = {},
       groundMap = {},
       oreMap = {},
-      corpseMap = {},
+      corpseMap = [],
       w = 0,
       h = 0,
       i = 0,

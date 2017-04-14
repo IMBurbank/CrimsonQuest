@@ -87,12 +87,15 @@ class Game extends React.Component {
 
     this.state = ({
       boardSize: 120,
+      wall: 20,
       floor: 40,
       gameLevel: 1,
       hero: 'Paladin',
+      backpack: {},
       playerArr: [],
       bgArr: [],
       floorCoords: [],
+      itemPalettes: {},
       interactItem: {count: 0, type: '', item: {}},
       //type: pickup, use, equip, unequip, buy, sell
       initAttack: {count: 0, stats: {}, coords: {}},

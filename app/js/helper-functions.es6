@@ -12,6 +12,30 @@ const devError = function createDevError(message = 'Default Error') {
   this.stack = (new Error()).stack;
 }
 
+const initZeroArray = function initZeroFilledArray(len) {
+  let arr = [], i = 0, j = 0;
+
+  arr.length = len;
+  while (i < len) {
+    arr[i] = [];
+    arr[i].length = len;
+    while (j < len) arr[i][j] = 0, j++;
+    j = 0, i++;
+  }
+  return arr;
+}
+
+const initMemCanvas = function initCanvasToPointer(w, h, smoothing) {
+  let tempCanv = document.createElement('canvas'),
+    ctx = tempCanv.getContext('2d');
+
+  tempCanv.width = w;
+  tempCanv.height = h;
+  ctx.imageSmoothingEnabled = smoothing;
+
+  return tempCanv;
+}
+
 const backgroundArray = function createBackgroundArray(arrSize) {
   const air = 10,
     flr = 40;
