@@ -8,6 +8,20 @@ $prim-color: rgb(16, 16, 16)
 $head-font-color: #fff
 $std-border: 1px solid #000
 
+
+//
+//    Font Variants
+//
+
+@font-face
+  font-family: 'game-font-6'
+  src: url('fonts/SDS_6x6.ttf') format('truetype')
+
+@font-face
+  font-family: 'game-font-8'
+  src: url('fonts/SDS_8x8.ttf') format('truetype')
+
+
 //
 //		Classes to @extend
 //
@@ -80,6 +94,7 @@ h4
   height: $gm-height
   margin: auto
   border: $std-border
+  font-family: 'game-font-6', sans-serif
   background: rgba(0, 255, 0, 0.1)
 
 .col-lft
@@ -93,11 +108,49 @@ h4
   border: $std-border
   background: #fff
 
-.char-info
+.hero
   width: $side-col
-  height: 512px
+  height: 572px
   border: $std-border
   background: #fff
+
+  .hero-heading
+    margin-top: 8px
+
+.hero-type
+  display: flex
+  justify-content: center
+  align-items: center
+  margin: 8px 0
+
+  p
+    font-size: .9rem
+
+.stat-col
+  margin: 0
+  text-align: left
+
+  p
+    display: block
+    margin: 4px 0 4px 8px
+
+.stat-row
+  margin: 4px 0 4px 24px
+  font-size: .9rem
+  text-align: left
+
+.equip-row
+  display: flex
+  align-items: center
+  margin: 8px 0 0 8px
+  font-size: .8rem
+  text-align: left
+
+  .equip-canv
+    border: $std-border
+
+  .equip-name
+    margin-left: 8px
 
 .col-mid
   display: flex
@@ -127,6 +180,10 @@ h4
   .acc-layer
     @extend %full-canvas
     z-index: 11
+
+  .item-layer
+    @extend %full-canvas
+    z-index: 12
 
   .player-layer
     @extend %full-canvas

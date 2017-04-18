@@ -8,8 +8,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: boardSize, floor gameLevel, hero, playerArr, bgArr,
-//updateBgArr, floorCoords, updatePlayerArr
+//props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
+//updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -22,7 +22,6 @@ var GameStage = function (_React$Component) {
 
     _this.state = {
       stageSize: 480,
-      tileSize: 32,
       accArr: []
     };
     return _this;
@@ -42,7 +41,7 @@ var GameStage = function (_React$Component) {
         React.createElement(BackgroundLayer, {
           stageSize: this.state.stageSize,
           boardSize: this.props.boardSize,
-          tileSize: this.state.tileSize,
+          tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
           bgArr: this.props.bgArr,
           updateBgArr: this.props.updateBgArr,
@@ -50,21 +49,34 @@ var GameStage = function (_React$Component) {
         React.createElement(AccentLayer, {
           stageSize: this.state.stageSize,
           boardSize: this.props.boardSize,
-          tileSize: this.state.tileSize,
+          tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
           playerArr: this.props.playerArr,
           bgArr: this.props.bgArr,
           accArr: this.state.accArr,
           updateAccArr: this.updateAccArr }),
+        React.createElement(ItemLayer, {
+          stageSize: this.state.stageSize,
+          boardSize: this.props.boardSize,
+          tileSize: this.props.tileSize,
+          gameLevel: this.props.gameLevel,
+          levels: this.props.levels,
+          playerArr: this.props.playerArr,
+          bgArr: this.props.bgArr,
+          floorCoords: this.props.floorCoords,
+          itemArr: this.props.itemArr,
+          itemPalettes: this.props.itemPalettes,
+          itemPaletteArrMap: this.props.itemPaletteArrMap,
+          updateGameClassState: this.props.updateGameClassState }),
         React.createElement(PlayerLayer, {
           stageSize: this.state.stageSize,
-          tileSize: this.state.tileSize,
+          tileSize: this.props.tileSize,
           hero: this.props.hero,
           gameLevel: this.props.gameLevel,
           bgArr: this.props.bgArr,
           playerArr: this.props.playerArr,
-          updatePlayerArr: this.props.updatePlayerArr,
-          floorCoords: this.props.floorCoords })
+          floorCoords: this.props.floorCoords,
+          updateGameClassState: this.props.updateGameClassState })
       );
     }
   }]);

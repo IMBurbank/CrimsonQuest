@@ -8,7 +8,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updatePlayerArr, floorCoords
+//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updateGameClassState, floorCoords
 var PlayerLayer = function (_React$Component) {
   _inherits(PlayerLayer, _React$Component);
 
@@ -20,6 +20,7 @@ var PlayerLayer = function (_React$Component) {
     _this.getPlayerImages = _this.getPlayerImages.bind(_this);
     _this.initPaletteMap = _this.initPaletteMap.bind(_this);
     _this.setPalette = _this.setPalette.bind(_this);
+    _this.setHeroIcon = _this.setHeroIcon.bind(_this);
     _this.pickPlayerStart = _this.pickPlayerStart.bind(_this);
     _this.drawPlayer = _this.drawPlayer.bind(_this);
 
@@ -87,27 +88,44 @@ var PlayerLayer = function (_React$Component) {
     value: function setPalette(nextProps) {
       var hero = nextProps.hero.toLowerCase(),
           srcImg = this.state[hero + 'Img'],
-          srcTileSize = this.state.srcTileSize,
-          gmTileSize = nextProps.tileSize,
-          scale = gmTileSize / srcTileSize,
-          w = 4 * gmTileSize,
-          h = 4 * gmTileSize;
+          srcTS = this.state.srcTileSize,
+          gmTS = nextProps.tileSize,
+          scale = gmTS / srcTS,
+          w = 4 * gmTS,
+          h = 4 * gmTS;
 
       var canvas = document.createElement('canvas'),
-          ctx = canvas.getContext('2d');
+          ctx = null;
 
       canvas.width = w;
       canvas.height = h;
+      ctx = canvas.getContext('2d');
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(srcImg, 0, 0, w / scale, h / scale, 0, 0, w, h);
 
-      this.setState({ playerPalette: { canvas: canvas, ctx: ctx } });
+      this.setState({ playerPalette: { canvas: canvas, ctx: ctx } }, this.setHeroIcon(canvas));
+    }
+  }, {
+    key: 'setHeroIcon',
+    value: function setHeroIcon(canvas) {
+      var w = this.props.tileSize,
+          h = w;
+
+      var heroIcon = document.createElement('canvas'),
+          hCtx = null;
+
+      heroIcon.width = w;
+      heroIcon.height = h;
+      hCtx = heroIcon.getContext('2d');
+      hCtx.imageSmoothingEnabled = false;
+      hCtx.drawImage(canvas, 0, 0, w, h, 0, 0, w, h);
+      this.props.updateGameClassState({ heroIcon: heroIcon });
     }
   }, {
     key: 'pickPlayerStart',
     value: function pickPlayerStart(nextProps) {
       var playerArr = nextProps.floorCoords[randInt(0, nextProps.floorCoords.length - 1)];
-      nextProps.updatePlayerArr(playerArr);
+      nextProps.updateGameClassState({ playerArr: playerArr });
     }
   }, {
     key: 'drawPlayer',

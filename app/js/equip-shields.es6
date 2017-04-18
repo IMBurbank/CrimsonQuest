@@ -2,7 +2,7 @@
  * Shields
  */
 
- itemShields = {
+ const itemShields = {
    mageShd1: {
      name: "Arcane Shield",
      type: 'shield',

@@ -1,106 +1,13 @@
-const charTypeStats = {
-  Mage: {
-    heroName: 'Forsyth',
-    health: 53,
-    attack: 12,
-    defense: 10,
-    hit: 90,
-    crit: 5,
-    dodge: 10,
-    vitality: 12,
-    durability: 10,
-    strength: 12,
-    agility: 10,
-    onLevelUp: {
-      health: 0,
-      attack: 5,
-      defense: 0,
-      vitality: 1,
-      durability: 0,
-      strength: 2,
-      agility: 1,
-    }
-  },
-  Paladin: {
-    heroName: 'Roland',
-    health: 53,
-    attack: 10,
-    defense: 12,
-    hit: 90,
-    crit: 5,
-    dodge: 10,
-    vitality: 11,
-    durability: 11,
-    strength: 11,
-    agility: 11,
-    onLevelUp: {
-      health: 6,
-      attack: 1,
-      defense: 2,
-      vitality: 1,
-      durability: 2,
-      strength: 1,
-      agility: 0,
-    }
-  },
-  Rogue: {
-    heroName: 'Hanzo',
-    health: 50,
-    attack: 13,
-    defense: 10,
-    hit: 90,
-    crit: 5,
-    dodge: 10,
-    vitality: 10,
-    durability: 10,
-    strength: 12,
-    agility: 12,
-    onLevelUp: {
-      health: 6,
-      attack: 3,
-      defense: 0,
-      vitality: 0,
-      durability: 0,
-      strength: 2,
-      agility: 2,
-    }
-  },
-  Warrior: {
-    heroName: 'Agis',
-    health: 50,
-    attack: 12,
-    defense: 11,
-    hit: 90,
-    crit: 5,
-    dodge: 10,
-    vitality: 10,
-    durability: 12,
-    strength: 12,
-    agility: 10,
-    onLevelUp: {
-      health: 6,
-      attack: 2,
-      defense: 1,
-      vitality: 0,
-      durability: 1,
-      strength: 2,
-      agility: 1,
-    }
-  }
-}
-
-const statConversion = {
-  vitToHp: 9,
-  durToHp: 3,
-};
-
+//props: tileSize, hero, heroIcon, inventory, interactItem, updateGameClassState
 class Hero extends React.Component {
   constructor(props) {
     super(props);
     this.initHero = this.initHero.bind(this);
+    this.changeStats = this.changeStats.bind(this);
     this.handleLevelUp = this.handleLevelUp.bind(this);
+    this.paintHeroIcon = this.paintHeroIcon.bind(this);
 
-    this.setState({
+    this.state = ({
       heroName: "",
       experience: 0,
       expToLevel: 0,
@@ -138,12 +45,13 @@ class Hero extends React.Component {
       iStrength: 0,
       iAgility: 0,
       bExpToLevel: 100,
-      expLevelMult: 1.75
+      expLevelMult: 1.75,
+      interactItemCount: 0
     });
   }
 
   initHero(hero) {
-    const char = Object.assign({}, charTypeStats[hero]),
+    const char = Object.assign({}, heroTypeStats[hero]),
       bHp = char.health,
       bVit = char.vitality,
       bDur = char.durability,
@@ -166,6 +74,25 @@ class Hero extends React.Component {
       bAgility: char.agility,
       onLevelUp: char.onLevelUp
     });
+  }
+
+  paintHeroIcon(icon) {
+    let ctx = document.getElementById('hero-icon').getContext('2d');
+
+    ctx.drawImage(icon, 0, 0);
+  }
+
+  changeStats(stats) {
+    const attr = Object.assign({}, stats);
+
+    let newState = Object.assign({}, this.state),
+      prop = null;
+
+    for (prop in attr) {
+      newState[prop] += attr[prop];
+    }
+    console.log('newState: ', JSON.stringify(newState));
+    this.setState(newState);
   }
 
   handleLevelUp(lvl) {
@@ -198,14 +125,131 @@ class Hero extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.hero !== nextProps.hero && nextProps.hero) {
-      initHero(nextProps.hero);
+    if (this.state.heroName === "" && nextProps.hero) {
+      this.initHero(nextProps.hero);
+    }
+    if (this.state.interactItemCount !== nextProps.interactItem.count &&
+      nextProps.interactItem.count) {
+
+      console.log('interactItem');
+      console.log(nextProps.interactItem.type);
+
+      if (nextProps.interactItem.type === 'pickup' && nextProps.interactItem.item.type === 'gold') {
+        this.changeStats(nextProps.interactItem.item.stats);
+      }
+
+      this.setState({ interactItemCount: nextProps.interactItem.count });
+    }
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if (this.props.heroIcon !== nextProps.heroIcon && nextProps.heroIcon) {
+      this.paintHeroIcon(nextProps.heroIcon);
     }
   }
 
   render() {
+    const ts = this.props.tileSize,
+      none = 'None',
+      conv = statConversion,
+      curHp = this.state.curHealth,
+      lvl = this.state.charLevel,
+      gold = this.state.gold,
+      exp = this.state.experience,
+      expToLvl = this.state.expToLevel,
+      vit = this.state.bVitality + this.state.iVitality,
+      dur = this.state.bDurability + this.state.iDurability,
+      str = this.state.bStrength + this.state.iStrength,
+      agi = this.state.bAgility + this.state.iAgility,
+      atk = this.state.bAttack + this.state.iAttack + conv.strToAtk * str,
+      def = this.state.bDefense + this.state.iDefense + conv.durToDef * dur + conv.strToDef * str,
+      maxHp = this.state.bHealth + this.state.iHealth + conv.vitToHp * vit + conv.durToHp * dur,
+      hed = this.state.head || none,
+      wep = this.state.weapon || none,
+      amu = this.state.amulet || none,
+      bod = this.state.armor || none,
+      shd = this.state.shield || none,
+      glv = this.state.glove || none,
+      rng = this.state.ring || none,
+      ft = this.state.foot || none;
+
     return (
-      <a></a>
+      <div className='hero'>
+        <p className='hero-heading'>Character Info</p>
+        <div className='hero-type'>
+          <canvas id='hero-icon' className='hero-icon' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Name: {this.state.heroName}</p>
+            <p>Type: {this.props.hero}</p>
+          </div>
+        </div>
+        <p className='stat-row'>Level: {lvl}</p>
+        <p className='stat-row'>Health: {curHp}/{maxHp}</p>
+        <p className='stat-row'>Gold: {gold}</p>
+        <p className='stat-row'>Exp: {exp}/{expToLvl}</p>
+        <p className='stat-row'>Atk: {atk}</p>
+        <p className='stat-row'>Def: {def}</p>
+        <p className='stat-row'>Vit: {vit}</p>
+        <p className='stat-row'>Dur: {dur}</p>
+        <p className='stat-row'>Str: {str}</p>
+        <p className='stat-row'>Agi: {agi}</p>
+        <div className='equip-row'>
+          <canvas id='hero-hed' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Head</p>
+            <p className='equip-name'>{hed}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-wep' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Weapon</p>
+            <p className='equip-name'>{wep}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-amu' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Amulet</p>
+            <p className='equip-name'>{amu}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-bod' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Armor</p>
+            <p className='equip-name'>{bod}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-shd' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Shield</p>
+            <p className='equip-name'>{shd}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-glv' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Glove</p>
+            <p className='equip-name'>{glv}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-rng' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Ring</p>
+            <p className='equip-name'>{rng}</p>
+          </div>
+        </div>
+        <div className='equip-row'>
+          <canvas id='hero-ft' className='equip-canv' width={ts} height={ts} />
+          <div className='stat-col'>
+            <p>Foot</p>
+            <p className='equip-name'>{ft}</p>
+          </div>
+        </div>
+      </div>
     );
   }
 }

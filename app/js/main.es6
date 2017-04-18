@@ -18,16 +18,6 @@ class GameLevel extends React.Component {
   }
 }
 
-class CharacterInfo extends React.Component {
-  render() {
-    return (
-      <div className='char-info'>
-        Character Info
-      </div>
-    );
-  }
-}
-
 class GameItems extends React.Component {
   render() {
     return (
@@ -84,18 +74,25 @@ class Game extends React.Component {
     this.updateBgArr = this.updateBgArr.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.updatePlayerArr = this.updatePlayerArr.bind(this);
+    this.updateGameClassState = this.updateGameClassState.bind(this);
+    this.pickupItem = this.pickupItem.bind(this);
 
     this.state = ({
       boardSize: 120,
+      tileSize: 32,
       wall: 20,
       floor: 40,
       gameLevel: 1,
+      levels: 10,
       hero: 'Paladin',
-      backpack: {},
+      heroIcon: null,
+      inventory: {},
       playerArr: [],
       bgArr: [],
+      itemArr: [],
       floorCoords: [],
       itemPalettes: {},
+      itemPaletteArrMap: {},
       interactItem: {count: 0, type: '', item: {}},
       //type: pickup, use, equip, unequip, buy, sell
       initAttack: {count: 0, stats: {}, coords: {}},
@@ -113,10 +110,38 @@ class Game extends React.Component {
     this.setState({ playerArr: [...playerArr] });
   }
 
+  updateGameClassState(updatedEls = {}) {
+    this.setState(updatedEls);
+  }
+
+  pickupItem(coord, val) {
+    const item = Object.assign({}, this.state.itemPaletteArrMap[`${val}`]),
+      inventory = Object.assign({}, this.state.inventory),
+      itemArr = [...this.state.itemArr];
+
+    if (inventory[item.name]) inventory[item.name].count += 1;
+    else item.count = 1, inventory[item.name] = item;
+
+    itemArr[coord[0]][coord[1]] = 0;
+
+    this.setState( (prevState, props) => {
+      return {
+        itemArr,
+        inventory,
+        playerArr: coord,
+        interactItem: {
+          item,
+          count: prevState.interactItem.count + 1,
+          type: 'pickup'} };
+    });
+    console.log('Picked up', item.name);
+  }
+
   handleKeyDown(e) {
     const el = e.nativeEvent.code,
-      arr = this.state.playerArr,
+      arr = [...this.state.playerArr],
       bg = this.state.bgArr,
+      itm = this.state.itemArr,
       flr = this.state.floor,
       len = this.state.boardSize - 1;
 
@@ -125,38 +150,55 @@ class Game extends React.Component {
 
     if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r-1][c] > flr) {
       r--;
-      this.setState({playerArr: [r,c]});
+      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+      else this.setState({playerArr: [r,c]});
     } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c+1] > flr) {
       c++;
-      this.setState({playerArr: [r,c]});
+      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+      else this.setState({playerArr: [r,c]});
     } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r+1][c] > flr) {
       r++;
-      this.setState({playerArr: [r,c]});
+      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+      else this.setState({playerArr: [r,c]});
     } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c-1] > flr) {
       c--;
-      this.setState({playerArr: [r,c]});
+      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+      else this.setState({playerArr: [r,c]});
     }
   }
+
 
   render() {
     return (
       <div className='game' tabIndex='0' onKeyDown={this.handleKeyDown}>
         <div className='col-lft'>
           <GameLevel />
-          <CharacterInfo/>
+          <Hero
+            tileSize = {this.state.tileSize}
+            hero = {this.state.hero}
+            heroIcon = {this.state.heroIcon}
+            inventory = {this.state.inventory}
+            interactItem = {this.state.interactItem}
+            updateGameClassState = {this.updateGameClassState}  />
         </div>
         <div className='col-mid'>
           <div className='title'>CrimsonQuest</div>
           <GameStage
             boardSize =  {this.state.boardSize}
+            tileSize = {this.state.tileSize}
             floor = {this.state.floor}
             gameLevel =  {this.state.gameLevel}
+            levels = {this.state.levels}
             hero = {this.state.hero}
             playerArr = {this.state.playerArr}
+            updatePlayerArr = {this.updatePlayerArr}
             bgArr = {this.state.bgArr}
             updateBgArr = {this.updateBgArr}
             floorCoords = {this.state.floorCoords}
-            updatePlayerArr = {this.updatePlayerArr}  />
+            itemArr = {this.state.itemArr}
+            itemPalettes = {this.state.itemPalettes}
+            itemPaletteArrMap = {this.state.itemPaletteArrMap}
+            updateGameClassState = {this.updateGameClassState}  />
           <GameItems/>
         </div>
         <div className='col-rgt'>

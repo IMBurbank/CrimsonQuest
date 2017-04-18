@@ -36,6 +36,59 @@ const initMemCanvas = function initCanvasToPointer(w, h, smoothing) {
   return tempCanv;
 }
 
+const calcRenderPadding = function calcCanvasRenderPadding(playerArr, aLen, rLen) {
+  let sr = 0,
+    pr = 0,
+    sc = 0,
+    pc = 0;
+
+  if (playerArr[0] - ~~(rLen / 2) < 0) {
+    sr = 0;
+    pr = -1 * (playerArr[0] - ~~(rLen / 2));
+  } else if (playerArr[0] + ~~(rLen / 2) + 1 > aLen) {
+    pr =  playerArr[0] + ~~(rLen / 2) + 1 - aLen;
+    sr = aLen - rLen + pr;
+  } else {
+    sr = playerArr[0] - ~~(rLen / 2);
+    pr = 0;
+  }
+  if (playerArr[1] - ~~(rLen / 2) < 0) {
+    sc = 0;
+    pc = -1 * (playerArr[1] - ~~(rLen / 2));
+  } else if (playerArr[1] + ~~(rLen / 2) + 1 > aLen ) {
+    pc =  playerArr[1] + ~~(rLen / 2) + 1 - aLen;
+    sc = aLen - rLen + pc;
+  } else {
+    sc = playerArr[1] - ~~(rLen / 2);
+    pc = 0;
+  }
+
+  return { sr, sc, pr, pc };
+}
+
+const setRenderArr = function setCanvasRenderArr(arr, rLen, padding) {
+  let renderArr = [],
+    sr = padding.sr,
+    sc = padding.sc,
+    i = 0,
+    j = 0,
+    m = 0,
+    n = 0;
+
+  m = rLen - padding.pr;
+  n = rLen - padding.pc;
+  renderArr.length = m;
+
+  for (; i < m; i++) {
+    renderArr[i] = [];
+    renderArr[i].length
+
+    for (j = 0, n; j < n; j++) renderArr[i][j] = arr[sr + i][sc + j];
+  }
+
+  return renderArr;
+}
+
 const backgroundArray = function createBackgroundArray(arrSize) {
   const air = 10,
     flr = 40;

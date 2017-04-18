@@ -60,8 +60,13 @@ gulp.task('images', function(){
     .pipe(gulp.dest('dist/img/'))
 });
 
+gulp.task('fonts', function(){
+  return gulp.src('app/fonts/**')
+    .pipe(gulp.dest('dist/css/fonts/'))
+});
+
 gulp.task('update', function (callback) {
-  runSequence('clean:dist', 'images', 'useref', 'reload',
+  runSequence('clean:dist', 'images', 'fonts', 'useref', 'reload',
     callback
   )
 })

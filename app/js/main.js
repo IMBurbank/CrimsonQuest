@@ -43,31 +43,8 @@ var GameLevel = function (_React$Component) {
   return GameLevel;
 }(React.Component);
 
-var CharacterInfo = function (_React$Component2) {
-  _inherits(CharacterInfo, _React$Component2);
-
-  function CharacterInfo() {
-    _classCallCheck(this, CharacterInfo);
-
-    return _possibleConstructorReturn(this, (CharacterInfo.__proto__ || Object.getPrototypeOf(CharacterInfo)).apply(this, arguments));
-  }
-
-  _createClass(CharacterInfo, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'char-info' },
-        'Character Info'
-      );
-    }
-  }]);
-
-  return CharacterInfo;
-}(React.Component);
-
-var GameItems = function (_React$Component3) {
-  _inherits(GameItems, _React$Component3);
+var GameItems = function (_React$Component2) {
+  _inherits(GameItems, _React$Component2);
 
   function GameItems() {
     _classCallCheck(this, GameItems);
@@ -89,8 +66,8 @@ var GameItems = function (_React$Component3) {
   return GameItems;
 }(React.Component);
 
-var EnemiesRemaining = function (_React$Component4) {
-  _inherits(EnemiesRemaining, _React$Component4);
+var EnemiesRemaining = function (_React$Component3) {
+  _inherits(EnemiesRemaining, _React$Component3);
 
   function EnemiesRemaining() {
     _classCallCheck(this, EnemiesRemaining);
@@ -112,8 +89,8 @@ var EnemiesRemaining = function (_React$Component4) {
   return EnemiesRemaining;
 }(React.Component);
 
-var EnemyStats = function (_React$Component5) {
-  _inherits(EnemyStats, _React$Component5);
+var EnemyStats = function (_React$Component4) {
+  _inherits(EnemyStats, _React$Component4);
 
   function EnemyStats() {
     _classCallCheck(this, EnemyStats);
@@ -135,8 +112,8 @@ var EnemyStats = function (_React$Component5) {
   return EnemyStats;
 }(React.Component);
 
-var ActivityLog = function (_React$Component6) {
-  _inherits(ActivityLog, _React$Component6);
+var ActivityLog = function (_React$Component5) {
+  _inherits(ActivityLog, _React$Component5);
 
   function ActivityLog() {
     _classCallCheck(this, ActivityLog);
@@ -158,8 +135,8 @@ var ActivityLog = function (_React$Component6) {
   return ActivityLog;
 }(React.Component);
 
-var GameTips = function (_React$Component7) {
-  _inherits(GameTips, _React$Component7);
+var GameTips = function (_React$Component6) {
+  _inherits(GameTips, _React$Component6);
 
   function GameTips() {
     _classCallCheck(this, GameTips);
@@ -181,28 +158,44 @@ var GameTips = function (_React$Component7) {
   return GameTips;
 }(React.Component);
 
-var Game = function (_React$Component8) {
-  _inherits(Game, _React$Component8);
+var Game = function (_React$Component7) {
+  _inherits(Game, _React$Component7);
 
   function Game(props) {
     _classCallCheck(this, Game);
 
-    var _this8 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+    var _this7 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
-    _this8.updateBgArr = _this8.updateBgArr.bind(_this8);
-    _this8.handleKeyDown = _this8.handleKeyDown.bind(_this8);
-    _this8.updatePlayerArr = _this8.updatePlayerArr.bind(_this8);
+    _this7.updateBgArr = _this7.updateBgArr.bind(_this7);
+    _this7.handleKeyDown = _this7.handleKeyDown.bind(_this7);
+    _this7.updatePlayerArr = _this7.updatePlayerArr.bind(_this7);
+    _this7.updateGameClassState = _this7.updateGameClassState.bind(_this7);
+    _this7.pickupItem = _this7.pickupItem.bind(_this7);
 
-    _this8.state = {
+    _this7.state = {
       boardSize: 120,
+      tileSize: 32,
+      wall: 20,
       floor: 40,
       gameLevel: 1,
+      levels: 10,
       hero: 'Paladin',
+      heroIcon: null,
+      inventory: {},
       playerArr: [],
       bgArr: [],
-      floorCoords: []
+      itemArr: [],
+      floorCoords: [],
+      itemPalettes: {},
+      itemPaletteArrMap: {},
+      interactItem: { count: 0, type: '', item: {} },
+      //type: pickup, use, equip, unequip, buy, sell
+      initAttack: { count: 0, stats: {}, coords: {} },
+      attackRound: { count: 0, attacks: [] },
+      enemyDead: { count: 0, enemy: {} },
+      playerDead: false
     };
-    return _this8;
+    return _this7;
   }
 
   _createClass(Game, [{
@@ -216,11 +209,42 @@ var Game = function (_React$Component8) {
       this.setState({ playerArr: [].concat(_toConsumableArray(playerArr)) });
     }
   }, {
+    key: 'updateGameClassState',
+    value: function updateGameClassState() {
+      var updatedEls = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      this.setState(updatedEls);
+    }
+  }, {
+    key: 'pickupItem',
+    value: function pickupItem(coord, val) {
+      var item = Object.assign({}, this.state.itemPaletteArrMap['' + val]),
+          inventory = Object.assign({}, this.state.inventory),
+          itemArr = [].concat(_toConsumableArray(this.state.itemArr));
+
+      if (inventory[item.name]) inventory[item.name].count += 1;else item.count = 1, inventory[item.name] = item;
+
+      itemArr[coord[0]][coord[1]] = 0;
+
+      this.setState(function (prevState, props) {
+        return {
+          itemArr: itemArr,
+          inventory: inventory,
+          playerArr: coord,
+          interactItem: {
+            item: item,
+            count: prevState.interactItem.count + 1,
+            type: 'pickup' } };
+      });
+      console.log('Picked up', item.name);
+    }
+  }, {
     key: 'handleKeyDown',
     value: function handleKeyDown(e) {
       var el = e.nativeEvent.code,
-          arr = this.state.playerArr,
+          arr = [].concat(_toConsumableArray(this.state.playerArr)),
           bg = this.state.bgArr,
+          itm = this.state.itemArr,
           flr = this.state.floor,
           len = this.state.boardSize - 1;
 
@@ -229,16 +253,16 @@ var Game = function (_React$Component8) {
 
       if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r - 1][c] > flr) {
         r--;
-        this.setState({ playerArr: [r, c] });
+        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
       } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c + 1] > flr) {
         c++;
-        this.setState({ playerArr: [r, c] });
+        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
       } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r + 1][c] > flr) {
         r++;
-        this.setState({ playerArr: [r, c] });
+        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
       } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c - 1] > flr) {
         c--;
-        this.setState({ playerArr: [r, c] });
+        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
       }
     }
   }, {
@@ -251,7 +275,13 @@ var Game = function (_React$Component8) {
           'div',
           { className: 'col-lft' },
           React.createElement(GameLevel, null),
-          React.createElement(CharacterInfo, null)
+          React.createElement(Hero, {
+            tileSize: this.state.tileSize,
+            hero: this.state.hero,
+            heroIcon: this.state.heroIcon,
+            inventory: this.state.inventory,
+            interactItem: this.state.interactItem,
+            updateGameClassState: this.updateGameClassState })
         ),
         React.createElement(
           'div',
@@ -263,14 +293,20 @@ var Game = function (_React$Component8) {
           ),
           React.createElement(GameStage, {
             boardSize: this.state.boardSize,
+            tileSize: this.state.tileSize,
             floor: this.state.floor,
             gameLevel: this.state.gameLevel,
+            levels: this.state.levels,
             hero: this.state.hero,
             playerArr: this.state.playerArr,
+            updatePlayerArr: this.updatePlayerArr,
             bgArr: this.state.bgArr,
             updateBgArr: this.updateBgArr,
             floorCoords: this.state.floorCoords,
-            updatePlayerArr: this.updatePlayerArr }),
+            itemArr: this.state.itemArr,
+            itemPalettes: this.state.itemPalettes,
+            itemPaletteArrMap: this.state.itemPaletteArrMap,
+            updateGameClassState: this.updateGameClassState }),
           React.createElement(GameItems, null)
         ),
         React.createElement(
@@ -298,8 +334,8 @@ var Game = function (_React$Component8) {
 	*/
 
 
-var PageHeader = function (_React$Component9) {
-  _inherits(PageHeader, _React$Component9);
+var PageHeader = function (_React$Component8) {
+  _inherits(PageHeader, _React$Component8);
 
   function PageHeader() {
     _classCallCheck(this, PageHeader);
@@ -336,8 +372,8 @@ var PageHeader = function (_React$Component9) {
 	*/
 
 
-var PageFooter = function (_React$Component10) {
-  _inherits(PageFooter, _React$Component10);
+var PageFooter = function (_React$Component9) {
+  _inherits(PageFooter, _React$Component9);
 
   function PageFooter() {
     _classCallCheck(this, PageFooter);
@@ -388,8 +424,8 @@ var PageFooter = function (_React$Component10) {
 	*/
 
 
-var App = function (_React$Component11) {
-  _inherits(App, _React$Component11);
+var App = function (_React$Component10) {
+  _inherits(App, _React$Component10);
 
   function App() {
     _classCallCheck(this, App);

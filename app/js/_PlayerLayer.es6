@@ -1,10 +1,11 @@
-//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updatePlayerArr, floorCoords
+//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updateGameClassState, floorCoords
 class PlayerLayer extends React.Component {
   constructor(props) {
     super(props);
     this.getPlayerImages = this.getPlayerImages.bind(this);
     this.initPaletteMap = this.initPaletteMap.bind(this);
     this.setPalette = this.setPalette.bind(this);
+    this.setHeroIcon = this.setHeroIcon.bind(this);
     this.pickPlayerStart = this.pickPlayerStart.bind(this);
     this.drawPlayer = this.drawPlayer.bind(this);
 
@@ -67,26 +68,42 @@ class PlayerLayer extends React.Component {
   setPalette(nextProps) {
     const hero = nextProps.hero.toLowerCase(),
       srcImg = this.state[hero + 'Img'],
-      srcTileSize = this.state.srcTileSize,
-      gmTileSize = nextProps.tileSize,
-      scale = gmTileSize / srcTileSize,
-      w = 4 * gmTileSize,
-      h = 4 * gmTileSize;
+      srcTS = this.state.srcTileSize,
+      gmTS = nextProps.tileSize,
+      scale = gmTS / srcTS,
+      w = 4 * gmTS,
+      h = 4 * gmTS;
 
     let canvas = document.createElement('canvas'),
-      ctx = canvas.getContext('2d');
+      ctx = null;
 
     canvas.width = w;
     canvas.height = h;
+    ctx = canvas.getContext('2d');
   	ctx.imageSmoothingEnabled = false;
     ctx.drawImage(srcImg, 0, 0, w/scale, h/scale, 0, 0, w, h);
 
-    this.setState({ playerPalette: {canvas, ctx} });
+    this.setState({ playerPalette: {canvas, ctx} }, this.setHeroIcon(canvas));
+  }
+
+  setHeroIcon(canvas) {
+    const w = this.props.tileSize,
+      h = w;
+
+    let heroIcon = document.createElement('canvas'),
+      hCtx = null;
+
+    heroIcon.width = w;
+    heroIcon.height = h;
+    hCtx = heroIcon.getContext('2d');
+    hCtx.imageSmoothingEnabled = false;
+    hCtx.drawImage(canvas, 0, 0, w, h, 0, 0, w, h);
+    this.props.updateGameClassState({ heroIcon });
   }
 
   pickPlayerStart(nextProps) {
     const playerArr = nextProps.floorCoords[randInt(0, nextProps.floorCoords.length - 1)];
-    nextProps.updatePlayerArr(playerArr);
+    nextProps.updateGameClassState({ playerArr });
   }
 
   drawPlayer(nextProps, nextState) {
