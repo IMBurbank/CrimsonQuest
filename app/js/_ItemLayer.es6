@@ -38,6 +38,8 @@ class ItemLayer extends React.Component {
       armorImg,
       bookImg,
       bootImg,
+      chest0Img,
+      chest1Img,
       gloveImg,
       hatImg,
       longWepImg,
@@ -53,6 +55,8 @@ class ItemLayer extends React.Component {
         armorImg,
         bookImg,
         bootImg,
+        chest0Img,
+        chest1Img,
         gloveImg,
         hatImg,
         longWepImg,
@@ -136,7 +140,8 @@ class ItemLayer extends React.Component {
       itemRings,
       itemShields,
       itemWeapons,
-      itemConsumables
+      itemConsumables,
+      chestConsumables
     ];
 
     let itemPaletteArrMap = {},
@@ -203,15 +208,17 @@ class ItemLayer extends React.Component {
       j = 0, i++;
     }
 
-    quants[lvl - 1].forEach( el => {
-      for (i = 0; i < el[1]; i++) {
-        index = randInt(0, fLen);
-        coord = floorCoords[index];
-        itemArr[coord[0]][coord[1]] = el[0];
-        floorCoords.splice(index, 1);
-        fLen--;
+    quants[lvl - 1].forEach(
+      el => {
+        for (i = 0; i < el[1]; i++) {
+          index = randInt(0, fLen);
+          coord = floorCoords[index];
+          itemArr[coord[0]][coord[1]] = el[0];
+          floorCoords.splice(index, 1);
+          fLen--;
+        }
       }
-    });
+    );
 
     this.setState({ lvlProcessed: lvl });
     this.props.updateGameClassState({ floorCoords, itemArr });
@@ -294,7 +301,8 @@ class ItemLayer extends React.Component {
       for (j = 0; j < renderArr[i].length; j++) {
         el = renderArr[i][j];
         if (el) {
-          m = map[`${el}`];
+          m = ['consumable', 'gold', 'openChest'].includes(map[`${el}`].type) ? map[`${el}`] :
+            chestConsumables.closedChest;;
           img = pals[m.palette].imgPixData;
           imgW = pals[m.palette].width;
           srcX = m.iconLoc[0];

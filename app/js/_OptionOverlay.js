@@ -8,33 +8,37 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: stageSize
-var OptionLayer = function (_React$Component) {
-  _inherits(OptionLayer, _React$Component);
+//props: inventory, interactItem, overlayMode, updateGameClassState
+var OptionOverlay = function (_React$Component) {
+  _inherits(OptionOverlay, _React$Component);
 
-  function OptionLayer(props) {
-    _classCallCheck(this, OptionLayer);
+  function OptionOverlay() {
+    _classCallCheck(this, OptionOverlay);
 
-    var _this = _possibleConstructorReturn(this, (OptionLayer.__proto__ || Object.getPrototypeOf(OptionLayer)).call(this, props));
-
-    _this.state = {
-      mode: 'off'
-    };
-    return _this;
+    return _possibleConstructorReturn(this, (OptionOverlay.__proto__ || Object.getPrototypeOf(OptionOverlay)).apply(this, arguments));
   }
 
-  _createClass(OptionLayer, [{
+  _createClass(OptionOverlay, [{
     key: 'render',
     value: function render() {
-      var size = this.props.stageSize;
+      var mode = this.props.overlayMode;
 
-      return React.createElement('canvas', {
-        id: 'opt-layer',
-        className: 'opt-layer',
-        width: size,
-        height: size });
+      var content = null;
+
+      if (mode === 'inv-overlay') {
+        content = React.createElement(InventoryOverlay, {
+          inventory: this.props.inventory,
+          interactItem: this.props.interactItem,
+          updateGameClassState: this.props.updateGameClassState });
+      }
+
+      return React.createElement(
+        'div',
+        null,
+        content
+      );
     }
   }]);
 
-  return OptionLayer;
+  return OptionOverlay;
 }(React.Component);

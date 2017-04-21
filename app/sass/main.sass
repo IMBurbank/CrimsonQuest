@@ -97,6 +97,9 @@ h4
   font-family: 'game-font-6', sans-serif
   background: rgba(0, 255, 0, 0.1)
 
+  &:focus
+    outline: none
+
 .col-lft
   height: 100%
   background: rgba(50, 90, 240, 0.2)
@@ -189,11 +192,32 @@ h4
     @extend %full-canvas
     z-index: 14
 
-.items
-  width: 8 * $tile-size
-  height: $tile-size
+  .stage-overlay
+    @extend %full-canvas
+    width: $stg-size
+    height: $stg-size
+    z-index: 20
+    color: #fff
+    background: #000
+
+.optFocus
+  background: #00f
+
+.consumable-items
+  display: flex
+  flex-wrap: nowrap
+  justify-content: center
   border: $std-border
+  font-size: .8rem
   background: #fff
+
+.consumable-col
+  margin: $tile-size / 8
+  text-align: center
+
+.consumable-canvas
+  margin: $tile-size / 8 0
+  border: $std-border
 
 .col-rgt
   display: flex

@@ -34,6 +34,49 @@ var initZeroArray = function initZeroFilledArray(len) {
   return arr;
 };
 
+//get element by id
+var getById = function getElById(id) {
+  return document.getElementById(id);
+};
+
+//adds one or more classes seperated, by commas, by element id
+var addClasses = function addClassesByElId(id) {
+  if (getById(id)) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var classArr = getById(id).getAttribute('class').split(' '),
+        _addClasses = [].concat(args) || [];
+
+    _addClasses.forEach(function (el) {
+      if (!classArr.includes(el)) classArr.push(el);
+    });
+    getById(id).setAttribute('class', classArr.join(' '));
+  } else {
+    console.log('Didnt add class: ' + id + '. Couldnt find node.');
+  }
+};
+
+//removes one or more classes seperated, by commas, by element id
+var removeClasses = function removeClassesByElId(id) {
+  if (getById(id)) {
+    for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      args[_key2 - 1] = arguments[_key2];
+    }
+
+    var classArr = getById(id).getAttribute('class').split(' '),
+        remClasses = [].concat(args) || [];
+
+    remClasses.forEach(function (el) {
+      if (classArr.includes(el)) classArr.splice(classArr.indexOf(el), 1);
+    });
+    getById(id).setAttribute('class', classArr.join(' '));
+  } else {
+    console.log('Didnt remove class: ' + id + '. Couldnt find node.');
+  }
+};
+
 var initMemCanvas = function initCanvasToPointer(w, h, smoothing) {
   var tempCanv = document.createElement('canvas'),
       ctx = tempCanv.getContext('2d');

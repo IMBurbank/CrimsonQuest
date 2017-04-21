@@ -18,16 +18,6 @@ class GameLevel extends React.Component {
   }
 }
 
-class GameItems extends React.Component {
-  render() {
-    return (
-      <div className='items'>
-        Game Items
-      </div>
-    );
-  }
-}
-
 class EnemiesRemaining extends React.Component {
   render() {
     return (
@@ -76,6 +66,9 @@ class Game extends React.Component {
     this.updatePlayerArr = this.updatePlayerArr.bind(this);
     this.updateGameClassState = this.updateGameClassState.bind(this);
     this.pickupItem = this.pickupItem.bind(this);
+    this.focus = this.focus.bind(this);
+    this.maintainFocus = this.maintainFocus.bind(this);
+    this.endFocus = this.endFocus.bind(this);
 
     this.state = ({
       boardSize: 120,
@@ -94,11 +87,17 @@ class Game extends React.Component {
       itemPalettes: {},
       itemPaletteArrMap: {},
       interactItem: {count: 0, type: '', item: {}},
+      quickConsume: {count: 0, num: 0},
       //type: pickup, use, equip, unequip, buy, sell
+      enemyArr: [],
+      enemyPalegges: {},
+      enemyPaletteArrMap: {},
       initAttack: {count: 0, stats: {}, coords: {}},
       attackRound: {count: 0, attacks: []},
       enemyDead: {count: 0, enemy: {}},
       playerDead: false,
+      overlayMode: 'off'
+      //inv-overlay, inGameOptions, startOptions
     });
   }
 
@@ -119,54 +118,97 @@ class Game extends React.Component {
       inventory = Object.assign({}, this.state.inventory),
       itemArr = [...this.state.itemArr];
 
-    if (inventory[item.name]) inventory[item.name].count += 1;
-    else item.count = 1, inventory[item.name] = item;
+    let nState = {},
+      interactItem = Object.assign({}, this.state.interactItem);
 
-    itemArr[coord[0]][coord[1]] = 0;
+    if (item.type !== 'openChest') {
+      if (inventory[item.name]) inventory[item.name].count += 1;
+      else item.count = 1, item.equipped = false, inventory[item.name] = item;
 
-    this.setState( (prevState, props) => {
-      return {
-        itemArr,
-        inventory,
-        playerArr: coord,
-        interactItem: {
-          item,
-          count: prevState.interactItem.count + 1,
-          type: 'pickup'} };
-    });
-    console.log('Picked up', item.name);
+      if (['consumable', 'gold'].includes(item.type)) itemArr[coord[0]][coord[1]] = 0;
+      else itemArr[coord[0]][coord[1]] = chestConsumables.openChest.itemArrVal;
+
+      interactItem.count += 1;
+      interactItem.type = 'pickup';
+      interactItem.item = item;
+      nState = {itemArr, inventory, interactItem};
+
+      console.log('Picked up', item.name);
+    }
+    nState.playerArr = coord;
+    this.setState( nState );
   }
 
   handleKeyDown(e) {
-    const el = e.nativeEvent.code,
-      arr = [...this.state.playerArr],
-      bg = this.state.bgArr,
-      itm = this.state.itemArr,
-      flr = this.state.floor,
-      len = this.state.boardSize - 1;
+    if (this.state.overlayMode === 'off') {
 
-    let r = arr[0],
-      c = arr[1];
+      const el = e.nativeEvent.code,
+        arr = [...this.state.playerArr],
+        bg = this.state.bgArr,
+        itm = this.state.itemArr,
+        flr = this.state.floor,
+        len = this.state.boardSize - 1,
+        consumeDigits = [
+          'Digit1',
+          'Digit2',
+          'Digit3',
+          'Digit4',
+          'Digit5',
+          'Digit6',
+          'Digit7',
+          'Digit8',
+        ];
 
-    if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r-1][c] > flr) {
-      r--;
-      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
-      else this.setState({playerArr: [r,c]});
-    } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c+1] > flr) {
-      c++;
-      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
-      else this.setState({playerArr: [r,c]});
-    } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r+1][c] > flr) {
-      r++;
-      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
-      else this.setState({playerArr: [r,c]});
-    } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c-1] > flr) {
-      c--;
-      if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
-      else this.setState({playerArr: [r,c]});
+      let r = arr[0],
+        c = arr[1];
+
+      if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r-1][c] > flr) {
+        r--;
+        if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+        else this.setState({playerArr: [r,c]});
+      } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c+1] > flr) {
+        c++;
+        if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+        else this.setState({playerArr: [r,c]});
+      } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r+1][c] > flr) {
+        r++;
+        if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+        else this.setState({playerArr: [r,c]});
+      } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c-1] > flr) {
+        c--;
+        if (itm[r][c]) this.pickupItem([r,c], itm[r][c]);
+        else this.setState({playerArr: [r,c]});
+      } else if ((el === 'KeyI' || el === 'KeyE')) {
+        this.setState({overlayMode: 'inv-overlay'});
+      } else if (consumeDigits.includes(el)) {
+        this.setState({quickConsume: {count: this.state.quickConsume.count + 1,num: el.slice(-1)}});
+      }
     }
   }
 
+  focus() {
+    ReactDOM.findDOMNode(this).focus();
+  }
+
+  maintainFocus() {
+    this.focus();
+    this.focusID = setInterval( () => this.focus(), 250 );
+  }
+
+  endFocus() {
+    clearInterval(this.focusID);
+  }
+
+  componentDidMount() {
+    this.maintainFocus()
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if (this.state.overlayMode !== nextState.overlayMode) {
+      if (nextState.overlayMode === 'off') this.maintainFocus();
+      else this.endFocus();
+    }
+  }
 
   render() {
     return (
@@ -178,6 +220,7 @@ class Game extends React.Component {
             hero = {this.state.hero}
             heroIcon = {this.state.heroIcon}
             inventory = {this.state.inventory}
+            itemPalettes = {this.state.itemPalettes}
             interactItem = {this.state.interactItem}
             updateGameClassState = {this.updateGameClassState}  />
         </div>
@@ -198,8 +241,17 @@ class Game extends React.Component {
             itemArr = {this.state.itemArr}
             itemPalettes = {this.state.itemPalettes}
             itemPaletteArrMap = {this.state.itemPaletteArrMap}
+            inventory = {this.state.inventory}
+            interactItem = {this.state.interactItem}
+            overlayMode = {this.state.overlayMode}
             updateGameClassState = {this.updateGameClassState}  />
-          <GameItems/>
+          <ConsumableItems
+            tileSize = {this.state.tileSize}
+            inventory = {this.state.inventory}
+            itemPalettes = {this.state.itemPalettes}
+            interactItem = {this.state.interactItem}
+            quickConsume = {this.state.quickConsume}
+            updateGameClassState = {this.updateGameClassState} />
         </div>
         <div className='col-rgt'>
           <EnemiesRemaining/>

@@ -59,6 +59,8 @@ var ItemLayer = function (_React$Component) {
           armorImg = void 0,
           bookImg = void 0,
           bootImg = void 0,
+          chest0Img = void 0,
+          chest1Img = void 0,
           gloveImg = void 0,
           hatImg = void 0,
           longWepImg = void 0,
@@ -74,6 +76,8 @@ var ItemLayer = function (_React$Component) {
         armorImg: armorImg,
         bookImg: bookImg,
         bootImg: bootImg,
+        chest0Img: chest0Img,
+        chest1Img: chest1Img,
         gloveImg: gloveImg,
         hatImg: hatImg,
         longWepImg: longWepImg,
@@ -151,7 +155,7 @@ var ItemLayer = function (_React$Component) {
   }, {
     key: 'setPaletteArrMap',
     value: function setPaletteArrMap() {
-      var itemTypes = [itemAmulets, itemArmors, itemFeet, itemGloves, itemHelmets, itemRings, itemShields, itemWeapons, itemConsumables];
+      var itemTypes = [itemAmulets, itemArmors, itemFeet, itemGloves, itemHelmets, itemRings, itemShields, itemWeapons, itemConsumables, chestConsumables];
 
       var itemPaletteArrMap = {},
           i = 101,
@@ -313,7 +317,7 @@ var ItemLayer = function (_React$Component) {
         for (j = 0; j < renderArr[i].length; j++) {
           el = renderArr[i][j];
           if (el) {
-            m = map['' + el];
+            m = ['consumable', 'gold', 'openChest'].includes(map['' + el].type) ? map['' + el] : chestConsumables.closedChest;;
             img = pals[m.palette].imgPixData;
             imgW = pals[m.palette].width;
             srcX = m.iconLoc[0];

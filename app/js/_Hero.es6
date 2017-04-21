@@ -1,4 +1,4 @@
-//props: tileSize, hero, heroIcon, inventory, interactItem, updateGameClassState
+//props: tileSize, hero, heroIcon, inventory, itemPalettes, interactItem, updateGameClassState
 class Hero extends React.Component {
   constructor(props) {
     super(props);
@@ -6,6 +6,8 @@ class Hero extends React.Component {
     this.changeStats = this.changeStats.bind(this);
     this.handleLevelUp = this.handleLevelUp.bind(this);
     this.paintHeroIcon = this.paintHeroIcon.bind(this);
+    this.handleInteractItem = this.handleInteractItem.bind(this);
+    this.updateEquipCanvas = this.updateEquipCanvas.bind(this);
 
     this.state = ({
       heroName: "",
@@ -82,17 +84,17 @@ class Hero extends React.Component {
     ctx.drawImage(icon, 0, 0);
   }
 
-  changeStats(stats) {
-    const attr = Object.assign({}, stats);
+  changeStats(stats, decStats = {}) {
+    const attr = Object.assign({}, stats),
+      decAttr = Object.assign({}, decStats);
 
     let newState = Object.assign({}, this.state),
       prop = null;
 
-    for (prop in attr) {
-      newState[prop] += attr[prop];
-    }
-    console.log('newState: ', JSON.stringify(newState));
-    this.setState(newState);
+    for (prop in attr) newState[prop] += attr[prop];
+    for (prop in decAttr) newState[prop] -= decAttr[prop];
+
+    return newState;
   }
 
   handleLevelUp(lvl) {
@@ -124,21 +126,88 @@ class Hero extends React.Component {
     });
   }
 
+  handleInteractItem(nextProps) {
+    let inventory = Object.assign({}, nextProps.inventory),
+      item = inventory[nextProps.interactItem.item.name],
+      updateInventory = false,
+      updateCanvas = false,
+      curItem = null,
+      nState = {},
+      maxHp = 0,
+      hp = 0,
+      vit = 0,
+      dur = 0;
+
+    const action = nextProps.interactItem.type,
+      conv = statConversion,
+      stats = item.stats,
+      iType = item.type;
+
+    if (action === 'pickup' && item.type === 'gold') nState = this.changeStats(stats);
+    else if (action === 'use') {
+      updateInventory = true;
+      item.count -= 1;
+
+      nState = this.changeStats(stats);
+    } else if (action === 'unequip') {
+      updateInventory = true;
+      updateCanvas = true;
+      curItem = this.state[iType];
+      inventory[curItem.name].equipped = false;
+
+      nState = this.changeStats({}, curItem.stats);
+      nState[iType] = null;
+    } else if (action === 'equip') {
+      updateInventory = true;
+      updateCanvas = true;
+      curItem = this.state[iType];
+
+      if (curItem) {
+        inventory[curItem.name].equipped = false;
+        nState = this.changeStats(stats, curItem.stats);
+      }
+      else nState = this.changeStats(stats);
+
+      item.equipped = true;
+      nState[iType] = item;
+    }
+
+    hp = nState.bHealth + nState.iHealth;
+    vit = nState.iVitality + nState.bVitality;
+    dur = nState.iDurability + nState.bDurability;
+    maxHp = hp + conv.vitToHp * vit + conv.durToHp * dur;
+
+    if (nState.curHealth > maxHp) nState.curHealth = maxHp;
+    if (updateCanvas) this.updateEquipCanvas(item);
+    if (updateInventory) this.props.updateGameClassState({ inventory });
+
+    this.setState(nState);
+  }
+
+  updateEquipCanvas(item) {
+    const palette = this.props.itemPalettes[item.palette],
+      loc = item.iconLoc;
+
+    let dCtx = getById(item.type + '-canvas').getContext('2d');
+
+    dCtx.clearRect(0, 0, loc[2], loc[3]);
+
+    if (item.equipped) {
+      dCtx.drawImage(palette, loc[0], loc[1], loc[2], loc[3], 0, 0, loc[2], loc[3]);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.state.heroName === "" && nextProps.hero) {
       this.initHero(nextProps.hero);
     }
-    if (this.state.interactItemCount !== nextProps.interactItem.count &&
+    if (this.props.interactItem.count !== nextProps.interactItem.count &&
       nextProps.interactItem.count) {
 
       console.log('interactItem');
-      console.log(nextProps.interactItem.type);
+      console.log(nextProps.interactItem.type, nextProps.interactItem.item.name);
 
-      if (nextProps.interactItem.type === 'pickup' && nextProps.interactItem.item.type === 'gold') {
-        this.changeStats(nextProps.interactItem.item.stats);
-      }
-
-      this.setState({ interactItemCount: nextProps.interactItem.count });
+      this.handleInteractItem(nextProps);
     }
   }
 
@@ -152,8 +221,8 @@ class Hero extends React.Component {
     const ts = this.props.tileSize,
       none = 'None',
       conv = statConversion,
-      curHp = this.state.curHealth,
       lvl = this.state.charLevel,
+      curHp = this.state.curHealth,
       gold = this.state.gold,
       exp = this.state.experience,
       expToLvl = this.state.expToLevel,
@@ -164,14 +233,14 @@ class Hero extends React.Component {
       atk = this.state.bAttack + this.state.iAttack + conv.strToAtk * str,
       def = this.state.bDefense + this.state.iDefense + conv.durToDef * dur + conv.strToDef * str,
       maxHp = this.state.bHealth + this.state.iHealth + conv.vitToHp * vit + conv.durToHp * dur,
-      hed = this.state.head || none,
-      wep = this.state.weapon || none,
-      amu = this.state.amulet || none,
-      bod = this.state.armor || none,
-      shd = this.state.shield || none,
-      glv = this.state.glove || none,
-      rng = this.state.ring || none,
-      ft = this.state.foot || none;
+      hed = this.state.head ? this.state.head.name : none,
+      wep = this.state.weapon ? this.state.weapon.name : none,
+      amu = this.state.amulet ? this.state.amulet.name : none,
+      bod = this.state.armor ? this.state.armor.name : none,
+      shd = this.state.shield ? this.state.shield.name : none,
+      glv = this.state.glove ? this.state.glove.name : none,
+      rng = this.state.ring ? this.state.ring.name : none,
+      ft = this.state.foot ? this.state.foot.name : none;
 
     return (
       <div className='hero'>
@@ -194,56 +263,56 @@ class Hero extends React.Component {
         <p className='stat-row'>Str: {str}</p>
         <p className='stat-row'>Agi: {agi}</p>
         <div className='equip-row'>
-          <canvas id='hero-hed' className='equip-canv' width={ts} height={ts} />
+          <canvas id='head-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Head</p>
             <p className='equip-name'>{hed}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-wep' className='equip-canv' width={ts} height={ts} />
+          <canvas id='weapon-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Weapon</p>
             <p className='equip-name'>{wep}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-amu' className='equip-canv' width={ts} height={ts} />
+          <canvas id='amulet-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Amulet</p>
             <p className='equip-name'>{amu}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-bod' className='equip-canv' width={ts} height={ts} />
+          <canvas id='armor-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Armor</p>
             <p className='equip-name'>{bod}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-shd' className='equip-canv' width={ts} height={ts} />
+          <canvas id='shield-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Shield</p>
             <p className='equip-name'>{shd}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-glv' className='equip-canv' width={ts} height={ts} />
+          <canvas id='glove-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Glove</p>
             <p className='equip-name'>{glv}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-rng' className='equip-canv' width={ts} height={ts} />
+          <canvas id='ring-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Ring</p>
             <p className='equip-name'>{rng}</p>
           </div>
         </div>
         <div className='equip-row'>
-          <canvas id='hero-ft' className='equip-canv' width={ts} height={ts} />
+          <canvas id='foot-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>
             <p>Foot</p>
             <p className='equip-name'>{ft}</p>

@@ -119,3 +119,30 @@ const itemConsumables = {
     spawnQuant: {'9': 2, '10': 6}
   }
 };
+
+const chestConsumables = {
+  closedChest: {
+    name: 'Treasure Chest',
+    type: 'closedChest',
+    palette: 'chest0Palette',
+    iconLoc: [32, 0, 32, 32]
+  },
+  openChest: {
+    name: 'Treasure Chest',
+    type: 'openChest',
+    palette: 'chest1Palette',
+    iconLoc: [32, 0, 32, 32]
+  },
+  closedBarrel: {
+    name: 'Barrel',
+    type: 'closedChest',
+    palette: 'chest0Palette',
+    iconLoc: [32, 32, 32, 32]
+  },
+  openBarrel: {
+    name: 'Barrel',
+    type: 'openChest',
+    palette: 'chest1Palette',
+    iconLoc: [32, 32, 32, 32]
+  }
+}

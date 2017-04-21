@@ -25,6 +25,37 @@ const initZeroArray = function initZeroFilledArray(len) {
   return arr;
 }
 
+//get element by id
+const getById = function getElById(id) {
+  return document.getElementById(id);
+}
+
+//adds one or more classes seperated, by commas, by element id
+const addClasses = function addClassesByElId(id, ...args) {
+  if (getById(id)) {
+    let classArr = getById(id).getAttribute('class').split(' '),
+      addClasses = [...args] || [];
+
+    addClasses.forEach( el => { if (!classArr.includes(el)) classArr.push(el); });
+    getById(id).setAttribute('class', classArr.join(' '));
+  } else {
+    console.log('Didnt add class: ' + id + '. Couldnt find node.');
+  }
+}
+
+//removes one or more classes seperated, by commas, by element id
+const removeClasses = function removeClassesByElId(id, ...args) {
+  if (getById(id)) {
+    let classArr = getById(id).getAttribute('class').split(' '),
+      remClasses = [...args] || [];
+
+    remClasses.forEach( el => {if (classArr.includes(el)) classArr.splice(classArr.indexOf(el), 1);});
+    getById(id).setAttribute('class', classArr.join(' '));
+  } else {
+    console.log('Didnt remove class: ' + id + '. Couldnt find node.');
+  }
+}
+
 const initMemCanvas = function initCanvasToPointer(w, h, smoothing) {
   let tempCanv = document.createElement('canvas'),
     ctx = tempCanv.getContext('2d');

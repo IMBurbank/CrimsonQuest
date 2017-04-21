@@ -8,7 +8,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: tileSize, hero, heroIcon, inventory, interactItem, updateGameClassState
+//props: tileSize, hero, heroIcon, inventory, itemPalettes, interactItem, updateGameClassState
 var Hero = function (_React$Component) {
   _inherits(Hero, _React$Component);
 
@@ -21,6 +21,8 @@ var Hero = function (_React$Component) {
     _this.changeStats = _this.changeStats.bind(_this);
     _this.handleLevelUp = _this.handleLevelUp.bind(_this);
     _this.paintHeroIcon = _this.paintHeroIcon.bind(_this);
+    _this.handleInteractItem = _this.handleInteractItem.bind(_this);
+    _this.updateEquipCanvas = _this.updateEquipCanvas.bind(_this);
 
     _this.state = {
       heroName: "",
@@ -103,16 +105,19 @@ var Hero = function (_React$Component) {
   }, {
     key: 'changeStats',
     value: function changeStats(stats) {
-      var attr = Object.assign({}, stats);
+      var decStats = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      var attr = Object.assign({}, stats),
+          decAttr = Object.assign({}, decStats);
 
       var newState = Object.assign({}, this.state),
           prop = null;
 
       for (prop in attr) {
         newState[prop] += attr[prop];
-      }
-      console.log('newState: ', JSON.stringify(newState));
-      this.setState(newState);
+      }for (prop in decAttr) {
+        newState[prop] -= decAttr[prop];
+      }return newState;
     }
   }, {
     key: 'handleLevelUp',
@@ -144,21 +149,88 @@ var Hero = function (_React$Component) {
       });
     }
   }, {
+    key: 'handleInteractItem',
+    value: function handleInteractItem(nextProps) {
+      var inventory = Object.assign({}, nextProps.inventory),
+          item = inventory[nextProps.interactItem.item.name],
+          updateInventory = false,
+          updateCanvas = false,
+          curItem = null,
+          nState = {},
+          maxHp = 0,
+          hp = 0,
+          vit = 0,
+          dur = 0;
+
+      var action = nextProps.interactItem.type,
+          conv = statConversion,
+          stats = item.stats,
+          iType = item.type;
+
+      if (action === 'pickup' && item.type === 'gold') nState = this.changeStats(stats);else if (action === 'use') {
+        updateInventory = true;
+        item.count -= 1;
+
+        nState = this.changeStats(stats);
+      } else if (action === 'unequip') {
+        updateInventory = true;
+        updateCanvas = true;
+        curItem = this.state[iType];
+        inventory[curItem.name].equipped = false;
+
+        nState = this.changeStats({}, curItem.stats);
+        nState[iType] = null;
+      } else if (action === 'equip') {
+        updateInventory = true;
+        updateCanvas = true;
+        curItem = this.state[iType];
+
+        if (curItem) {
+          inventory[curItem.name].equipped = false;
+          nState = this.changeStats(stats, curItem.stats);
+        } else nState = this.changeStats(stats);
+
+        item.equipped = true;
+        nState[iType] = item;
+      }
+
+      hp = nState.bHealth + nState.iHealth;
+      vit = nState.iVitality + nState.bVitality;
+      dur = nState.iDurability + nState.bDurability;
+      maxHp = hp + conv.vitToHp * vit + conv.durToHp * dur;
+
+      if (nState.curHealth > maxHp) nState.curHealth = maxHp;
+      if (updateCanvas) this.updateEquipCanvas(item);
+      if (updateInventory) this.props.updateGameClassState({ inventory: inventory });
+
+      this.setState(nState);
+    }
+  }, {
+    key: 'updateEquipCanvas',
+    value: function updateEquipCanvas(item) {
+      var palette = this.props.itemPalettes[item.palette],
+          loc = item.iconLoc;
+
+      var dCtx = getById(item.type + '-canvas').getContext('2d');
+
+      dCtx.clearRect(0, 0, loc[2], loc[3]);
+
+      if (item.equipped) {
+        dCtx.drawImage(palette, loc[0], loc[1], loc[2], loc[3], 0, 0, loc[2], loc[3]);
+      }
+    }
+  }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
       if (this.state.heroName === "" && nextProps.hero) {
         this.initHero(nextProps.hero);
       }
-      if (this.state.interactItemCount !== nextProps.interactItem.count && nextProps.interactItem.count) {
+      if (this.props.interactItem.count !== nextProps.interactItem.count && nextProps.interactItem.count) {
 
         console.log('interactItem');
-        console.log(nextProps.interactItem.type);
+        console.log(nextProps.interactItem.type, nextProps.interactItem.item.name);
 
-        if (nextProps.interactItem.type === 'pickup' && nextProps.interactItem.item.type === 'gold') {
-          this.changeStats(nextProps.interactItem.item.stats);
-        }
-
-        this.setState({ interactItemCount: nextProps.interactItem.count });
+        this.handleInteractItem(nextProps);
       }
     }
   }, {
@@ -174,8 +246,8 @@ var Hero = function (_React$Component) {
       var ts = this.props.tileSize,
           none = 'None',
           conv = statConversion,
-          curHp = this.state.curHealth,
           lvl = this.state.charLevel,
+          curHp = this.state.curHealth,
           gold = this.state.gold,
           exp = this.state.experience,
           expToLvl = this.state.expToLevel,
@@ -186,14 +258,14 @@ var Hero = function (_React$Component) {
           atk = this.state.bAttack + this.state.iAttack + conv.strToAtk * str,
           def = this.state.bDefense + this.state.iDefense + conv.durToDef * dur + conv.strToDef * str,
           maxHp = this.state.bHealth + this.state.iHealth + conv.vitToHp * vit + conv.durToHp * dur,
-          hed = this.state.head || none,
-          wep = this.state.weapon || none,
-          amu = this.state.amulet || none,
-          bod = this.state.armor || none,
-          shd = this.state.shield || none,
-          glv = this.state.glove || none,
-          rng = this.state.ring || none,
-          ft = this.state.foot || none;
+          hed = this.state.head ? this.state.head.name : none,
+          wep = this.state.weapon ? this.state.weapon.name : none,
+          amu = this.state.amulet ? this.state.amulet.name : none,
+          bod = this.state.armor ? this.state.armor.name : none,
+          shd = this.state.shield ? this.state.shield.name : none,
+          glv = this.state.glove ? this.state.glove.name : none,
+          rng = this.state.ring ? this.state.ring.name : none,
+          ft = this.state.foot ? this.state.foot.name : none;
 
       return React.createElement(
         'div',
@@ -291,7 +363,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-hed', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'head-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -310,7 +382,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-wep', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'weapon-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -329,7 +401,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-amu', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'amulet-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -348,7 +420,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-bod', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'armor-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -367,7 +439,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-shd', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'shield-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -386,7 +458,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-glv', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'glove-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -405,7 +477,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-rng', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'ring-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },
@@ -424,7 +496,7 @@ var Hero = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'equip-row' },
-          React.createElement('canvas', { id: 'hero-ft', className: 'equip-canv', width: ts, height: ts }),
+          React.createElement('canvas', { id: 'foot-canvas', className: 'equip-canv', width: ts, height: ts }),
           React.createElement(
             'div',
             { className: 'stat-col' },

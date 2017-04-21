@@ -43,31 +43,8 @@ var GameLevel = function (_React$Component) {
   return GameLevel;
 }(React.Component);
 
-var GameItems = function (_React$Component2) {
-  _inherits(GameItems, _React$Component2);
-
-  function GameItems() {
-    _classCallCheck(this, GameItems);
-
-    return _possibleConstructorReturn(this, (GameItems.__proto__ || Object.getPrototypeOf(GameItems)).apply(this, arguments));
-  }
-
-  _createClass(GameItems, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'items' },
-        'Game Items'
-      );
-    }
-  }]);
-
-  return GameItems;
-}(React.Component);
-
-var EnemiesRemaining = function (_React$Component3) {
-  _inherits(EnemiesRemaining, _React$Component3);
+var EnemiesRemaining = function (_React$Component2) {
+  _inherits(EnemiesRemaining, _React$Component2);
 
   function EnemiesRemaining() {
     _classCallCheck(this, EnemiesRemaining);
@@ -89,8 +66,8 @@ var EnemiesRemaining = function (_React$Component3) {
   return EnemiesRemaining;
 }(React.Component);
 
-var EnemyStats = function (_React$Component4) {
-  _inherits(EnemyStats, _React$Component4);
+var EnemyStats = function (_React$Component3) {
+  _inherits(EnemyStats, _React$Component3);
 
   function EnemyStats() {
     _classCallCheck(this, EnemyStats);
@@ -112,8 +89,8 @@ var EnemyStats = function (_React$Component4) {
   return EnemyStats;
 }(React.Component);
 
-var ActivityLog = function (_React$Component5) {
-  _inherits(ActivityLog, _React$Component5);
+var ActivityLog = function (_React$Component4) {
+  _inherits(ActivityLog, _React$Component4);
 
   function ActivityLog() {
     _classCallCheck(this, ActivityLog);
@@ -135,8 +112,8 @@ var ActivityLog = function (_React$Component5) {
   return ActivityLog;
 }(React.Component);
 
-var GameTips = function (_React$Component6) {
-  _inherits(GameTips, _React$Component6);
+var GameTips = function (_React$Component5) {
+  _inherits(GameTips, _React$Component5);
 
   function GameTips() {
     _classCallCheck(this, GameTips);
@@ -158,21 +135,24 @@ var GameTips = function (_React$Component6) {
   return GameTips;
 }(React.Component);
 
-var Game = function (_React$Component7) {
-  _inherits(Game, _React$Component7);
+var Game = function (_React$Component6) {
+  _inherits(Game, _React$Component6);
 
   function Game(props) {
     _classCallCheck(this, Game);
 
-    var _this7 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+    var _this6 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
-    _this7.updateBgArr = _this7.updateBgArr.bind(_this7);
-    _this7.handleKeyDown = _this7.handleKeyDown.bind(_this7);
-    _this7.updatePlayerArr = _this7.updatePlayerArr.bind(_this7);
-    _this7.updateGameClassState = _this7.updateGameClassState.bind(_this7);
-    _this7.pickupItem = _this7.pickupItem.bind(_this7);
+    _this6.updateBgArr = _this6.updateBgArr.bind(_this6);
+    _this6.handleKeyDown = _this6.handleKeyDown.bind(_this6);
+    _this6.updatePlayerArr = _this6.updatePlayerArr.bind(_this6);
+    _this6.updateGameClassState = _this6.updateGameClassState.bind(_this6);
+    _this6.pickupItem = _this6.pickupItem.bind(_this6);
+    _this6.focus = _this6.focus.bind(_this6);
+    _this6.maintainFocus = _this6.maintainFocus.bind(_this6);
+    _this6.endFocus = _this6.endFocus.bind(_this6);
 
-    _this7.state = {
+    _this6.state = {
       boardSize: 120,
       tileSize: 32,
       wall: 20,
@@ -189,13 +169,19 @@ var Game = function (_React$Component7) {
       itemPalettes: {},
       itemPaletteArrMap: {},
       interactItem: { count: 0, type: '', item: {} },
+      quickConsume: { count: 0, num: 0 },
       //type: pickup, use, equip, unequip, buy, sell
+      enemyArr: [],
+      enemyPalegges: {},
+      enemyPaletteArrMap: {},
       initAttack: { count: 0, stats: {}, coords: {} },
       attackRound: { count: 0, attacks: [] },
       enemyDead: { count: 0, enemy: {} },
-      playerDead: false
+      playerDead: false,
+      overlayMode: 'off'
+      //inv-overlay, inGameOptions, startOptions
     };
-    return _this7;
+    return _this6;
   }
 
   _createClass(Game, [{
@@ -222,47 +208,89 @@ var Game = function (_React$Component7) {
           inventory = Object.assign({}, this.state.inventory),
           itemArr = [].concat(_toConsumableArray(this.state.itemArr));
 
-      if (inventory[item.name]) inventory[item.name].count += 1;else item.count = 1, inventory[item.name] = item;
+      var nState = {},
+          interactItem = Object.assign({}, this.state.interactItem);
 
-      itemArr[coord[0]][coord[1]] = 0;
+      if (item.type !== 'openChest') {
+        if (inventory[item.name]) inventory[item.name].count += 1;else item.count = 1, item.equipped = false, inventory[item.name] = item;
 
-      this.setState(function (prevState, props) {
-        return {
-          itemArr: itemArr,
-          inventory: inventory,
-          playerArr: coord,
-          interactItem: {
-            item: item,
-            count: prevState.interactItem.count + 1,
-            type: 'pickup' } };
-      });
-      console.log('Picked up', item.name);
+        if (['consumable', 'gold'].includes(item.type)) itemArr[coord[0]][coord[1]] = 0;else itemArr[coord[0]][coord[1]] = chestConsumables.openChest.itemArrVal;
+
+        interactItem.count += 1;
+        interactItem.type = 'pickup';
+        interactItem.item = item;
+        nState = { itemArr: itemArr, inventory: inventory, interactItem: interactItem };
+
+        console.log('Picked up', item.name);
+      }
+      nState.playerArr = coord;
+      this.setState(nState);
     }
   }, {
     key: 'handleKeyDown',
     value: function handleKeyDown(e) {
-      var el = e.nativeEvent.code,
-          arr = [].concat(_toConsumableArray(this.state.playerArr)),
-          bg = this.state.bgArr,
-          itm = this.state.itemArr,
-          flr = this.state.floor,
-          len = this.state.boardSize - 1;
+      if (this.state.overlayMode === 'off') {
 
-      var r = arr[0],
-          c = arr[1];
+        var el = e.nativeEvent.code,
+            arr = [].concat(_toConsumableArray(this.state.playerArr)),
+            bg = this.state.bgArr,
+            itm = this.state.itemArr,
+            flr = this.state.floor,
+            len = this.state.boardSize - 1,
+            consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
 
-      if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r - 1][c] > flr) {
-        r--;
-        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
-      } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c + 1] > flr) {
-        c++;
-        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
-      } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r + 1][c] > flr) {
-        r++;
-        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
-      } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c - 1] > flr) {
-        c--;
-        if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
+        var r = arr[0],
+            c = arr[1];
+
+        if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r - 1][c] > flr) {
+          r--;
+          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
+        } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c + 1] > flr) {
+          c++;
+          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
+        } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r + 1][c] > flr) {
+          r++;
+          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
+        } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c - 1] > flr) {
+          c--;
+          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
+        } else if (el === 'KeyI' || el === 'KeyE') {
+          this.setState({ overlayMode: 'inv-overlay' });
+        } else if (consumeDigits.includes(el)) {
+          this.setState({ quickConsume: { count: this.state.quickConsume.count + 1, num: el.slice(-1) } });
+        }
+      }
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {
+      ReactDOM.findDOMNode(this).focus();
+    }
+  }, {
+    key: 'maintainFocus',
+    value: function maintainFocus() {
+      var _this7 = this;
+
+      this.focus();
+      this.focusID = setInterval(function () {
+        return _this7.focus();
+      }, 250);
+    }
+  }, {
+    key: 'endFocus',
+    value: function endFocus() {
+      clearInterval(this.focusID);
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      this.maintainFocus();
+    }
+  }, {
+    key: 'componentWillUpdate',
+    value: function componentWillUpdate(nextProps, nextState) {
+      if (this.state.overlayMode !== nextState.overlayMode) {
+        if (nextState.overlayMode === 'off') this.maintainFocus();else this.endFocus();
       }
     }
   }, {
@@ -280,6 +308,7 @@ var Game = function (_React$Component7) {
             hero: this.state.hero,
             heroIcon: this.state.heroIcon,
             inventory: this.state.inventory,
+            itemPalettes: this.state.itemPalettes,
             interactItem: this.state.interactItem,
             updateGameClassState: this.updateGameClassState })
         ),
@@ -306,8 +335,17 @@ var Game = function (_React$Component7) {
             itemArr: this.state.itemArr,
             itemPalettes: this.state.itemPalettes,
             itemPaletteArrMap: this.state.itemPaletteArrMap,
+            inventory: this.state.inventory,
+            interactItem: this.state.interactItem,
+            overlayMode: this.state.overlayMode,
             updateGameClassState: this.updateGameClassState }),
-          React.createElement(GameItems, null)
+          React.createElement(ConsumableItems, {
+            tileSize: this.state.tileSize,
+            inventory: this.state.inventory,
+            itemPalettes: this.state.itemPalettes,
+            interactItem: this.state.interactItem,
+            quickConsume: this.state.quickConsume,
+            updateGameClassState: this.updateGameClassState })
         ),
         React.createElement(
           'div',
@@ -334,8 +372,8 @@ var Game = function (_React$Component7) {
 	*/
 
 
-var PageHeader = function (_React$Component8) {
-  _inherits(PageHeader, _React$Component8);
+var PageHeader = function (_React$Component7) {
+  _inherits(PageHeader, _React$Component7);
 
   function PageHeader() {
     _classCallCheck(this, PageHeader);
@@ -372,8 +410,8 @@ var PageHeader = function (_React$Component8) {
 	*/
 
 
-var PageFooter = function (_React$Component9) {
-  _inherits(PageFooter, _React$Component9);
+var PageFooter = function (_React$Component8) {
+  _inherits(PageFooter, _React$Component8);
 
   function PageFooter() {
     _classCallCheck(this, PageFooter);
@@ -424,8 +462,8 @@ var PageFooter = function (_React$Component9) {
 	*/
 
 
-var App = function (_React$Component10) {
-  _inherits(App, _React$Component10);
+var App = function (_React$Component9) {
+  _inherits(App, _React$Component9);
 
   function App() {
     _classCallCheck(this, App);
