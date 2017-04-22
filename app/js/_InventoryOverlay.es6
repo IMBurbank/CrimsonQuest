@@ -88,7 +88,7 @@ class InventoryOverlay extends React.Component {
         el = inv[props];
         stats = '';
 
-        for (p in el.stats) stats += ` ${conv[p]} ${el.stats[p]} `;
+        for (p in el.stats) stats += `${conv[p]}${el.stats[p]} `;
         if (el.type === 'consumable') list.push([el.count, el.name, stats]);
         else equipped = el.equipped ? 'E' : ' ', list.push([equipped, el.name, stats]);
       }
@@ -105,9 +105,9 @@ class InventoryOverlay extends React.Component {
       (x, i) => {
         classes = i === row ? `${bRowId} ${this.state.focusClass}` : bRowId;
         return ( <div id={bRowId + i} className={classes} key={list[i][1]}>
-          <span className={`${colNames[0]}-col`} key={list[i][0]}>{list[i][0]}</span>
-          <span className={`${colNames[1]}-col`} key={list[i][1] + '-col'}>{list[i][1]}</span>
-          <span className={`${colNames[2]}-col`} key={list[i][2]}>{list[i][2]}</span>
+          <span className={`${colNames[0].toLowerCase()}-col`} key={list[i][0]}>{list[i][0]}</span>
+          <span className={`${colNames[1].toLowerCase()}-col`} key={list[i][1] + '-col'}>{list[i][1]}</span>
+          <span className={`${colNames[2].toLowerCase()}-col`} key={list[i][2]}>{list[i][2]}</span>
         </div> );
       }
     );
@@ -164,7 +164,7 @@ class InventoryOverlay extends React.Component {
     );
 
     iHeaders = [...Array(colNames.length)].map(
-       (x,i) => <span className={'item-header'} key={colNames[i]}>{colNames[i]}</span>
+       (x,i) => <span className={'item-header item-header-' + i} key={colNames[i]}>{colNames[i]}</span>
      );
 
     items = this.setItems(list, colNames, bRowId);
@@ -172,7 +172,7 @@ class InventoryOverlay extends React.Component {
 
     return (
       <div id='inv-overlay' className='stage-overlay' tabIndex='1' onKeyDown={this.optKeyDown}>
-        <h4>Inventory</h4>
+        <h4 className='inv-header'>Inventory</h4>
         <div className='inv-categories'>
           {colHeaders}
         </div>

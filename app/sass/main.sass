@@ -176,29 +176,70 @@ h4
   border: $std-border
   background: #fff
 
-  .bg-layer
-    @extend %full-canvas
-    z-index: 10
+.bg-layer
+  @extend %full-canvas
+  z-index: 10
 
-  .acc-layer
-    @extend %full-canvas
-    z-index: 11
+.acc-layer
+  @extend %full-canvas
+  z-index: 11
 
-  .item-layer
-    @extend %full-canvas
-    z-index: 12
+.item-layer
+  @extend %full-canvas
+  z-index: 12
 
-  .player-layer
-    @extend %full-canvas
-    z-index: 14
+.player-layer
+  @extend %full-canvas
+  z-index: 14
 
-  .stage-overlay
-    @extend %full-canvas
-    width: $stg-size
-    height: $stg-size
-    z-index: 20
-    color: #fff
-    background: #000
+.stage-overlay
+  @extend %full-canvas
+  z-index: 20
+  width: $stg-size
+  height: $stg-size
+  font-size: .8rem
+  color: #fff
+  background: #000
+
+  .inv-header
+    margin: $tile-size / 2 0
+
+  .inv-categories
+    display: flex
+    justify-content: space-around
+    margin: $tile-size / 2 0
+
+  .iheader-row
+    display: flex
+    justify-content: space-around
+    margin-right: 6rem
+
+  .item-header
+    border-bottom: 1px solid #fff
+
+    &-2
+      margin: 0 -5rem 0 3rem
+
+  .item-row
+    display: flex
+    justify-content: space-between
+    margin: 0.25rem 0 0
+
+  .equipped-col,
+  .quantity-col
+    width: 7rem
+    margin: 0 .5rem 0 3rem
+    text-align: center
+
+  .name-col
+    width: 20rem
+    margin: 0 .5rem
+    text-align: center
+
+  .stats-col
+    width: 15rem
+    margin: 0 .5rem
+    text-align: center
 
 .optFocus
   background: #00f

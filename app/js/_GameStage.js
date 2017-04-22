@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem
+//inventory, interactItem, heroFacing
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -73,6 +73,7 @@ var GameStage = function (_React$Component) {
           stageSize: this.state.stageSize,
           tileSize: this.props.tileSize,
           hero: this.props.hero,
+          heroFacing: this.props.heroFacing,
           gameLevel: this.props.gameLevel,
           bgArr: this.props.bgArr,
           playerArr: this.props.playerArr,

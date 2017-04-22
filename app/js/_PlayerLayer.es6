@@ -1,4 +1,5 @@
-//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updateGameClassState, floorCoords
+//props: stageSize, tileSize, hero, heroFacing, gameLevel, bgArr, playerArr, updateGameClassState,
+//floorCoords
 class PlayerLayer extends React.Component {
   constructor(props) {
     super(props);
@@ -106,18 +107,23 @@ class PlayerLayer extends React.Component {
     nextProps.updateGameClassState({ playerArr });
   }
 
-  drawPlayer(nextProps, nextState) {
-    const img = nextState.playerPalette.canvas,
-      imgD = nextProps.tileSize,
-      stageD = nextProps.stageSize,
-      sCoord = [0,0], //temp static
-      dx = (stageD - imgD) / 2,
-      dy = dx;
+  drawPlayer(timestamp) {
+    if (!timeRef) timeRef = timestamp;
+
+    const img = this.state.playerPalette.canvas,
+      imgD = this.props.tileSize,
+      dir = this.props.heroFacing,
+      dx = (this.props.stageSize - imgD) / 2,
+      dy = dx,
+      srcY = dir === 'down' ? 0 : dir === 'left' ? 1 : dir === 'right' ? 2 : 3,
+      frameStep = Math.floor((timestamp - timeRef) % 1000 * .06 / 15);
 
     let canvas = document.getElementById('player-layer'),
       ctx = canvas.getContext('2d');
 
-    ctx.drawImage(img, sCoord[0], sCoord[1], imgD, imgD, dx, dy, imgD, imgD);
+    ctx.clearRect(dx, dy, imgD, imgD);
+    ctx.drawImage(img, frameStep * imgD, srcY * imgD, imgD, imgD, dx, dy, imgD, imgD);
+    window.requestAnimationFrame(this.drawPlayer);
   }
 
   componentWillMount() {
@@ -136,10 +142,9 @@ class PlayerLayer extends React.Component {
     */
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    //stub rule
-    if (this.state.playerPalette !== nextState.playerPalette) {
-      this.drawPlayer(nextProps, nextState);
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.playerPalette !== this.state.playerPalette) {
+      window.requestAnimationFrame(this.drawPlayer);
     }
   }
 

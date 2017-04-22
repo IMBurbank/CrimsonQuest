@@ -36,3 +36,6 @@ var consumableAbbrevMap = {
   tomeOfAgility: { name: 'Tome of Agility', key: 'tomeOfAgility', abbrev: 'ATOM', num: 7 },
   tomeOfWisdom: { name: 'Tome of Wisdom', key: 'tomeOfWisdom', abbrev: 'WTOM', num: 8 }
 };
+
+//Global state
+var timeRef = null;

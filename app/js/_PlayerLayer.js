@@ -8,7 +8,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: stageSize, tileSize, hero, gameLevel, bgArr, playerArr, updateGameClassState, floorCoords
+//props: stageSize, tileSize, hero, heroFacing, gameLevel, bgArr, playerArr, updateGameClassState,
+//floorCoords
 var PlayerLayer = function (_React$Component) {
   _inherits(PlayerLayer, _React$Component);
 
@@ -129,19 +130,23 @@ var PlayerLayer = function (_React$Component) {
     }
   }, {
     key: 'drawPlayer',
-    value: function drawPlayer(nextProps, nextState) {
-      var img = nextState.playerPalette.canvas,
-          imgD = nextProps.tileSize,
-          stageD = nextProps.stageSize,
-          sCoord = [0, 0],
-          //temp static
-      dx = (stageD - imgD) / 2,
-          dy = dx;
+    value: function drawPlayer(timestamp) {
+      if (!timeRef) timeRef = timestamp;
+
+      var img = this.state.playerPalette.canvas,
+          imgD = this.props.tileSize,
+          dir = this.props.heroFacing,
+          dx = (this.props.stageSize - imgD) / 2,
+          dy = dx,
+          srcY = dir === 'down' ? 0 : dir === 'left' ? 1 : dir === 'right' ? 2 : 3,
+          frameStep = Math.floor((timestamp - timeRef) % 1000 * .06 / 15);
 
       var canvas = document.getElementById('player-layer'),
           ctx = canvas.getContext('2d');
 
-      ctx.drawImage(img, sCoord[0], sCoord[1], imgD, imgD, dx, dy, imgD, imgD);
+      ctx.clearRect(dx, dy, imgD, imgD);
+      ctx.drawImage(img, frameStep * imgD, srcY * imgD, imgD, imgD, dx, dy, imgD, imgD);
+      window.requestAnimationFrame(this.drawPlayer);
     }
   }, {
     key: 'componentWillMount',
@@ -162,11 +167,10 @@ var PlayerLayer = function (_React$Component) {
       */
     }
   }, {
-    key: 'componentWillUpdate',
-    value: function componentWillUpdate(nextProps, nextState) {
-      //stub rule
-      if (this.state.playerPalette !== nextState.playerPalette) {
-        this.drawPlayer(nextProps, nextState);
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (prevState.playerPalette !== this.state.playerPalette) {
+        window.requestAnimationFrame(this.drawPlayer);
       }
     }
   }, {

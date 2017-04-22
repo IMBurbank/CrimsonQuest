@@ -110,7 +110,7 @@ var InventoryOverlay = function (_React$Component) {
           stats = '';
 
           for (p in el.stats) {
-            stats += ' ' + conv[p] + ' ' + el.stats[p] + ' ';
+            stats += '' + conv[p] + el.stats[p] + ' ';
           }if (el.type === 'consumable') list.push([el.count, el.name, stats]);else equipped = el.equipped ? 'E' : ' ', list.push([equipped, el.name, stats]);
         }
       }
@@ -132,17 +132,17 @@ var InventoryOverlay = function (_React$Component) {
           { id: bRowId + i, className: classes, key: list[i][1] },
           React.createElement(
             'span',
-            { className: colNames[0] + '-col', key: list[i][0] },
+            { className: colNames[0].toLowerCase() + '-col', key: list[i][0] },
             list[i][0]
           ),
           React.createElement(
             'span',
-            { className: colNames[1] + '-col', key: list[i][1] + '-col' },
+            { className: colNames[1].toLowerCase() + '-col', key: list[i][1] + '-col' },
             list[i][1]
           ),
           React.createElement(
             'span',
-            { className: colNames[2] + '-col', key: list[i][2] },
+            { className: colNames[2].toLowerCase() + '-col', key: list[i][2] },
             list[i][2]
           )
         );
@@ -216,7 +216,7 @@ var InventoryOverlay = function (_React$Component) {
       iHeaders = [].concat(_toConsumableArray(Array(colNames.length))).map(function (x, i) {
         return React.createElement(
           'span',
-          { className: 'item-header', key: colNames[i] },
+          { className: 'item-header item-header-' + i, key: colNames[i] },
           colNames[i]
         );
       });
@@ -228,7 +228,7 @@ var InventoryOverlay = function (_React$Component) {
         { id: 'inv-overlay', className: 'stage-overlay', tabIndex: '1', onKeyDown: this.optKeyDown },
         React.createElement(
           'h4',
-          null,
+          { className: 'inv-header' },
           'Inventory'
         ),
         React.createElement(

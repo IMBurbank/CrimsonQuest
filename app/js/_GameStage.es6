@@ -2,7 +2,7 @@
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem
+//inventory, interactItem, heroFacing
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
@@ -56,6 +56,7 @@ class GameStage extends React.Component {
           stageSize = {this.state.stageSize}
           tileSize =  {this.props.tileSize}
           hero = {this.props.hero}
+          heroFacing = {this.props.heroFacing}
           gameLevel = {this.props.gameLevel}
           bgArr = {this.props.bgArr}
           playerArr = {this.props.playerArr}

@@ -15,7 +15,7 @@
   text-align: center;
   background-color: #101010; }
 
-.stage .bg-layer, .stage .acc-layer, .stage .item-layer, .stage .player-layer, .stage .stage-overlay {
+.bg-layer, .acc-layer, .item-layer, .player-layer, .stage-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -163,20 +163,67 @@ h4 {
   margin-bottom: 32px;
   border: 1px solid #000;
   background: #fff; }
-  .stage .bg-layer {
-    z-index: 10; }
-  .stage .acc-layer {
-    z-index: 11; }
-  .stage .item-layer {
-    z-index: 12; }
-  .stage .player-layer {
-    z-index: 14; }
-  .stage .stage-overlay {
-    width: 480px;
-    height: 480px;
-    z-index: 20;
-    color: #fff;
-    background: #000; }
+
+.bg-layer {
+  z-index: 10; }
+
+.acc-layer {
+  z-index: 11; }
+
+.item-layer {
+  z-index: 12; }
+
+.player-layer {
+  z-index: 14; }
+
+.stage-overlay {
+  z-index: 20;
+  width: 480px;
+  height: 480px;
+  font-size: .8rem;
+  color: #fff;
+  background: #000; }
+  .stage-overlay .inv-header {
+    margin: 16px 0; }
+  .stage-overlay .inv-categories {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
+    margin: 16px 0; }
+  .stage-overlay .iheader-row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
+    margin-right: 6rem; }
+  .stage-overlay .item-header {
+    border-bottom: 1px solid #fff; }
+    .stage-overlay .item-header-2 {
+      margin: 0 -5rem 0 3rem; }
+  .stage-overlay .item-row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+    margin: 0.25rem 0 0; }
+  .stage-overlay .equipped-col,
+  .stage-overlay .quantity-col {
+    width: 7rem;
+    margin: 0 .5rem 0 3rem;
+    text-align: center; }
+  .stage-overlay .name-col {
+    width: 20rem;
+    margin: 0 .5rem;
+    text-align: center; }
+  .stage-overlay .stats-col {
+    width: 15rem;
+    margin: 0 .5rem;
+    text-align: center; }
 
 .optFocus {
   background: #00f; }

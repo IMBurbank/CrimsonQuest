@@ -157,10 +157,11 @@ var Game = function (_React$Component6) {
       tileSize: 32,
       wall: 20,
       floor: 40,
-      gameLevel: 1,
+      gameLevel: 8,
       levels: 10,
-      hero: 'Paladin',
+      hero: 'Mage',
       heroIcon: null,
+      heroFacing: '',
       inventory: {},
       playerArr: [],
       bgArr: [],
@@ -206,10 +207,12 @@ var Game = function (_React$Component6) {
     value: function pickupItem(coord, val) {
       var item = Object.assign({}, this.state.itemPaletteArrMap['' + val]),
           inventory = Object.assign({}, this.state.inventory),
-          itemArr = [].concat(_toConsumableArray(this.state.itemArr));
+          itemArr = [].concat(_toConsumableArray(this.state.itemArr)),
+          pArr = this.state.playerArr;
 
       var nState = {},
-          interactItem = Object.assign({}, this.state.interactItem);
+          interactItem = Object.assign({}, this.state.interactItem),
+          dir = '';
 
       if (item.type !== 'openChest') {
         if (inventory[item.name]) inventory[item.name].count += 1;else item.count = 1, item.equipped = false, inventory[item.name] = item;
@@ -223,6 +226,11 @@ var Game = function (_React$Component6) {
 
         console.log('Picked up', item.name);
       }
+
+      dir = coord[0] < pArr[0] ? 'up' : coord[0] > pArr[0] ? 'down' : coord[1] < pArr[1] ? 'left' : 'right';
+
+      if (this.state.heroFacing !== dir) nState.heroFacing = dir;
+
       nState.playerArr = coord;
       this.setState(nState);
     }
@@ -236,24 +244,58 @@ var Game = function (_React$Component6) {
             bg = this.state.bgArr,
             itm = this.state.itemArr,
             flr = this.state.floor,
+            dir = this.state.heroFacing,
             len = this.state.boardSize - 1,
             consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
 
         var r = arr[0],
-            c = arr[1];
+            c = arr[1],
+            nState = {};
 
-        if ((el === 'ArrowUp' || el === 'KeyW') && r > 0 && bg[r - 1][c] > flr) {
-          r--;
-          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
-        } else if ((el === 'ArrowRight' || el === 'KeyD') && c < len && bg[r][c + 1] > flr) {
-          c++;
-          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
-        } else if ((el === 'ArrowDown' || el === 'KeyS') && r < len && bg[r + 1][c] > flr) {
-          r++;
-          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
-        } else if ((el === 'ArrowLeft' || el === 'KeyA') && c > 0 && bg[r][c - 1] > flr) {
-          c--;
-          if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else this.setState({ playerArr: [r, c] });
+        if (el === 'ArrowUp' || el === 'KeyW') {
+          if (r > 0 && bg[r - 1][c] > flr) {
+            r--;
+            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
+              nState.playerArr = [r, c];
+              if (dir !== 'up') nState.heroFacing = 'up';
+              this.setState(nState);
+            }
+          } else if (dir !== 'up') {
+            this.setState({ heroFacing: 'up' });
+          }
+        } else if (el === 'ArrowRight' || el === 'KeyD') {
+          if (c < len && bg[r][c + 1] > flr) {
+            c++;
+            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
+              nState.playerArr = [r, c];
+              if (dir !== 'right') nState.heroFacing = 'right';
+              this.setState(nState);
+            }
+          } else if (dir !== 'right') {
+            this.setState({ heroFacing: 'right' });
+          }
+        } else if (el === 'ArrowDown' || el === 'KeyS') {
+          if (r < len && bg[r + 1][c] > flr) {
+            r++;
+            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
+              nState.playerArr = [r, c];
+              if (dir !== 'down') nState.heroFacing = 'down';
+              this.setState(nState);
+            }
+          } else if (dir !== 'down') {
+            this.setState({ heroFacing: 'down' });
+          }
+        } else if (el === 'ArrowLeft' || el === 'KeyA') {
+          if (c > 0 && bg[r][c - 1] > flr) {
+            c--;
+            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
+              nState.playerArr = [r, c];
+              if (dir !== 'left') nState.heroFacing = 'left';
+              this.setState(nState);
+            }
+          } else if (dir !== 'left') {
+            this.setState({ heroFacing: 'left' });
+          }
         } else if (el === 'KeyI' || el === 'KeyE') {
           this.setState({ overlayMode: 'inv-overlay' });
         } else if (consumeDigits.includes(el)) {
@@ -328,6 +370,7 @@ var Game = function (_React$Component6) {
             levels: this.state.levels,
             hero: this.state.hero,
             playerArr: this.state.playerArr,
+            heroFacing: this.state.heroFacing,
             updatePlayerArr: this.updatePlayerArr,
             bgArr: this.state.bgArr,
             updateBgArr: this.updateBgArr,
