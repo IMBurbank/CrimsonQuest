@@ -66,31 +66,8 @@ var EnemiesRemaining = function (_React$Component2) {
   return EnemiesRemaining;
 }(React.Component);
 
-var EnemyStats = function (_React$Component3) {
-  _inherits(EnemyStats, _React$Component3);
-
-  function EnemyStats() {
-    _classCallCheck(this, EnemyStats);
-
-    return _possibleConstructorReturn(this, (EnemyStats.__proto__ || Object.getPrototypeOf(EnemyStats)).apply(this, arguments));
-  }
-
-  _createClass(EnemyStats, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'enemy-stats' },
-        'Enemy Stats'
-      );
-    }
-  }]);
-
-  return EnemyStats;
-}(React.Component);
-
-var ActivityLog = function (_React$Component4) {
-  _inherits(ActivityLog, _React$Component4);
+var ActivityLog = function (_React$Component3) {
+  _inherits(ActivityLog, _React$Component3);
 
   function ActivityLog() {
     _classCallCheck(this, ActivityLog);
@@ -112,8 +89,8 @@ var ActivityLog = function (_React$Component4) {
   return ActivityLog;
 }(React.Component);
 
-var GameTips = function (_React$Component5) {
-  _inherits(GameTips, _React$Component5);
+var GameTips = function (_React$Component4) {
+  _inherits(GameTips, _React$Component4);
 
   function GameTips() {
     _classCallCheck(this, GameTips);
@@ -135,33 +112,36 @@ var GameTips = function (_React$Component5) {
   return GameTips;
 }(React.Component);
 
-var Game = function (_React$Component6) {
-  _inherits(Game, _React$Component6);
+var Game = function (_React$Component5) {
+  _inherits(Game, _React$Component5);
 
   function Game(props) {
     _classCallCheck(this, Game);
 
-    var _this6 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+    var _this5 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
-    _this6.updateBgArr = _this6.updateBgArr.bind(_this6);
-    _this6.handleKeyDown = _this6.handleKeyDown.bind(_this6);
-    _this6.updatePlayerArr = _this6.updatePlayerArr.bind(_this6);
-    _this6.updateGameClassState = _this6.updateGameClassState.bind(_this6);
-    _this6.pickupItem = _this6.pickupItem.bind(_this6);
-    _this6.focus = _this6.focus.bind(_this6);
-    _this6.maintainFocus = _this6.maintainFocus.bind(_this6);
-    _this6.endFocus = _this6.endFocus.bind(_this6);
+    _this5.updateBgArr = _this5.updateBgArr.bind(_this5);
+    _this5.handleKeyDown = _this5.handleKeyDown.bind(_this5);
+    _this5.updatePlayerArr = _this5.updatePlayerArr.bind(_this5);
+    _this5.updateGameClassState = _this5.updateGameClassState.bind(_this5);
+    _this5.pickupItem = _this5.pickupItem.bind(_this5);
+    _this5.focus = _this5.focus.bind(_this5);
+    _this5.maintainFocus = _this5.maintainFocus.bind(_this5);
+    _this5.endFocus = _this5.endFocus.bind(_this5);
+    _this5.handleGameOver = _this5.handleGameOver.bind(_this5);
 
-    _this6.state = {
+    _this5.state = {
       boardSize: 120,
       tileSize: 32,
       wall: 20,
       floor: 40,
-      gameLevel: 8,
+      gameLevel: 1,
       levels: 10,
       hero: 'Mage',
       heroIcon: null,
       heroFacing: '',
+      moveCount: 0,
+      gameOver: false,
       inventory: {},
       playerArr: [],
       bgArr: [],
@@ -170,19 +150,17 @@ var Game = function (_React$Component6) {
       itemPalettes: {},
       itemPaletteArrMap: {},
       interactItem: { count: 0, type: '', item: {} },
-      quickConsume: { count: 0, num: 0 },
       //type: pickup, use, equip, unequip, buy, sell
+      quickConsume: { count: 0, num: 0 },
       enemyArr: [],
-      enemyPalegges: {},
-      enemyPaletteArrMap: {},
-      initAttack: { count: 0, stats: {}, coords: {} },
-      attackRound: { count: 0, attacks: [] },
-      enemyDead: { count: 0, enemy: {} },
-      playerDead: false,
+      enemyPalettes: {},
+      enemyAttack: { count: 0, roundCount: 0, spawnIndex: 0, stats: {}, source: {} },
+      exchangeAttacks: { count: 0, spawnIndex: 0, attacks: [] },
+      enemyDead: { count: 0, spawnIndex: 0, coord: [], source: {}, level: 0 },
       overlayMode: 'off'
       //inv-overlay, inGameOptions, startOptions
     };
-    return _this6;
+    return _this5;
   }
 
   _createClass(Game, [{
@@ -204,7 +182,7 @@ var Game = function (_React$Component6) {
     }
   }, {
     key: 'pickupItem',
-    value: function pickupItem(coord, val) {
+    value: function pickupItem(coord, val, moveCount) {
       var item = Object.assign({}, this.state.itemPaletteArrMap['' + val]),
           inventory = Object.assign({}, this.state.inventory),
           itemArr = [].concat(_toConsumableArray(this.state.itemArr)),
@@ -222,7 +200,7 @@ var Game = function (_React$Component6) {
         interactItem.count += 1;
         interactItem.type = 'pickup';
         interactItem.item = item;
-        nState = { itemArr: itemArr, inventory: inventory, interactItem: interactItem };
+        nState = { itemArr: itemArr, inventory: inventory, interactItem: interactItem, moveCount: moveCount };
 
         console.log('Picked up', item.name);
       }
@@ -238,63 +216,55 @@ var Game = function (_React$Component6) {
     key: 'handleKeyDown',
     value: function handleKeyDown(e) {
       if (this.state.overlayMode === 'off') {
-
         var el = e.nativeEvent.code,
-            arr = [].concat(_toConsumableArray(this.state.playerArr)),
-            bg = this.state.bgArr,
-            itm = this.state.itemArr,
-            flr = this.state.floor,
-            dir = this.state.heroFacing,
-            len = this.state.boardSize - 1,
+            _state = this.state,
+            boardSize = _state.boardSize,
+            floor = _state.floor,
+            playerArr = _state.playerArr,
+            bgArr = _state.bgArr,
+            itemArr = _state.itemArr,
+            enemyArr = _state.enemyArr,
+            heroFacing = _state.heroFacing,
+            directionKeys = {
+          ArrowUp: 'up',
+          KeyW: 'up',
+          ArrowRight: 'right',
+          KeyD: 'right',
+          ArrowDown: 'down',
+          KeyS: 'down',
+          ArrowLeft: 'left',
+          KeyA: 'left'
+        },
             consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
+        var moveCount = this.state.moveCount,
+            nState = {},
+            direction = '',
+            row = 0,
+            col = 0;
 
-        var r = arr[0],
-            c = arr[1],
-            nState = {};
 
-        if (el === 'ArrowUp' || el === 'KeyW') {
-          if (r > 0 && bg[r - 1][c] > flr) {
-            r--;
-            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
-              nState.playerArr = [r, c];
-              if (dir !== 'up') nState.heroFacing = 'up';
+        if (directionKeys[el]) {
+          moveCount++;
+          direction = directionKeys[el];
+
+          row = direction === 'up' ? playerArr[0] - 1 : direction === 'down' ? playerArr[0] + 1 : playerArr[0];
+
+          col = direction === 'right' ? playerArr[1] + 1 : direction === 'left' ? playerArr[1] - 1 : playerArr[1];
+
+          if (row >= 0 && row < boardSize && col >= 0 && col < boardSize && bgArr[row][col] > floor && !enemyArr[row][col]) {
+
+            if (itemArr[row][col]) {
+              this.pickupItem([row, col], itemArr[row][col], moveCount);
+            } else {
+              nState.playerArr = [row, col];
+              nState.moveCount = moveCount;
+              if (heroFacing !== direction) nState.heroFacing = direction;
               this.setState(nState);
             }
-          } else if (dir !== 'up') {
-            this.setState({ heroFacing: 'up' });
-          }
-        } else if (el === 'ArrowRight' || el === 'KeyD') {
-          if (c < len && bg[r][c + 1] > flr) {
-            c++;
-            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
-              nState.playerArr = [r, c];
-              if (dir !== 'right') nState.heroFacing = 'right';
-              this.setState(nState);
-            }
-          } else if (dir !== 'right') {
-            this.setState({ heroFacing: 'right' });
-          }
-        } else if (el === 'ArrowDown' || el === 'KeyS') {
-          if (r < len && bg[r + 1][c] > flr) {
-            r++;
-            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
-              nState.playerArr = [r, c];
-              if (dir !== 'down') nState.heroFacing = 'down';
-              this.setState(nState);
-            }
-          } else if (dir !== 'down') {
-            this.setState({ heroFacing: 'down' });
-          }
-        } else if (el === 'ArrowLeft' || el === 'KeyA') {
-          if (c > 0 && bg[r][c - 1] > flr) {
-            c--;
-            if (itm[r][c]) this.pickupItem([r, c], itm[r][c]);else {
-              nState.playerArr = [r, c];
-              if (dir !== 'left') nState.heroFacing = 'left';
-              this.setState(nState);
-            }
-          } else if (dir !== 'left') {
-            this.setState({ heroFacing: 'left' });
+          } else {
+            nState.moveCount = moveCount;
+            if (heroFacing !== direction) nState.heroFacing = direction;
+            this.setState(nState);
           }
         } else if (el === 'KeyI' || el === 'KeyE') {
           this.setState({ overlayMode: 'inv-overlay' });
@@ -311,17 +281,22 @@ var Game = function (_React$Component6) {
   }, {
     key: 'maintainFocus',
     value: function maintainFocus() {
-      var _this7 = this;
+      var _this6 = this;
 
       this.focus();
       this.focusID = setInterval(function () {
-        return _this7.focus();
+        return _this6.focus();
       }, 250);
     }
   }, {
     key: 'endFocus',
     value: function endFocus() {
       clearInterval(this.focusID);
+    }
+  }, {
+    key: 'handleGameOver',
+    value: function handleGameOver() {
+      console.log('GAME OVER');
     }
   }, {
     key: 'componentDidMount',
@@ -334,6 +309,11 @@ var Game = function (_React$Component6) {
       if (this.state.overlayMode !== nextState.overlayMode) {
         if (nextState.overlayMode === 'off') this.maintainFocus();else this.endFocus();
       }
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (this.state.gameOver) this.handleGameOver();
     }
   }, {
     key: 'render',
@@ -352,6 +332,10 @@ var Game = function (_React$Component6) {
             inventory: this.state.inventory,
             itemPalettes: this.state.itemPalettes,
             interactItem: this.state.interactItem,
+            enemyAttack: this.state.enemyAttack,
+            exchangeAttacks: this.state.exchangeAttacks,
+            enemyDead: this.state.enemyDead,
+            gameOver: this.state.gameOver,
             updateGameClassState: this.updateGameClassState })
         ),
         React.createElement(
@@ -381,6 +365,9 @@ var Game = function (_React$Component6) {
             inventory: this.state.inventory,
             interactItem: this.state.interactItem,
             overlayMode: this.state.overlayMode,
+            enemyArr: this.state.enemyArr,
+            enemyPalettes: this.state.enemyPalettes,
+            enemyDead: this.state.enemyDead,
             updateGameClassState: this.updateGameClassState }),
           React.createElement(ConsumableItems, {
             tileSize: this.state.tileSize,
@@ -394,7 +381,20 @@ var Game = function (_React$Component6) {
           'div',
           { className: 'col-rgt' },
           React.createElement(EnemiesRemaining, null),
-          React.createElement(EnemyStats, null),
+          React.createElement(EnemyManager, {
+            tileSize: this.state.tileSize,
+            floor: this.state.floor,
+            gameLevel: this.state.gameLevel,
+            playerArr: this.state.playerArr,
+            moveCount: this.state.moveCount,
+            bgArr: this.state.bgArr,
+            floorCoords: this.state.floorCoords,
+            enemyArr: this.state.enemyArr,
+            enemyPalettes: this.state.enemyPalettes,
+            enemyAttack: this.state.enemyAttack,
+            exchangeAttacks: this.state.exchangeAttacks,
+            enemyDead: this.state.enemyDead,
+            updateGameClassState: this.updateGameClassState }),
           React.createElement(ActivityLog, null),
           React.createElement(GameTips, null)
         )
@@ -415,8 +415,8 @@ var Game = function (_React$Component6) {
 	*/
 
 
-var PageHeader = function (_React$Component7) {
-  _inherits(PageHeader, _React$Component7);
+var PageHeader = function (_React$Component6) {
+  _inherits(PageHeader, _React$Component6);
 
   function PageHeader() {
     _classCallCheck(this, PageHeader);
@@ -453,8 +453,8 @@ var PageHeader = function (_React$Component7) {
 	*/
 
 
-var PageFooter = function (_React$Component8) {
-  _inherits(PageFooter, _React$Component8);
+var PageFooter = function (_React$Component7) {
+  _inherits(PageFooter, _React$Component7);
 
   function PageFooter() {
     _classCallCheck(this, PageFooter);
@@ -505,8 +505,8 @@ var PageFooter = function (_React$Component8) {
 	*/
 
 
-var App = function (_React$Component9) {
-  _inherits(App, _React$Component9);
+var App = function (_React$Component8) {
+  _inherits(App, _React$Component8);
 
   function App() {
     _classCallCheck(this, App);

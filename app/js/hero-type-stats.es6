@@ -99,5 +99,9 @@ const statConversion = {
   strToHit: 0.25,
   agiToHit: 1,
   agiToDodge: 0.5,
-  agiToCrit: 0.5
+  agiToCrit: 0.5,
+  atkToHpRange: [3, 5],
+  defToHpRange: [1, 3],
+  lvlToExpRange: [9, 11],
+  bossMultiplier: 2.5,
 };

@@ -88,6 +88,10 @@ var initMemCanvas = function initCanvasToPointer(w, h, smoothing) {
   return tempCanv;
 };
 
+var linearDistance = function calcLinearDistance(a, b) {
+  return Math.sqrt(Math.pow(a[1] - b[1], 2) + Math.pow(a[0] - b[0], 2));
+};
+
 var calcRenderPadding = function calcCanvasRenderPadding(playerArr, aLen, rLen) {
   var sr = 0,
       pr = 0,

@@ -10,7 +10,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr
+//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead
 var AccentLayer = function (_React$Component) {
   _inherits(AccentLayer, _React$Component);
 
@@ -26,6 +26,7 @@ var AccentLayer = function (_React$Component) {
     _this.setPalettes = _this.setPalettes.bind(_this);
     _this.setPaletteArrMap = _this.setPaletteArrMap.bind(_this);
     _this.setAccArr = _this.setAccArr.bind(_this);
+    _this.handleEnemyDead = _this.handleEnemyDead.bind(_this);
     _this.drawAccents = _this.drawAccents.bind(_this);
 
     _this.state = {
@@ -47,7 +48,7 @@ var AccentLayer = function (_React$Component) {
       decorMap: {},
       groundMap: {},
       oreMap: {},
-      corpseMap: [],
+      corpseMap: '',
       paletteArrMap: {},
       tempCanv: null
     };
@@ -150,7 +151,7 @@ var AccentLayer = function (_React$Component) {
       }
 
       //init corpseMap
-      corpseMap = groundMap['48'];
+      corpseMap = '51';
 
       this.setPaletteArrMap(this.props.gameLevel, decorMap, groundMap, oreMap);
       this.setState({ decorMap: decorMap, groundMap: groundMap, oreMap: oreMap, corpseMap: corpseMap });
@@ -366,6 +367,18 @@ var AccentLayer = function (_React$Component) {
       this.props.updateAccArr(accArr);
     }
   }, {
+    key: 'handleEnemyDead',
+    value: function handleEnemyDead(enemyDead) {
+      var coord = enemyDead.coord,
+          corpseMap = this.state.corpseMap;
+      var accArr = this.props.accArr;
+
+
+      accArr[coord[0]][coord[1]] = corpseMap;
+
+      this.props.updateAccArr(accArr);
+    }
+  }, {
     key: 'drawAccents',
     value: function drawAccents(timestamp) {
       if (!timeRef) timeRef = timestamp;
@@ -516,6 +529,9 @@ var AccentLayer = function (_React$Component) {
     value: function componentDidUpdate(prevProps, prevState) {
       if (prevState.dec0Canv !== this.state.dec0Canv) {
         window.requestAnimationFrame(this.drawAccents);
+      }
+      if (prevProps.enemyDead.count !== this.props.enemyDead.count) {
+        this.handleEnemyDead(this.props.enemyDead);
       }
     }
   }, {

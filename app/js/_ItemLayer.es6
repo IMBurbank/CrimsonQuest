@@ -1,5 +1,5 @@
 //props: boardSize, stageSize, tileSize, gameLevel, levels, bgArr, itemArr, updateGameClassState
-//playerArr, itemPalettes, floorCoords, itemPaletteArrMap
+//playerArr, itemPalettes, floorCoords, itemPaletteArrMap, enemyDead
 class ItemLayer extends React.Component {
   constructor(props) {
     super(props);

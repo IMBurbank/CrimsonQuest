@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing
+//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -55,6 +55,7 @@ var GameStage = function (_React$Component) {
           playerArr: this.props.playerArr,
           bgArr: this.props.bgArr,
           accArr: this.state.accArr,
+          enemyDead: this.props.enemyDead,
           updateAccArr: this.updateAccArr }),
         React.createElement(ItemLayer, {
           stageSize: this.state.stageSize,
@@ -68,6 +69,15 @@ var GameStage = function (_React$Component) {
           itemArr: this.props.itemArr,
           itemPalettes: this.props.itemPalettes,
           itemPaletteArrMap: this.props.itemPaletteArrMap,
+          enemyDead: this.props.enemyDead,
+          updateGameClassState: this.props.updateGameClassState }),
+        React.createElement(EnemyLayer, {
+          stageSize: this.state.stageSize,
+          boardSize: this.props.boardSize,
+          tileSize: this.props.tileSize,
+          playerArr: this.props.playerArr,
+          enemyArr: this.props.enemyArr,
+          enemyPalettes: this.props.enemyPalettes,
           updateGameClassState: this.props.updateGameClassState }),
         React.createElement(PlayerLayer, {
           stageSize: this.state.stageSize,

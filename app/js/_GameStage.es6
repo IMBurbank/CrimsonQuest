@@ -2,7 +2,7 @@
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing
+//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
@@ -36,6 +36,7 @@ class GameStage extends React.Component {
           playerArr = {this.props.playerArr}
           bgArr = {this.props.bgArr}
           accArr = {this.state.accArr}
+          enemyDead = {this.props.enemyDead}
           updateAccArr = {this.updateAccArr}  />
         <ItemLayer
           stageSize = {this.state.stageSize}
@@ -49,8 +50,16 @@ class GameStage extends React.Component {
           itemArr = {this.props.itemArr}
         	itemPalettes = {this.props.itemPalettes}
           itemPaletteArrMap = {this.props.itemPaletteArrMap}
+          enemyDead = {this.props.enemyDead}
         	updateGameClassState = {this.props.updateGameClassState} />
-        {/*<EnemyLayer	/>*/}
+        <EnemyLayer
+          stageSize = {this.state.stageSize}
+          boardSize = {this.props.boardSize}
+          tileSize =  {this.props.tileSize}
+          playerArr = {this.props.playerArr}
+          enemyArr = {this.props.enemyArr}
+          enemyPalettes = {this.props.enemyPalettes}
+        	updateGameClassState = {this.props.updateGameClassState} 	/>
         {/*<FogLayer	/>*/}
         <PlayerLayer
           stageSize = {this.state.stageSize}

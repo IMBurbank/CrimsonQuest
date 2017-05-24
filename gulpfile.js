@@ -11,6 +11,7 @@ var gulpIf = require('gulp-if');
 var cssnano = require('gulp-cssnano');
 var del = require('del');
 var runSequence = require('run-sequence');
+var cache = require('gulp-cached');
 
 
 gulp.task('browserSync', function() {
@@ -39,6 +40,7 @@ gulp.task('sass', function() {
 
 gulp.task('babel', function() {
   return gulp.src('app/js/*.es6')
+    .pipe(cache('linting'))
     .pipe(babel())
     .pipe(gulp.dest('app/js'))
 })

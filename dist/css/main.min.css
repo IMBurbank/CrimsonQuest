@@ -15,7 +15,7 @@
   text-align: center;
   background-color: #101010; }
 
-.bg-layer, .acc-layer, .item-layer, .player-layer, .stage-overlay {
+.bg-layer, .acc-layer, .item-layer, .enemy-layer, .player-layer, .stage-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -173,6 +173,9 @@ h4 {
 .item-layer {
   z-index: 12; }
 
+.enemy-layer {
+  z-index: 13; }
+
 .player-layer {
   z-index: 14; }
 
@@ -268,7 +271,7 @@ h4 {
   border: 1px solid #000;
   background: #fff; }
 
-.enemy-stats {
+.enemy-manager {
   width: 224px;
   height: 160px;
   border: 1px solid #000;

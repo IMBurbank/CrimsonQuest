@@ -1,13 +1,16 @@
 //props: tileSize, hero, heroIcon, inventory, itemPalettes, interactItem, updateGameClassState
+//enemyAttack, exchangedAttacks, enemyDead, gameOver
 class Hero extends React.Component {
   constructor(props) {
     super(props);
     this.initHero = this.initHero.bind(this);
     this.changeStats = this.changeStats.bind(this);
+    this.gainExperience = this.gainExperience.bind(this);
     this.handleLevelUp = this.handleLevelUp.bind(this);
     this.paintHeroIcon = this.paintHeroIcon.bind(this);
     this.handleInteractItem = this.handleInteractItem.bind(this);
     this.updateEquipCanvas = this.updateEquipCanvas.bind(this);
+    this.handleBattleRound = this.handleBattleRound.bind(this);
 
     this.state = ({
       heroName: "",
@@ -48,7 +51,8 @@ class Hero extends React.Component {
       iAgility: 0,
       bExpToLevel: 100,
       expLevelMult: 1.75,
-      interactItemCount: 0
+      interactItemCount: 0,
+      battleRound: 0,
     });
   }
 
@@ -97,7 +101,29 @@ class Hero extends React.Component {
     return newState;
   }
 
-  handleLevelUp(lvl) {
+  gainExperience(enemyDead) {
+    const conv = statConversion;
+
+    let {charLevel, experience, experienceToLevel} = this.state,
+      inc = 0,
+      i = 0;
+
+    for (; i < enemyDead.level; i++) inc += randInt(conv.lvlToExpRange[0], conv.lvlToExpRange[1]);
+
+    if (enemyDead.source.boss) inc *= conv.bossMultiplier;
+
+    experience += inc;
+
+    if (experience >= experienceToLevel) {
+      experience -= experienceToLevel;
+      charLevel++;
+      this.handleLevelUp(charLevel, experience)
+    } else {
+      this.setState({ experience });
+    }
+  }
+
+  handleLevelUp(charLevel, experience) {
     const onLvl = this.state.onLevelUp,
       bHealth = this.state.bHealth + onLvl.health,
       bVitality = this.state.bVitality + onLvl.vitality,
@@ -112,6 +138,8 @@ class Hero extends React.Component {
 
     this.setState((prevState, props) => {
       return {
+        charLevel,
+        experience,
         expToLevel: prevState.expLevelMult * prevState.expToLevel,
         bHealth: prevState.bHealth + onLvl.health,
         bAttack: prevState.bAttack + onLvl.attack,
@@ -124,6 +152,7 @@ class Hero extends React.Component {
         curHealth: maxHealth
       };
     });
+    console.log('Hero Level Up!: ', charLevel);
   }
 
   handleInteractItem(nextProps) {
@@ -197,6 +226,96 @@ class Hero extends React.Component {
     }
   }
 
+  handleBattleRound(nextProps) {
+    const {enemyAttack} = nextProps,
+      eStats = enemyAttack.stats,
+      roundCount = enemyAttack.roundCount,
+      conv = statConversion,
+      hDur = this.state.bDurability + this.state.iDurability,
+      hStr = this.state.bStrength + this.state.iStrength,
+      hAgi = this.state.bAgility + this.state.iAgility,
+      hAtk = this.state.bAttack + this.state.iAttack + conv.strToAtk * hStr,
+      hDef = this.state.bDefense + this.state.iDefense + conv.durToDef*hDur + conv.strToDef*hStr,
+      hHit = this.state.bHit + this.state.iHit + conv.strToHit * hStr + conv.agiToHit * hAgi,
+      hCrit = this.state.bCrit + this.state.iCrit + conv.agiToCrit * hAgi,
+      hDodge = this.state.bDodge + this.state.iDodge + conv.durToDodge*hDur + conv.agiToDodge*hAgi,
+      eDur = eStats.bDurability,
+      eStr = eStats.bStrength,
+      eAgi = eStats.bAgility,
+      eAtk = eStats.bAttack + conv.strToAtk * eStr,
+      eDef = eStats.bDefense + conv.durToDef * eDur + conv.strToDef * eStr,
+      eHit = eStats.bHit + conv.strToHit * eStr + conv.agiToHit * eAgi,
+      eCrit = eStats.bCrit + conv.agiToCrit * eAgi,
+      eDodge = eStats.bDodge + conv.durToDodge * eDur + conv.agiToDodge * eAgi;
+
+    let exchangedAttacks = Object.assign({}, nextProps.exchangedAttacks),
+      {curHealth, battleRound} = this.state,
+      spawnIndex = enemyAttack.spawnIndex,
+      enemyHealth = eStats.curHealth,
+      attacks = [],
+      turn = {},
+      enemyFirst = false,
+      type = '',
+      attack = 0,
+      defense = 0,
+      damage = 0,
+      i = 0;
+
+    if (roundCount !== battleRound) {
+      if (randInt(0, 100) < hHit - eDodge) {
+        for (i = 0; i < hAtk; i++) attack += randInt(conv.atkToHpRange[0], conv.atkToHpRange[1]);
+        for (i = 0; i < eDef; i++) defense += randInt(conv.defToHpRange[0], conv.defToHpRange[1]);
+
+        damage = attack - defense > 0 ? attack - defense : 0;
+
+        if (randInt(0, 100) < hCrit) type = 'cricital hit', damage *= 2;
+        else type = 'hit';
+
+        turn = { type, damage, from: 'hero', to: enemyAttack.source.name };
+      } else {
+        spawnIndex = -1;
+        turn = { from: 'hero', to: enemyAttack.source.name, type: 'miss', damage: 0 };
+      }
+      attacks.push(turn);
+    }
+
+    if (!(attacks.length && eAgi <= hAgi && attacks[0].damage >= enemyHealth)) {
+      if (randInt(0, 100) < eHit - hDodge) {
+        attack = 0, defense = 0;
+
+        for (i = 0; i < eAtk; i++) attack += randInt(conv.atkToHpRange[0], conv.atkToHpRange[1]);
+        for (i = 0; i < hDef; i++) defense += randInt(conv.defToHpRange[0], conv.defToHpRange[1]);
+
+        damage = attack - defense > 0 ? attack - defense : 0;
+
+        if (randInt(0, 100) < eCrit) type = 'cricital hit', damage *= 2;
+        else type = 'hit';
+
+        turn = { type, damage, from: enemyAttack.source.name, to: 'hero' };
+      } else {
+        damage = 0;
+        turn = { damage, from: enemyAttack.source.name, to: 'hero', type: 'miss' };
+      }
+      curHealth -= turn.damage;
+
+      if (eAgi <= hAgi) attacks.push(turn);
+      else enemyFirst = true, attacks.unshift(turn);
+    }
+
+    if (enemyFirst && curHealth <= 0 && attacks.length === 2) {
+      attacks.length = 1;
+      spawnIndex = -1;
+    }
+
+    if (battleRound < roundCount) battleRound = roundCount;
+    exchangedAttacks.count++;
+    exchangedAttacks.spawnIndex = spawnIndex;
+    exchangedAttacks.attacks = attacks;
+
+    this.setState({ curHealth, battleRound });
+    nextProps.updateGameClassState({ exchangedAttacks });
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.state.heroName === "" && nextProps.hero) {
       this.initHero(nextProps.hero);
@@ -209,11 +328,23 @@ class Hero extends React.Component {
 
       this.handleInteractItem(nextProps);
     }
+    if (this.props.enemyAttack.count !== nextProps.enemyAttack.count) {
+      this.handleBattleRound(nextProps);
+    }
+    if (this.props.enemyDead.count !== nextProps.enemyDead.count) {
+      this.gainExperience(nextProps.enemyDead);
+    }
   }
 
   componentWillUpdate(nextProps, nextState) {
     if (this.props.heroIcon !== nextProps.heroIcon && nextProps.heroIcon) {
       this.paintHeroIcon(nextProps.heroIcon);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.curHealth <= 0) {
+      this.props.updateGameClassState({ gameOver: true });
     }
   }
 

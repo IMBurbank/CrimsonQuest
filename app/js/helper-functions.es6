@@ -67,6 +67,10 @@ const initMemCanvas = function initCanvasToPointer(w, h, smoothing) {
   return tempCanv;
 }
 
+const linearDistance = function calcLinearDistance(a, b) {
+  return Math.sqrt(Math.pow(a[1] - b[1], 2) + Math.pow(a[0] - b[0], 2));
+}
+
 const calcRenderPadding = function calcCanvasRenderPadding(playerArr, aLen, rLen) {
   let sr = 0,
     pr = 0,

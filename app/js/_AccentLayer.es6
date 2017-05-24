@@ -1,4 +1,4 @@
-//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr
+//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead
 class AccentLayer extends React.Component {
   constructor(props) {
     super(props);
@@ -9,6 +9,7 @@ class AccentLayer extends React.Component {
     this.setPalettes = this.setPalettes.bind(this);
     this.setPaletteArrMap = this.setPaletteArrMap.bind(this);
     this.setAccArr = this.setAccArr.bind(this);
+    this.handleEnemyDead = this.handleEnemyDead.bind(this);
     this.drawAccents = this.drawAccents.bind(this);
 
     this.state = ({
@@ -30,7 +31,7 @@ class AccentLayer extends React.Component {
       decorMap: {},
       groundMap: {},
       oreMap: {},
-      corpseMap: [],
+      corpseMap: '',
       paletteArrMap: {},
       tempCanv: null,
     });
@@ -127,7 +128,7 @@ class AccentLayer extends React.Component {
     }
 
     //init corpseMap
-    corpseMap = groundMap['48'];
+    corpseMap = '51';
 
     this.setPaletteArrMap(this.props.gameLevel, decorMap, groundMap, oreMap);
     this.setState({ decorMap, groundMap, oreMap, corpseMap });
@@ -336,6 +337,17 @@ class AccentLayer extends React.Component {
     this.props.updateAccArr(accArr);
   }
 
+  handleEnemyDead(enemyDead) {
+    const {coord} = enemyDead,
+      {corpseMap} = this.state;
+
+    let {accArr} = this.props;
+
+    accArr[coord[0]][coord[1]] = corpseMap;
+
+    this.props.updateAccArr(accArr);
+  }
+
   drawAccents(timestamp) {
     if (!timeRef) timeRef = timestamp;
 
@@ -493,6 +505,9 @@ class AccentLayer extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.dec0Canv !== this.state.dec0Canv) {
       window.requestAnimationFrame(this.drawAccents);
+    }
+    if (prevProps.enemyDead.count !== this.props.enemyDead.count) {
+      this.handleEnemyDead(this.props.enemyDead);
     }
   }
 
