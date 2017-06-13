@@ -10,7 +10,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, playerArr
+//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, playerArr, bgLevelProcessed
 var BackgroundLayer = function (_React$Component) {
   _inherits(BackgroundLayer, _React$Component);
 
@@ -252,7 +252,10 @@ var BackgroundLayer = function (_React$Component) {
           hWallCoords = _backgroundArray.hWallCoords,
           vWallCoords = _backgroundArray.vWallCoords;
 
-      this.props.updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords);
+      var bgLevelProcessed = this.props.gameLevel;
+
+      this.props.updateBgArr(bgArr, bgLevelProcessed, floorCoords);
+      console.log('BG Mounted');
     }
   }, {
     key: 'componentWillReceiveProps',
@@ -264,7 +267,11 @@ var BackgroundLayer = function (_React$Component) {
             hWallCoords = _backgroundArray2.hWallCoords,
             vWallCoords = _backgroundArray2.vWallCoords;
 
-        this.props.updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords);
+        var bgLevelProcessed = nextProps.gameLevel;
+
+        this.props.updateBgArr(bgArr, bgLevelProcessed, floorCoords);
+
+        console.log('New Background Array');
 
         if (this.state.floorImg) {
           this.setPalettes(this.state.floorImg, this.state.wallImg, nextProps.gameLevel);

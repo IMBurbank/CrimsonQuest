@@ -49,7 +49,7 @@ var InventoryOverlay = function (_React$Component) {
           delta = [];
 
 
-      if ((el === 'ArrowUp' || el === 'KeyW') && row > 0) delta = [-1, 0];else if ((el === 'ArrowRight' || el === 'KeyD') && col < len - 1) delta = [0, 1];else if (el === 'ArrowDown' || el === 'KeyS') delta = [1, 0];else if ((el === 'ArrowLeft' || el === 'KeyA') && col > 0) delta = [0, -1];else if (el === 'KeyI' || el === 'KeyE') this.props.updateGameClassState({ overlayMode: 'off' });else if ((el === 'Space' || el === 'Enter') && getById(this.state.bRowId + this.state.row)) {
+      if ((el === 'ArrowUp' || el === 'KeyW') && row > 0) delta = [-1, 0];else if ((el === 'ArrowRight' || el === 'KeyD') && col < len - 1) delta = [0, 1];else if (el === 'ArrowDown' || el === 'KeyS') delta = [1, 0];else if ((el === 'ArrowLeft' || el === 'KeyA') && col > 0) delta = [0, -1];else if (el === 'KeyI' || el === 'KeyE' || el === 'Escape') this.props.updateGameClassState({ overlayMode: 'off' });else if ((el === 'Space' || el === 'Enter') && getById(this.state.bRowId + this.state.row)) {
         var name = getById(this.state.bRowId + row).querySelectorAll('span')[1].innerText,
             type = this.state.invCategories[this.state.col].toLowerCase();
 

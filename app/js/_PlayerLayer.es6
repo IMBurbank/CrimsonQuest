@@ -1,5 +1,5 @@
 //props: stageSize, tileSize, hero, heroFacing, gameLevel, bgArr, playerArr, updateGameClassState,
-//floorCoords
+//floorCoords, bgLevelProcessed
 class PlayerLayer extends React.Component {
   constructor(props) {
     super(props);
@@ -132,7 +132,8 @@ class PlayerLayer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.bgArr !== nextProps.bgArr) {
+    if (this.props.bgLevelProcessed !== nextProps.bgLevelProcessed) {
+      console.log('New Player Start');
       this.pickPlayerStart(nextProps);
     }
     /*

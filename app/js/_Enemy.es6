@@ -1,6 +1,6 @@
 
-//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, updateEnemyManager,
-//updateGameClassState, pollCount, incrementPollCount, enemyTurn, updateEnemyTurn, enemyDead, enemyPalettes, roundCount, roundEnemyArr
+//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, enemyDisplayArr, updateEnemyDisplayArr, updateEnemyManager, displayCount,
+//updateGameClassState, pollCount, incrementPollCount, enemyTurn, updateEnemyTurn, enemyDead, enemyPalettes, roundCount, roundEnemyArr, exchangeAttacks
 class Enemy extends React.Component {
   constructor(props) {
     super(props);
@@ -13,9 +13,11 @@ class Enemy extends React.Component {
     this.die = this.die.bind(this);
     this.takeDamage = this.takeDamage.bind(this);
     this.startTurn = this.startTurn.bind(this);
+    this.updateEnemyDisplay = this.updateEnemyDisplay.bind(this);
 
     this.state = ({
       level: 0,
+      maxHealth: 0,
       curHealth: 0,
       baseStats: {},
       position: [],
@@ -24,7 +26,7 @@ class Enemy extends React.Component {
   }
 
   initEnemy() {
-    const {source, spawnCoord, tileSize, enemyPalettes} = this.props,
+    const {source, tileSize, enemyPalettes} = this.props,
       level = randInt(source.levelRange[0], source.levelRange[1]),
       bStats = source.baseStats,
       onLvl = source.onLevelUp,
@@ -34,6 +36,7 @@ class Enemy extends React.Component {
 
     let icon = document.createElement('canvas'),
       baseStats = {},
+      maxHealth = 0,
       curHealth = 0,
       stat = 0,
       el = null,
@@ -41,7 +44,6 @@ class Enemy extends React.Component {
 
     icon.width = tileSize;
     icon.height = tileSize;
-    icon.key = source.name + spawnCoord[0] + spawnCoord[1] + 'canvas';
     ctx = icon.getContext('2d');
     ctx.imageSmoothingEnabled = smoothingEnabled;
 
@@ -63,13 +65,31 @@ class Enemy extends React.Component {
       baseStats[el] = stat;
     }
 
-    curHealth = (
+    maxHealth = (
       baseStats.bHealth +
       convert.vitToHp * baseStats.bVitality +
       convert.durToHp * baseStats.bDurability
     );
+    curHealth = maxHealth;
 
-    this.setState({ level, curHealth, baseStats, position, icon });
+    this.updateEnemyDisplay(position, curHealth, maxHealth, level, icon);
+    this.setState({ level, maxHealth, curHealth, baseStats, position, icon });
+  }
+
+  updateEnemyDisplay(position = this.state.position, curHealth = this.state.curHealth, maxHealth = this.state.maxHealth, level = this.state.level, icon = this.state.icon) {
+    const {source, spawnIndex} = this.props;
+
+    let enemyDisplay = {
+      position,
+      curHealth,
+      maxHealth,
+      level,
+      icon,
+      name: source.name,
+      type: source.type
+    };
+
+    this.props.updateEnemyDisplayArr(enemyDisplay, spawnIndex);
   }
 
   chooseMove(fromCoord, playerArr, roundEnemyArr, bgArr) {
@@ -180,6 +200,7 @@ class Enemy extends React.Component {
   }
 
   completeMove(position) {
+    this.updateEnemyDisplay(position);
     this.setState({ position: [...position] });
   }
 
@@ -225,30 +246,47 @@ class Enemy extends React.Component {
   die() {
     const {position, level} = this.state,
       {spawnIndex, source} = this.props,
-      enemyDead = Object.assign(this.props.enemyDead);
+      enemyDead = Object.assign(this.props.enemyDead),
+      conv = statConversion;
 
+    let experience = 0,
+      gold = 0,
+      i = 0;
 
+    console.log('enemyDead')
 
-    enemyDead.count ++;
+    for (; i < level; i++) {
+      experience += randInt(conv.lvlToExpRange[0], conv.lvlToExpRange[1]);
+      gold += randInt(conv.lvlToGoldRange[0], conv.lvlToGoldRange[1]);
+    }
+
+    if (this.props.source.boss) experience *= conv.bossMultiplier, gold *= conv.bossMultiplier;
+
+    enemyDead.count++;
     enemyDead.spawnIndex = spawnIndex;
     enemyDead.coord = position;
     enemyDead.source = source,
     enemyDead.level = level;
-
+    enemyDead.experience = ~~experience;
+    enemyDead.gold = ~~gold;
 
     this.props.updateGameClassState({ enemyDead });
   }
 
   takeDamage(attacks) {
     let {curHealth} = this.state,
-      attack = [];
+      damage = 0;
 
-    attacks.forEach( el => {if (el.from === 'hero') attack.push(el)} );
+    attacks.forEach( el => {if (el.from === 'hero') damage = el.damage} );
 
-    curHealth = curHealth - attack.damage > 0 ? curHealth - attack.damage : 0;
+    curHealth = curHealth - damage > 0 ? curHealth - damage : 0;
+
+    console.log('Damage to enemy: ', damage);
 
     if (!curHealth) this.die();
 
+    this.updateEnemyDisplay(this.state.position, curHealth);
+    this.props.updateEnemyManager({displayCount: this.props.displayCount + 1});
     this.setState({ curHealth });
   }
 
@@ -279,8 +317,7 @@ class Enemy extends React.Component {
       //console.log('Enemy receiveProps startTurn');
       this.startTurn(nextProps);
     }
-    if (this.props.exchangeAttacks.count &&
-      this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count &&
+    if (this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count &&
       nextProps.exchangeAttacks.spawnIndex === nextProps.spawnIndex) {
 
       this.takeDamage(nextProps.exchangeAttacks.attacks);
@@ -295,7 +332,7 @@ class Enemy extends React.Component {
     if (this.props.roundCount !== nextProps.roundCount &&
       nextProps.enemyTurn[this.props.spawnIndex].type === 'move' &&
       nextProps.enemyTurn[this.props.spawnIndex].status) {
-        
+
       this.completeMove(nextProps.enemyTurn[nextProps.spawnIndex].toCoord);
     }
   }

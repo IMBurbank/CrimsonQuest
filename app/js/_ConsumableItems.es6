@@ -48,22 +48,23 @@ class ConsumableItems extends React.Component {
   }
 
   updateConsumeCanvas(nextProps) {
-    const item = nextProps.interactItem.item,
-      action = nextProps.interactItem.type,
+    const {interactItem, inventory} = nextProps,
+      {item, type} = interactItem,
       m = consumableAbbrevMap;
 
-    let props = null,
+    let update = false,
+      props = null,
       dCtx = null,
       palette = null,
-      loc = [],
-      update = false;
+      loc = [];
 
-    if (action === 'pickup' && item.count === 1) {
-      update = true;
-    } else if (action === 'use' && item.count === 0) {
+    if ((inventory[item.name].count === 1 && ['pickup', 'buySuccess'].includes(type)) ||
+      (inventory[item.name].count === 0 && ['use', 'sell'].includes(type))) {
+
       update = true;
     }
 
+    console.log('update, item.count, type: ', update, item.count, type);
     if (update) {
       for (props in m) {
         if (item.name === m[props].name) dCtx = getById(props + '-canvas').getContext('2d');
@@ -72,7 +73,7 @@ class ConsumableItems extends React.Component {
       palette = nextProps.itemPalettes[item.palette];
       loc = item.iconLoc;
 
-      if (action === 'use') dCtx.clearRect(0, 0, loc[2], loc[3]);
+      if (['use', 'sell'].includes(type)) dCtx.clearRect(0, 0, loc[2], loc[3]);
       else dCtx.drawImage(palette, loc[0], loc[1], loc[2], loc[3], 0, 0, loc[2], loc[3]);
     }
   }
@@ -80,12 +81,15 @@ class ConsumableItems extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.quickConsume.count !== nextProps.quickConsume.count &&
       nextProps.quickConsume.count) {
+
       this.handleInteractItem(nextProps);
     }
     if (this.props.interactItem.count !== nextProps.interactItem.count &&
       nextProps.interactItem.count &&
-      ['pickup', 'use'].includes(nextProps.interactItem.type) &&
+      ['pickup', 'use', 'buySuccess', 'sell'].includes(nextProps.interactItem.type) &&
       nextProps.interactItem.item.type === 'consumable') {
+
+      console.log('ConsumableItems begin updateConsumeCanvas');
       this.updateConsumeCanvas(nextProps);
     }
   }

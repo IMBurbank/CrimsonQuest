@@ -1,4 +1,4 @@
-//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, playerArr
+//props: stageSize, boardSize, tileSize, gameLevel, bgArr, updateBgArr, playerArr, bgLevelProcessed
 class BackgroundLayer extends React.Component {
   constructor(props) {
     super(props);
@@ -228,13 +228,22 @@ class BackgroundLayer extends React.Component {
     this.initPaletteMaps();
 
     const { bgArr, floorCoords, hWallCoords, vWallCoords } = backgroundArray(this.props.boardSize);
-    this.props.updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords);
+
+    const bgLevelProcessed = this.props.gameLevel;
+
+    this.props.updateBgArr(bgArr, bgLevelProcessed, floorCoords);
+    console.log('BG Mounted')
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
       const { bgArr, floorCoords, hWallCoords, vWallCoords } = backgroundArray(this.props.boardSize);
-      this.props.updateBgArr(bgArr, floorCoords, hWallCoords, vWallCoords);
+
+      const bgLevelProcessed = nextProps.gameLevel;
+
+      this.props.updateBgArr(bgArr, bgLevelProcessed, floorCoords);
+
+      console.log('New Background Array');
 
       if (this.state.floorImg) {
         this.setPalettes(this.state.floorImg, this.state.wallImg, nextProps.gameLevel);

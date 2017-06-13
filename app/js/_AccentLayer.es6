@@ -1,4 +1,4 @@
-//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead
+//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead, bgLevelProcessed
 class AccentLayer extends React.Component {
   constructor(props) {
     super(props);
@@ -11,6 +11,8 @@ class AccentLayer extends React.Component {
     this.setAccArr = this.setAccArr.bind(this);
     this.handleEnemyDead = this.handleEnemyDead.bind(this);
     this.drawAccents = this.drawAccents.bind(this);
+
+    this.enemyDeadCount = 0;
 
     this.state = ({
       srcTileSize: 16,
@@ -94,7 +96,7 @@ class AccentLayer extends React.Component {
     let decorMap = {},
       groundMap = {},
       oreMap = {},
-      corpseMap = [],
+      corpseMap = '',
       w = 0,
       h = 0,
       i = 0,
@@ -337,15 +339,18 @@ class AccentLayer extends React.Component {
     this.props.updateAccArr(accArr);
   }
 
-  handleEnemyDead(enemyDead) {
-    const {coord} = enemyDead,
-      {corpseMap} = this.state;
+  handleEnemyDead(nextProps) {
+    const {enemyDead} = nextProps,
+      {corpseMap} = this.state,
+      {coord} = enemyDead;
 
-    let {accArr} = this.props;
+    let accArr = [...nextProps.accArr];
 
     accArr[coord[0]][coord[1]] = corpseMap;
+    this.enemyDeadCount = enemyDead.count;
 
     this.props.updateAccArr(accArr);
+
   }
 
   drawAccents(timestamp) {
@@ -497,8 +502,13 @@ class AccentLayer extends React.Component {
         );
       }
     }
-    if (this.props.bgArr !== nextProps.bgArr) {
+    if (this.props.bgLevelProcessed !== nextProps.bgLevelProcessed) {
+      console.log('New Accent Array')
       this.setAccArr(nextProps);
+    }
+
+    if (this.enemyDeadCount !== nextProps.enemyDead.count) {
+      this.handleEnemyDead(nextProps);
     }
   }
 
@@ -506,13 +516,11 @@ class AccentLayer extends React.Component {
     if (prevState.dec0Canv !== this.state.dec0Canv) {
       window.requestAnimationFrame(this.drawAccents);
     }
-    if (prevProps.enemyDead.count !== this.props.enemyDead.count) {
-      this.handleEnemyDead(this.props.enemyDead);
-    }
   }
 
   render() {
-    const size = this.props.stageSize;
+    const size = this.props.stageSize,
+      enemyDead = this.props.enemyDead;
     return (
       <canvas
         id = 'acc-layer'

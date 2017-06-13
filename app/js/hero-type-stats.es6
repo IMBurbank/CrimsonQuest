@@ -102,6 +102,9 @@ const statConversion = {
   agiToCrit: 0.5,
   atkToHpRange: [3, 5],
   defToHpRange: [1, 3],
-  lvlToExpRange: [9, 11],
+  lvlToExpRange: [50, 80],//default [9,11]
+  lvlToGoldRange: [2, 3],
+  expLevelMult: 1.75,
+  lvlUpSkillPoints: 2,
   bossMultiplier: 2.5,
 };

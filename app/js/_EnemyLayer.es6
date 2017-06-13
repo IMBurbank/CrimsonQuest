@@ -1,5 +1,6 @@
 
 //stageSize, boardSize, tileSize, playerArr, enemyArr, enemyPalettes, updateGameClassState
+//
 class EnemyLayer extends React.Component {
   constructor(props) {
     super(props);

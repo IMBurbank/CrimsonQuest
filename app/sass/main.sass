@@ -21,6 +21,12 @@ $std-border: 1px solid #000
   font-family: 'game-font-8'
   src: url('fonts/SDS_8x8.ttf') format('truetype')
 
+@font-face
+  font-family: 'font-stat-icon'
+  font-weight: normal
+  font-style: normal
+  src: url('fonts/font-stat-icon.eot') format('embedded-opentype'), url('fonts/font-stat-icon.woff2') format('woff2'), url('fonts/font-stat-icon.woff') format('woff'), url('fonts/font-stat-icon.ttf') format('truetype'), url('fonts/font-stat-icon.svg?21663751#font-stat-icon') format('svg')
+
 
 //
 //		Classes to @extend
@@ -41,6 +47,32 @@ $std-border: 1px solid #000
   left: 0
   margin: 0
   padding: 0
+
+
+//
+//    Icons
+//
+
+.stat-icon
+  display: inline-block
+  width: 1em
+  margin: 0 1rem
+  font-family: 'font-stat-icon'
+  font-size: 80%
+  font-weight: normal
+  color: #f00
+  text-transform: none
+  text-align: center
+  text-decoration: inherit
+  line-height: 1em
+  font-variant: normal
+  font-style: normal
+  speak: none
+
+.icon-plus-squared
+  &::before
+    content: '\f0fe'
+
 
 //
 //		Styling
@@ -118,7 +150,7 @@ h4
   background: #fff
 
   .hero-heading
-    margin-top: 8px
+    margin-top: 4px
 
 .hero-type
   display: flex
@@ -139,8 +171,11 @@ h4
 
 .stat-row
   margin: 4px 0 4px 24px
-  font-size: .9rem
+  font-size: .85rem
   text-align: left
+
+.stat-note
+  font-size: .7rem
 
 .equip-row
   display: flex
@@ -205,13 +240,20 @@ h4
   color: #fff
   background: #000
 
-  .inv-header
+  .inv-header,
+  .merchant-header
     margin: $tile-size / 2 0
+
+  .interact-type
+    margin: $tile-size / 2 $tile-size / 4
 
   .inv-categories
     display: flex
     justify-content: space-around
     margin: $tile-size / 2 0
+
+  .interact-category0
+    margin-right: $tile-size / 2
 
   .iheader-row
     display: flex
@@ -233,6 +275,11 @@ h4
   .quantity-col
     width: 7rem
     margin: 0 .5rem 0 3rem
+    text-align: center
+
+  .quant-buy-sell-col
+    width: 9rem
+    margin: 0 .5rem 0 4rem
     text-align: center
 
   .name-col
@@ -271,7 +318,7 @@ h4
   height: 100%
   background: rgba(50, 90, 240, 0.2)
 
-.enemies-remaining
+.current-objective
   height: $tile-size
   border: $std-border
   background: #fff
@@ -282,11 +329,41 @@ h4
   border: $std-border
   background: #fff
 
+.enemy-icon
+  margin: $tile-size / 2 0
+
 .activity-log
+  display: flex
+  align-items: flex-end
   width: $side-col
-  height: 288px
+  height: 320px
   border: $std-border
   background: #fff
+  overflow-y: hidden
+
+.log-content
+  width: 100%
+  font-size: .8rem
+  text-align: left
+
+.log
+  padding: .1rem .2rem
+
+.log-level
+  border: 1px solid #424208
+  background: #ff0
+
+.log-item
+  border: 1px solid #0a5661
+  background: #59d2bd
+
+.log-stat
+  border: 1px solid #646c30
+  background: #86b946
+
+.log-attack
+  border: 1px solid rgb(94,19,12)
+  background: #e07a5f
 
 .enemy-stats
   width: $side-col
@@ -296,6 +373,7 @@ h4
 
 .tips
   width: $side-col
-  height: 2 * $tile-size
+  height: $tile-size
   border: $std-border
+  font-size: .8rem
   background: #fff

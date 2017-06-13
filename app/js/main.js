@@ -20,127 +20,37 @@ var roomSize = {
   * React Components
   */
 
-var GameLevel = function (_React$Component) {
-  _inherits(GameLevel, _React$Component);
-
-  function GameLevel() {
-    _classCallCheck(this, GameLevel);
-
-    return _possibleConstructorReturn(this, (GameLevel.__proto__ || Object.getPrototypeOf(GameLevel)).apply(this, arguments));
-  }
-
-  _createClass(GameLevel, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'level' },
-        'Game Level'
-      );
-    }
-  }]);
-
-  return GameLevel;
-}(React.Component);
-
-var EnemiesRemaining = function (_React$Component2) {
-  _inherits(EnemiesRemaining, _React$Component2);
-
-  function EnemiesRemaining() {
-    _classCallCheck(this, EnemiesRemaining);
-
-    return _possibleConstructorReturn(this, (EnemiesRemaining.__proto__ || Object.getPrototypeOf(EnemiesRemaining)).apply(this, arguments));
-  }
-
-  _createClass(EnemiesRemaining, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'enemies-remaining' },
-        'Enemies Remaining'
-      );
-    }
-  }]);
-
-  return EnemiesRemaining;
-}(React.Component);
-
-var ActivityLog = function (_React$Component3) {
-  _inherits(ActivityLog, _React$Component3);
-
-  function ActivityLog() {
-    _classCallCheck(this, ActivityLog);
-
-    return _possibleConstructorReturn(this, (ActivityLog.__proto__ || Object.getPrototypeOf(ActivityLog)).apply(this, arguments));
-  }
-
-  _createClass(ActivityLog, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'activity-log' },
-        'Activity Log'
-      );
-    }
-  }]);
-
-  return ActivityLog;
-}(React.Component);
-
-var GameTips = function (_React$Component4) {
-  _inherits(GameTips, _React$Component4);
-
-  function GameTips() {
-    _classCallCheck(this, GameTips);
-
-    return _possibleConstructorReturn(this, (GameTips.__proto__ || Object.getPrototypeOf(GameTips)).apply(this, arguments));
-  }
-
-  _createClass(GameTips, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'div',
-        { className: 'tips' },
-        'Game Tips'
-      );
-    }
-  }]);
-
-  return GameTips;
-}(React.Component);
-
-var Game = function (_React$Component5) {
-  _inherits(Game, _React$Component5);
+var Game = function (_React$Component) {
+  _inherits(Game, _React$Component);
 
   function Game(props) {
     _classCallCheck(this, Game);
 
-    var _this5 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
-    _this5.updateBgArr = _this5.updateBgArr.bind(_this5);
-    _this5.handleKeyDown = _this5.handleKeyDown.bind(_this5);
-    _this5.updatePlayerArr = _this5.updatePlayerArr.bind(_this5);
-    _this5.updateGameClassState = _this5.updateGameClassState.bind(_this5);
-    _this5.pickupItem = _this5.pickupItem.bind(_this5);
-    _this5.focus = _this5.focus.bind(_this5);
-    _this5.maintainFocus = _this5.maintainFocus.bind(_this5);
-    _this5.endFocus = _this5.endFocus.bind(_this5);
-    _this5.handleGameOver = _this5.handleGameOver.bind(_this5);
+    _this.updateBgArr = _this.updateBgArr.bind(_this);
+    _this.handleKeyDown = _this.handleKeyDown.bind(_this);
+    _this.updatePlayerArr = _this.updatePlayerArr.bind(_this);
+    _this.updateGameClassState = _this.updateGameClassState.bind(_this);
+    _this.pickupItem = _this.pickupItem.bind(_this);
+    _this.focus = _this.focus.bind(_this);
+    _this.maintainFocus = _this.maintainFocus.bind(_this);
+    _this.endFocus = _this.endFocus.bind(_this);
+    _this.handleGameOver = _this.handleGameOver.bind(_this);
 
-    _this5.state = {
+    _this.state = {
       boardSize: 120,
       tileSize: 32,
       wall: 20,
       floor: 40,
       gameLevel: 1,
+      bgLevelProcessed: 0,
       levels: 10,
-      hero: 'Mage',
+      hero: 'Warrior',
       heroIcon: null,
       heroFacing: '',
       moveCount: 0,
+      levelUpCount: 1,
       gameOver: false,
       inventory: {},
       playerArr: [],
@@ -149,24 +59,34 @@ var Game = function (_React$Component5) {
       floorCoords: [],
       itemPalettes: {},
       itemPaletteArrMap: {},
-      interactItem: { count: 0, type: '', item: {} },
+      interactItem: { count: 0, type: '', item: {}, source: {} },
       //type: pickup, use, equip, unequip, buy, sell
+      useStatPoint: { count: 0, stat: '' },
+      increasedStat: { count: 0, type: '', stat: '', quant: 0 },
       quickConsume: { count: 0, num: 0 },
       enemyArr: [],
       enemyPalettes: {},
       enemyAttack: { count: 0, roundCount: 0, spawnIndex: 0, stats: {}, source: {} },
       exchangeAttacks: { count: 0, spawnIndex: 0, attacks: [] },
-      enemyDead: { count: 0, spawnIndex: 0, coord: [], source: {}, level: 0 },
+      enemyDead: {
+        count: 0,
+        spawnIndex: 0,
+        coord: [],
+        source: {},
+        level: 0,
+        experience: 0,
+        gold: 0
+      },
       overlayMode: 'off'
       //inv-overlay, inGameOptions, startOptions
     };
-    return _this5;
+    return _this;
   }
 
   _createClass(Game, [{
     key: 'updateBgArr',
-    value: function updateBgArr(bgArr, floorCoords) {
-      this.setState({ bgArr: bgArr, floorCoords: floorCoords });
+    value: function updateBgArr(bgArr, bgLevelProcessed, floorCoords) {
+      this.setState({ bgArr: bgArr, bgLevelProcessed: bgLevelProcessed, floorCoords: floorCoords });
     }
   }, {
     key: 'updatePlayerArr',
@@ -223,6 +143,7 @@ var Game = function (_React$Component5) {
             playerArr = _state.playerArr,
             bgArr = _state.bgArr,
             itemArr = _state.itemArr,
+            itemPaletteArrMap = _state.itemPaletteArrMap,
             enemyArr = _state.enemyArr,
             heroFacing = _state.heroFacing,
             directionKeys = {
@@ -234,6 +155,12 @@ var Game = function (_React$Component5) {
           KeyS: 'down',
           ArrowLeft: 'left',
           KeyA: 'left'
+        },
+            statIncreaseKeys = {
+          KeyV: 'bVitality',
+          KeyB: 'bDurability',
+          KeyN: 'bStrength',
+          KeyM: 'bAgility'
         },
             consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
         var moveCount = this.state.moveCount,
@@ -261,6 +188,14 @@ var Game = function (_React$Component5) {
               if (heroFacing !== direction) nState.heroFacing = direction;
               this.setState(nState);
             }
+          } else if (itemArr[row][col] && itemPaletteArrMap['' + itemArr[row][col]].name === 'Active Portal') {
+
+            console.log('NEXT LEVEL!');
+            this.setState({ gameLevel: this.state.gameLevel + 1 });
+          } else if (enemyArr[row][col] && enemyArr[row][col].type === 'merchant') {
+
+            console.log('Merchant Interaction');
+            this.setState({ overlayMode: 'merchant-overlay' });
           } else {
             nState.moveCount = moveCount;
             if (heroFacing !== direction) nState.heroFacing = direction;
@@ -270,6 +205,8 @@ var Game = function (_React$Component5) {
           this.setState({ overlayMode: 'inv-overlay' });
         } else if (consumeDigits.includes(el)) {
           this.setState({ quickConsume: { count: this.state.quickConsume.count + 1, num: el.slice(-1) } });
+        } else if (statIncreaseKeys[el]) {
+          this.setState({ useStatPoint: { count: this.state.useStatPoint.count + 1, stat: statIncreaseKeys[el] } });
         }
       }
     }
@@ -281,11 +218,11 @@ var Game = function (_React$Component5) {
   }, {
     key: 'maintainFocus',
     value: function maintainFocus() {
-      var _this6 = this;
+      var _this2 = this;
 
       this.focus();
       this.focusID = setInterval(function () {
-        return _this6.focus();
+        return _this2.focus();
       }, 250);
     }
   }, {
@@ -324,7 +261,8 @@ var Game = function (_React$Component5) {
         React.createElement(
           'div',
           { className: 'col-lft' },
-          React.createElement(GameLevel, null),
+          React.createElement(GameLevel, {
+            gameLevel: this.state.gameLevel }),
           React.createElement(Hero, {
             tileSize: this.state.tileSize,
             hero: this.state.hero,
@@ -332,6 +270,8 @@ var Game = function (_React$Component5) {
             inventory: this.state.inventory,
             itemPalettes: this.state.itemPalettes,
             interactItem: this.state.interactItem,
+            useStatPoint: this.state.useStatPoint,
+            increasedStat: this.state.increasedStat,
             enemyAttack: this.state.enemyAttack,
             exchangeAttacks: this.state.exchangeAttacks,
             enemyDead: this.state.enemyDead,
@@ -351,6 +291,7 @@ var Game = function (_React$Component5) {
             tileSize: this.state.tileSize,
             floor: this.state.floor,
             gameLevel: this.state.gameLevel,
+            bgLevelProcessed: this.state.bgLevelProcessed,
             levels: this.state.levels,
             hero: this.state.hero,
             playerArr: this.state.playerArr,
@@ -380,11 +321,14 @@ var Game = function (_React$Component5) {
         React.createElement(
           'div',
           { className: 'col-rgt' },
-          React.createElement(EnemiesRemaining, null),
+          React.createElement(CurrentObjective, {
+            gameLevel: this.state.gameLevel,
+            enemyDead: this.state.enemyDead }),
           React.createElement(EnemyManager, {
             tileSize: this.state.tileSize,
             floor: this.state.floor,
             gameLevel: this.state.gameLevel,
+            bgLevelProcessed: this.state.bgLevelProcessed,
             playerArr: this.state.playerArr,
             moveCount: this.state.moveCount,
             bgArr: this.state.bgArr,
@@ -395,7 +339,14 @@ var Game = function (_React$Component5) {
             exchangeAttacks: this.state.exchangeAttacks,
             enemyDead: this.state.enemyDead,
             updateGameClassState: this.updateGameClassState }),
-          React.createElement(ActivityLog, null),
+          React.createElement(ActivityLog, {
+            gameLevel: this.state.gameLevel,
+            levelUpCount: this.state.levelUpCount,
+            interactItem: this.state.interactItem,
+            useStatPoint: this.state.useStatPoint,
+            increasedStat: this.state.increasedStat,
+            exchangeAttacks: this.state.exchangeAttacks,
+            enemyDead: this.state.enemyDead }),
           React.createElement(GameTips, null)
         )
       );
@@ -415,8 +366,8 @@ var Game = function (_React$Component5) {
 	*/
 
 
-var PageHeader = function (_React$Component6) {
-  _inherits(PageHeader, _React$Component6);
+var PageHeader = function (_React$Component2) {
+  _inherits(PageHeader, _React$Component2);
 
   function PageHeader() {
     _classCallCheck(this, PageHeader);
@@ -453,8 +404,8 @@ var PageHeader = function (_React$Component6) {
 	*/
 
 
-var PageFooter = function (_React$Component7) {
-  _inherits(PageFooter, _React$Component7);
+var PageFooter = function (_React$Component3) {
+  _inherits(PageFooter, _React$Component3);
 
   function PageFooter() {
     _classCallCheck(this, PageFooter);
@@ -505,8 +456,8 @@ var PageFooter = function (_React$Component7) {
 	*/
 
 
-var App = function (_React$Component8) {
-  _inherits(App, _React$Component8);
+var App = function (_React$Component4) {
+  _inherits(App, _React$Component4);
 
   function App() {
     _classCallCheck(this, App);

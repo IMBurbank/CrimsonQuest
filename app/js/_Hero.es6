@@ -1,5 +1,5 @@
 //props: tileSize, hero, heroIcon, inventory, itemPalettes, interactItem, updateGameClassState
-//enemyAttack, exchangedAttacks, enemyDead, gameOver
+//useStatPoint, increasedStat, enemyAttack, exchangeAttacks, enemyDead, gameOver
 class Hero extends React.Component {
   constructor(props) {
     super(props);
@@ -8,16 +8,22 @@ class Hero extends React.Component {
     this.gainExperience = this.gainExperience.bind(this);
     this.handleLevelUp = this.handleLevelUp.bind(this);
     this.paintHeroIcon = this.paintHeroIcon.bind(this);
+    this.attemptPurchase = this.attemptPurchase.bind(this);
+    this.sellItem = this.sellItem.bind(this);
     this.handleInteractItem = this.handleInteractItem.bind(this);
+    this.handleEnemyDead = this.handleEnemyDead.bind(this);
+    this.handleUseStatPoint = this.handleUseStatPoint.bind(this);
     this.updateEquipCanvas = this.updateEquipCanvas.bind(this);
     this.handleBattleRound = this.handleBattleRound.bind(this);
+
+    this.enemyDeadCount = 0;
 
     this.state = ({
       heroName: "",
       experience: 0,
       expToLevel: 0,
       charLevel: 0,
-      gold: 0,
+      gold: 500,
       curHealth: 0,
       bHealth: 0,
       bAttack: 0,
@@ -29,7 +35,7 @@ class Hero extends React.Component {
       bDurability: 0,
       bStrength: 0,
       bAgility: 0,
-      statPoints: 0,
+      statPoints: 3,
       onLevelUp: {},
       head: null,
       weapon: null,
@@ -50,9 +56,9 @@ class Hero extends React.Component {
       iStrength: 0,
       iAgility: 0,
       bExpToLevel: 100,
-      expLevelMult: 1.75,
       interactItemCount: 0,
       battleRound: 0,
+      statIncMessages: []
     });
   }
 
@@ -61,9 +67,16 @@ class Hero extends React.Component {
       bHp = char.health,
       bVit = char.vitality,
       bDur = char.durability,
-      conv = statConversion;
+      conv = statConversion,
+      statIncMessages = [
+        "'V'",
+        "'B'",
+        "'N'",
+        "'M'"
+      ];
 
     this.setState({
+      statIncMessages,
       heroName: char.heroName,
       charLevel: 1,
       expToLevel: this.state.bExpToLevel,
@@ -102,20 +115,13 @@ class Hero extends React.Component {
   }
 
   gainExperience(enemyDead) {
-    const conv = statConversion;
+    let {charLevel, experience, expToLevel} = this.state;
 
-    let {charLevel, experience, experienceToLevel} = this.state,
-      inc = 0,
-      i = 0;
+    experience += enemyDead.experience;
+    this.enemyDeadCount = enemyDead.count;
 
-    for (; i < enemyDead.level; i++) inc += randInt(conv.lvlToExpRange[0], conv.lvlToExpRange[1]);
-
-    if (enemyDead.source.boss) inc *= conv.bossMultiplier;
-
-    experience += inc;
-
-    if (experience >= experienceToLevel) {
-      experience -= experienceToLevel;
+    if (experience >= expToLevel) {
+      experience -= expToLevel;
       charLevel++;
       this.handleLevelUp(charLevel, experience)
     } else {
@@ -128,36 +134,122 @@ class Hero extends React.Component {
       bHealth = this.state.bHealth + onLvl.health,
       bVitality = this.state.bVitality + onLvl.vitality,
       bDurability = this.state.bDurability + onLvl.durability,
+      bStrength = this.state.bStrength + onLvl.strength,
+      bAgility = this.state.bAgility + onLvl.agility,
+      bAttack = this.state.bAttack + onLvl.attack,
+      bDefense = this.state.bDefense + onLvl.defense,
       iHealth = this.state.iHealth,
       iVitality = this.state.iVitality,
-      iDurability = this.state.durability,
+      iDurability = this.state.iDurability,
       conv = statConversion,
-      maxHealth = bHealth + iHealth + conv.vitToHp * (bVitality + iVitality) +
-        conv.durToHp * (bDurability + iDurability),
-      lvlUpPoints = 2;
+      maxHealth = bHealth + iHealth + conv.vitToHp * (bVitality + iVitality) + conv.durToHp * (bDurability + iDurability),
+      expToLevel = ~~(this.state.expToLevel * conv.expLevelMult),
+      statPoints = this.state.statPoints + conv.lvlUpSkillPoints;
 
-    this.setState((prevState, props) => {
-      return {
-        charLevel,
-        experience,
-        expToLevel: prevState.expLevelMult * prevState.expToLevel,
-        bHealth: prevState.bHealth + onLvl.health,
-        bAttack: prevState.bAttack + onLvl.attack,
-        bDefense: prevState.bDefense + onLvl.defense,
-        bVitality: prevState.bVitality + onLvl.vitality,
-        bDurability: prevState.bDurability + onLvl.durability,
-        bStrength: prevState.bStrength + onLvl.strength,
-        bAgility: prevState.bAgility + onLvl.agility,
-        statPoints: prevState.statPoints + lvlUpPoints,
-        curHealth: maxHealth
-      };
+    this.props.updateGameClassState({ levelUpCount: charLevel });
+
+    this.setState({
+      charLevel,
+      experience,
+      expToLevel,
+      bHealth,
+      bAttack,
+      bDefense,
+      bVitality,
+      bDurability,
+      bStrength,
+      bAgility,
+      statPoints,
+      curHealth: maxHealth
     });
-    console.log('Hero Level Up!: ', charLevel);
+    console.log('Hero Level Up!!: ', charLevel);
+  }
+
+  attemptPurchase(item, inventory, merchantInventory, interactItem) {
+    const buySuccessType = 'buySuccess',
+      buyFailType = 'buyFail';
+
+    let {gold} = this.state,
+      nInteractItem = Object.assign({}, interactItem),
+      nState = {};
+
+    if (gold >= item.buy) {
+      console.log('Hero Attempt Buy Success');
+      nInteractItem.type = buySuccessType;
+      gold -= item.buy;
+      console.log('merchantInventory[item.name]: ', merchantInventory[item.name]);
+      merchantInventory[item.name].count -= 1;
+      console.log('inventory[item.name] : ', inventory[item.name]);
+
+      if (inventory[item.name]) {
+        inventory[item.name].count += 1;
+      } else {
+        inventory[item.name] = Object.assign({}, item);
+        inventory[item.name].count = 1;
+      }
+      console.log('inventory[item.name] : ', inventory[item.name]);
+      nState = { inventory };
+      this.setState({ gold });
+    } else {
+      console.log('Hero Attempt Buy Fail');
+      nInteractItem.type = buyFailType;
+    }
+
+    nInteractItem.count += 1;
+    nState['interactItem'] = nInteractItem
+
+    this.props.updateGameClassState(nState);
+  }
+
+  sellItem(item, inventory, merchantInventory, interactItem) {
+    let {gold} = this.state,
+      nState = { gold: gold + item.sell };
+
+    if (item.equipped) {
+      inventory[item.name].equipped = false;
+      nState[item.type] = null;
+    }
+
+    inventory[item.name].count -= 1;
+
+    if (merchantInventory[item.name]) {
+      merchantInventory[item.name].count += 1;
+    } else {
+      merchantInventory[item.name] = Object.assign({}, item);
+      merchantInventory[item.name].count = 1;
+    }
+
+    if (inventory[item.name].count === 0 && inventory[item.name].type !== 'consumable') {
+      this.updateEquipCanvas(inventory[item.name]);
+    }
+
+    this.setState(nState);
+    this.props.updateGameClassState({ inventory });
+    console.log('Hero item sold (inventoryItem, inventory): ', inventory[item.name], inventory);
+  }
+
+  handleEnemyDead(nextProps) {
+    const {enemyDead} = nextProps,
+      {gold} = enemyDead;
+
+    let nState = this.changeStats({gold});
+
+    this.gainExperience(enemyDead);
+
+    this.setState(nState);
   }
 
   handleInteractItem(nextProps) {
+    const {interactItem} = nextProps,
+      action = interactItem.type,
+      itemName = interactItem.item.name,
+      conv = statConversion;
+
     let inventory = Object.assign({}, nextProps.inventory),
-      item = inventory[nextProps.interactItem.item.name],
+      merchantInventory = interactItem.source.inventory,
+      item = action === 'buy' ? merchantInventory[itemName] : inventory[itemName],
+      stats = item.stats,
+      iType = item.type,
       updateInventory = false,
       updateCanvas = false,
       curItem = null,
@@ -167,10 +259,7 @@ class Hero extends React.Component {
       vit = 0,
       dur = 0;
 
-    const action = nextProps.interactItem.type,
-      conv = statConversion,
-      stats = item.stats,
-      iType = item.type;
+
 
     if (action === 'pickup' && item.type === 'gold') nState = this.changeStats(stats);
     else if (action === 'use') {
@@ -199,18 +288,47 @@ class Hero extends React.Component {
 
       item.equipped = true;
       nState[iType] = item;
+    } else if (action === 'buy') {
+      console.log('Hero handleInteractItem buy start');
+      this.attemptPurchase(item, inventory, merchantInventory, interactItem);
+    } else if (action === 'sell') {
+      console.log('Hero handleInteractItem sell start');
+      this.sellItem(item, inventory, merchantInventory, interactItem);
     }
 
-    hp = nState.bHealth + nState.iHealth;
-    vit = nState.iVitality + nState.bVitality;
-    dur = nState.iDurability + nState.bDurability;
-    maxHp = hp + conv.vitToHp * vit + conv.durToHp * dur;
+    if (Object.keys(nState).length) {
+      hp = nState.bHealth + nState.iHealth;
+      vit = nState.iVitality + nState.bVitality;
+      dur = nState.iDurability + nState.bDurability;
+      maxHp = hp + conv.vitToHp * vit + conv.durToHp * dur;
 
-    if (nState.curHealth > maxHp) nState.curHealth = maxHp;
-    if (updateCanvas) this.updateEquipCanvas(item);
-    if (updateInventory) this.props.updateGameClassState({ inventory });
+      if (nState.curHealth > maxHp) nState.curHealth = maxHp;
+      if (updateCanvas) this.updateEquipCanvas(item);
+      if (updateInventory) this.props.updateGameClassState({ inventory });
 
-    this.setState(nState);
+      this.setState(nState);
+    }
+  }
+
+  handleUseStatPoint(nextProps) {
+    const decStats = {statPoints: 1};
+
+    let increasedStat = Object.assign({}, nextProps.increasedStat),
+      stats = {},
+      nState = {};
+
+    if (this.state.statPoints > 0) {
+      stats[nextProps.useStatPoint.stat] = 1;
+      nState = this.changeStats(stats, decStats);
+
+      increasedStat.count++;
+      increasedStat.type = 'Increased';
+      increasedStat.stat = nextProps.useStatPoint.stat.slice(1);
+      increasedStat.quant = 1;
+
+      this.props.updateGameClassState({ increasedStat });
+      this.setState(nState);
+    }
   }
 
   updateEquipCanvas(item) {
@@ -248,7 +366,7 @@ class Hero extends React.Component {
       eCrit = eStats.bCrit + conv.agiToCrit * eAgi,
       eDodge = eStats.bDodge + conv.durToDodge * eDur + conv.agiToDodge * eAgi;
 
-    let exchangedAttacks = Object.assign({}, nextProps.exchangedAttacks),
+    let exchangeAttacks = Object.assign({}, nextProps.exchangeAttacks),
       {curHealth, battleRound} = this.state,
       spawnIndex = enemyAttack.spawnIndex,
       enemyHealth = eStats.curHealth,
@@ -308,12 +426,12 @@ class Hero extends React.Component {
     }
 
     if (battleRound < roundCount) battleRound = roundCount;
-    exchangedAttacks.count++;
-    exchangedAttacks.spawnIndex = spawnIndex;
-    exchangedAttacks.attacks = attacks;
+    exchangeAttacks.count++;
+    exchangeAttacks.spawnIndex = spawnIndex;
+    exchangeAttacks.attacks = attacks;
 
     this.setState({ curHealth, battleRound });
-    nextProps.updateGameClassState({ exchangedAttacks });
+    nextProps.updateGameClassState({ exchangeAttacks });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -323,7 +441,7 @@ class Hero extends React.Component {
     if (this.props.interactItem.count !== nextProps.interactItem.count &&
       nextProps.interactItem.count) {
 
-      console.log('interactItem');
+      console.log('interactItem', nextProps.interactItem);
       console.log(nextProps.interactItem.type, nextProps.interactItem.item.name);
 
       this.handleInteractItem(nextProps);
@@ -331,8 +449,12 @@ class Hero extends React.Component {
     if (this.props.enemyAttack.count !== nextProps.enemyAttack.count) {
       this.handleBattleRound(nextProps);
     }
-    if (this.props.enemyDead.count !== nextProps.enemyDead.count) {
-      this.gainExperience(nextProps.enemyDead);
+    if (this.enemyDeadCount !== nextProps.enemyDead.count) {
+      this.handleEnemyDead(nextProps);
+      //DELETE: this.gainExperience(nextProps);
+    }
+    if (this.props.useStatPoint.count !== nextProps.useStatPoint.count) {
+      this.handleUseStatPoint(nextProps);
     }
   }
 
@@ -351,10 +473,12 @@ class Hero extends React.Component {
   render() {
     const ts = this.props.tileSize,
       none = 'None',
+      statIncMessages = this.state.statIncMessages,
       conv = statConversion,
       lvl = this.state.charLevel,
       curHp = this.state.curHealth,
       gold = this.state.gold,
+      stat = this.state.statPoints,
       exp = this.state.experience,
       expToLvl = this.state.expToLevel,
       vit = this.state.bVitality + this.state.iVitality,
@@ -364,6 +488,7 @@ class Hero extends React.Component {
       atk = this.state.bAttack + this.state.iAttack + conv.strToAtk * str,
       def = this.state.bDefense + this.state.iDefense + conv.durToDef * dur + conv.strToDef * str,
       maxHp = this.state.bHealth + this.state.iHealth + conv.vitToHp * vit + conv.durToHp * dur,
+      statIcon = stat ? 'stat-icon icon-plus-squared' : '',
       hed = this.state.head ? this.state.head.name : none,
       wep = this.state.weapon ? this.state.weapon.name : none,
       amu = this.state.amulet ? this.state.amulet.name : none,
@@ -383,16 +508,35 @@ class Hero extends React.Component {
             <p>Type: {this.props.hero}</p>
           </div>
         </div>
-        <p className='stat-row'>Level: {lvl}</p>
-        <p className='stat-row'>Health: {curHp}/{maxHp}</p>
-        <p className='stat-row'>Gold: {gold}</p>
-        <p className='stat-row'>Exp: {exp}/{expToLvl}</p>
-        <p className='stat-row'>Atk: {atk}</p>
-        <p className='stat-row'>Def: {def}</p>
-        <p className='stat-row'>Vit: {vit}</p>
-        <p className='stat-row'>Dur: {dur}</p>
-        <p className='stat-row'>Str: {str}</p>
-        <p className='stat-row'>Agi: {agi}</p>
+        <div className='stat-container'>
+          <p className='stat-row'>Level: {lvl}</p>
+          <p className='stat-row'>Health: {curHp}/{maxHp}</p>
+          <p className='stat-row'>Gold: {gold}</p>
+          <p className='stat-row'>Stat: {stat}</p>
+          <p className='stat-row'>Exp: {exp}/{expToLvl}</p>
+          <p className='stat-row'>Atk: {atk}</p>
+          <p className='stat-row'>Def: {def}</p>
+          <p className='stat-row'>
+            Vit: {vit}
+            <i className={statIcon}></i>
+            <span className='stat-note'>{stat ? statIncMessages[0] : null}</span>
+          </p>
+          <p className='stat-row'>
+            Dur: {dur}
+            <i className={statIcon}></i>
+            <span className='stat-note'>{stat ? statIncMessages[1] : null}</span>
+          </p>
+          <p className='stat-row'>
+            Str: {str}
+            <i className={statIcon}></i>
+            <span className='stat-note'>{stat ? statIncMessages[2] : null}</span>
+          </p>
+          <p className='stat-row'>
+            Agi: {agi}
+            <i className={statIcon}></i>
+            <span className='stat-note'>{stat ? statIncMessages[3] : null}</span>
+          </p>
+        </div>
         <div className='equip-row'>
           <canvas id='head-canvas' className='equip-canv' width={ts} height={ts} />
           <div className='stat-col'>

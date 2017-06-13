@@ -8,45 +8,6 @@ const roomSize = {
   * React Components
   */
 
-class GameLevel extends React.Component {
-  render() {
-    return (
-      <div className='level'>
-        Game Level
-      </div>
-    );
-  }
-}
-
-class EnemiesRemaining extends React.Component {
-  render() {
-    return (
-      <div className='enemies-remaining'>
-        Enemies Remaining
-      </div>
-    );
-  }
-}
-
-class ActivityLog extends React.Component {
-  render() {
-    return (
-      <div className='activity-log'>
-        Activity Log
-      </div>
-    );
-  }
-}
-
-class GameTips extends React.Component {
-  render() {
-    return (
-      <div className='tips'>
-        Game Tips
-      </div>
-    );
-  }
-}
 
 class Game extends React.Component {
   constructor(props) {
@@ -67,11 +28,13 @@ class Game extends React.Component {
       wall: 20,
       floor: 40,
       gameLevel: 1,
+      bgLevelProcessed: 0,
       levels: 10,
-      hero: 'Mage',
+      hero: 'Warrior',
       heroIcon: null,
       heroFacing: '',
       moveCount: 0,
+      levelUpCount: 1,
       gameOver: false,
       inventory: {},
       playerArr: [],
@@ -80,21 +43,31 @@ class Game extends React.Component {
       floorCoords: [],
       itemPalettes: {},
       itemPaletteArrMap: {},
-      interactItem: {count: 0, type: '', item: {}},
+      interactItem: {count: 0, type: '', item: {}, source: {}},
       //type: pickup, use, equip, unequip, buy, sell
+      useStatPoint: {count: 0, stat: ''},
+      increasedStat: {count: 0, type: '', stat: '', quant: 0},
       quickConsume: {count: 0, num: 0},
       enemyArr: [],
       enemyPalettes: {},
       enemyAttack: {count: 0, roundCount: 0, spawnIndex: 0, stats: {}, source: {}},
       exchangeAttacks: {count: 0, spawnIndex: 0, attacks: []},
-      enemyDead: {count: 0, spawnIndex: 0, coord: [], source: {}, level: 0},
+      enemyDead: {
+        count: 0,
+        spawnIndex: 0,
+        coord: [],
+        source: {},
+        level: 0,
+        experience: 0,
+        gold: 0
+      },
       overlayMode: 'off'
       //inv-overlay, inGameOptions, startOptions
     });
   }
 
-  updateBgArr(bgArr, floorCoords) {
-    this.setState({ bgArr, floorCoords });
+  updateBgArr(bgArr, bgLevelProcessed, floorCoords) {
+    this.setState({ bgArr, bgLevelProcessed, floorCoords });
   }
 
   updatePlayerArr(playerArr) {
@@ -145,7 +118,7 @@ class Game extends React.Component {
     if (this.state.overlayMode === 'off') {
 
       const el = e.nativeEvent.code,
-        {boardSize, floor, playerArr, bgArr, itemArr, enemyArr, heroFacing} = this.state,
+        {boardSize, floor, playerArr, bgArr, itemArr, itemPaletteArrMap, enemyArr, heroFacing} = this.state,
         directionKeys = {
           ArrowUp: 'up',
           KeyW: 'up',
@@ -155,6 +128,12 @@ class Game extends React.Component {
           KeyS: 'down',
           ArrowLeft: 'left',
           KeyA: 'left'
+        },
+        statIncreaseKeys = {
+          KeyV: 'bVitality',
+          KeyB: 'bDurability',
+          KeyN: 'bStrength',
+          KeyM: 'bAgility'
         },
         consumeDigits = [
           'Digit1',
@@ -200,6 +179,16 @@ class Game extends React.Component {
             if (heroFacing !== direction) nState.heroFacing = direction;
             this.setState( nState );
           }
+        } else if (itemArr[row][col] &&
+          itemPaletteArrMap['' + itemArr[row][col]].name === 'Active Portal') {
+
+          console.log('NEXT LEVEL!');
+          this.setState({ gameLevel: this.state.gameLevel + 1 });
+        } else if (enemyArr[row][col] &&
+          enemyArr[row][col].type === 'merchant') {
+
+          console.log('Merchant Interaction');
+          this.setState({ overlayMode: 'merchant-overlay' });
         } else {
           nState.moveCount = moveCount;
           if (heroFacing !== direction) nState.heroFacing = direction;
@@ -209,6 +198,8 @@ class Game extends React.Component {
         this.setState({overlayMode: 'inv-overlay'});
       } else if (consumeDigits.includes(el)) {
         this.setState({quickConsume: {count: this.state.quickConsume.count + 1,num: el.slice(-1)}});
+      } else if (statIncreaseKeys[el]) {
+        this.setState({useStatPoint: {count: this.state.useStatPoint.count + 1, stat: statIncreaseKeys[el]}});
       }
     }
   }
@@ -249,7 +240,8 @@ class Game extends React.Component {
     return (
       <div className='game' tabIndex='0' onKeyDown={this.handleKeyDown}>
         <div className='col-lft'>
-          <GameLevel />
+          <GameLevel
+            gameLevel =  {this.state.gameLevel} />
           <Hero
             tileSize = {this.state.tileSize}
             hero = {this.state.hero}
@@ -257,6 +249,8 @@ class Game extends React.Component {
             inventory = {this.state.inventory}
             itemPalettes = {this.state.itemPalettes}
             interactItem = {this.state.interactItem}
+            useStatPoint = {this.state.useStatPoint}
+            increasedStat = {this.state.increasedStat}
             enemyAttack = {this.state.enemyAttack}
             exchangeAttacks = {this.state.exchangeAttacks}
             enemyDead = {this.state.enemyDead}
@@ -270,6 +264,7 @@ class Game extends React.Component {
             tileSize = {this.state.tileSize}
             floor = {this.state.floor}
             gameLevel =  {this.state.gameLevel}
+            bgLevelProcessed = {this.state.bgLevelProcessed}
             levels = {this.state.levels}
             hero = {this.state.hero}
             playerArr = {this.state.playerArr}
@@ -297,11 +292,14 @@ class Game extends React.Component {
             updateGameClassState = {this.updateGameClassState} />
         </div>
         <div className='col-rgt'>
-          <EnemiesRemaining/>
+          <CurrentObjective
+            gameLevel =  {this.state.gameLevel}
+            enemyDead = {this.state.enemyDead}  />
           <EnemyManager
             tileSize = {this.state.tileSize}
             floor = {this.state.floor}
             gameLevel =  {this.state.gameLevel}
+            bgLevelProcessed = {this.state.bgLevelProcessed}
             playerArr = {this.state.playerArr}
             moveCount = {this.state.moveCount}
             bgArr = {this.state.bgArr}
@@ -312,7 +310,14 @@ class Game extends React.Component {
             exchangeAttacks = {this.state.exchangeAttacks}
             enemyDead = {this.state.enemyDead}
             updateGameClassState = {this.updateGameClassState}  />
-          <ActivityLog/>
+          <ActivityLog
+            gameLevel =  {this.state.gameLevel}
+            levelUpCount = {this.state.levelUpCount}
+            interactItem = {this.state.interactItem}
+            useStatPoint = {this.state.useStatPoint}
+            increasedStat = {this.state.increasedStat}
+            exchangeAttacks = {this.state.exchangeAttacks}
+            enemyDead = {this.state.enemyDead}  />
           <GameTips/>
         </div>
       </div>

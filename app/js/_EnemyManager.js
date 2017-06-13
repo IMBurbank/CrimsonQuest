@@ -11,7 +11,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 //gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks,
-//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead
+//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, bgLevelProcessed
 var EnemyManager = function (_React$Component) {
   _inherits(EnemyManager, _React$Component);
 
@@ -26,15 +26,23 @@ var EnemyManager = function (_React$Component) {
     _this.updateEnemyManager = _this.updateEnemyManager.bind(_this);
     _this.incrementPollCount = _this.incrementPollCount.bind(_this);
     _this.updateEnemyTurn = _this.updateEnemyTurn.bind(_this);
+    _this.updateEnemyDisplayArr = _this.updateEnemyDisplayArr.bind(_this);
+    _this.setEnemyDisplay = _this.setEnemyDisplay.bind(_this);
+    _this.drawEnemyIcon = _this.drawEnemyIcon.bind(_this);
 
     _this.pollCount = -1;
-
+    _this.enemyDeadCount = 0;
     _this.enemyTurn = [];
     //enemyTurn: [{ type: '', source: {}, stats: {}, fromCoord: [], toCoord: [], status: bool },]
     //type: 'move', 'stay', 'attack', 'die'
 
+    _this.enemyDisplayArr = [];
+    //{name: '', type: '', icon: <memCanvas>, level: 0, curHealth: 0, maxHealth: 0, position: []}
+    _this.enemyDisplay = {};
+
     _this.state = {
       roundCount: 0,
+      displayCount: 0,
       levelProcessed: 0,
       enemiesRemaining: 0,
       currentIndex: 0,
@@ -61,22 +69,27 @@ var EnemyManager = function (_React$Component) {
       this.enemyTurn[index] = turn;
     }
   }, {
+    key: 'updateEnemyDisplayArr',
+    value: function updateEnemyDisplayArr(enemy, index) {
+      this.enemyDisplayArr[index] = enemy;
+    }
+  }, {
     key: 'setLevelEnemies',
     value: function setLevelEnemies() {
-      var gameLevel = this.props.gameLevel,
-          len = this.props.bgArr.length,
-          enemyList = [enemyAvian /*,
-                                  enemyDemon,
-                                  enemyElemental,
-                                  enemyHumanoid,
-                                  enemyReptile,
-                                  enemyUndead*/
-      ];
+      var _props = this.props,
+          gameLevel = _props.gameLevel,
+          bgLevelProcessed = _props.bgLevelProcessed,
+          bgArr = _props.bgArr,
+          len = bgArr.length,
+          enemyList = [enemyAvian, enemyDemon, enemyElemental, enemyHumanoid, enemyReptile, enemyUndead],
+          centerFloorSpace = 45;
       var floorCoords = [].concat(_toConsumableArray(this.props.floorCoords)),
           enemyArr = initZeroArray(len),
           nextKey = this.state.nextKey,
           levelEnemies = [],
           spawnCoord = [],
+          curCoord = [0, 0],
+          curIndex = 0,
           source = {},
           el = null,
           enemiesRemaining = 0,
@@ -87,21 +100,35 @@ var EnemyManager = function (_React$Component) {
       enemyList.forEach(function (obj) {
         for (el in obj) {
           source = obj[el];
-          count = source.spawnQuant['' + gameLevel];
+          count = source.spawnQuant['' + gameLevel] ? source.spawnQuant['' + gameLevel] : 0;
           enemiesRemaining += count;
+          i = 0;
 
           while (i < count) {
-            spawnCoord = floorCoords.splice(randInt(0, floorCoords.length - 1), 1)[0];
+            if (source.type === 'merchant') {
+              while (!(bgArr[curCoord[0]][curCoord[1]] === centerFloorSpace && bgArr[curCoord[0] - 1][curCoord[1]] === centerFloorSpace && bgArr[curCoord[0]][curCoord[1] + 1] === centerFloorSpace && bgArr[curCoord[0] + 1][curCoord[1]] === centerFloorSpace && bgArr[curCoord[0]][curCoord[1] - 1] === centerFloorSpace)) {
+                curIndex = randInt(0, floorCoords.length - 1);
+                curCoord = floorCoords[curIndex];
+              }
+              spawnCoord = floorCoords.splice(curIndex, 1)[0];
+              console.log('Merchant at: ', spawnCoord);
+            } else {
+              spawnCoord = floorCoords.splice(randInt(0, floorCoords.length - 1), 1)[0];
+            }
+
             enemyArr[spawnCoord[0]][spawnCoord[1]] = source;
             nextKey++;
 
             levelEnemies.push({ source: source, spawnCoord: spawnCoord, key: nextKey });
             i++;
+
+            if (source.boss) console.log('Boss at: ', spawnCoord);
           }
         }
       });
 
-      if (this.enemyTurn.length < enemiesRemaining) this.enemyTurn.length = enemiesRemaining;
+      this.enemyTurn.length = enemiesRemaining;
+      this.enemyDisplayArr.length = enemiesRemaining;
 
       this.props.updateGameClassState({ floorCoords: floorCoords, enemyArr: enemyArr });
 
@@ -109,31 +136,28 @@ var EnemyManager = function (_React$Component) {
         levelEnemies: levelEnemies,
         enemiesRemaining: enemiesRemaining,
         nextKey: nextKey,
-        levelProcessed: gameLevel,
+        levelProcessed: bgLevelProcessed,
         roundEnemyArr: enemyArr
       });
     }
   }, {
     key: 'runEnemyRound',
     value: function runEnemyRound(props) {
-      console.log('starting runEnemyRound');
-      var exchangeAttacks = props.exchangeAttacks,
-          enemyAttack = props.enemyAttack;
+      var enemyAttack = props.enemyAttack;
       var enemyTurn = [].concat(_toConsumableArray(this.enemyTurn)),
           roundEnemyArr = [].concat(_toConsumableArray(this.state.roundEnemyArr)),
           _state = this.state,
           roundCount = _state.roundCount,
           currentIndex = _state.currentIndex,
           levelEnemies = _state.levelEnemies,
-          nState = {},
+          count = enemyAttack.count,
           type = '',
           source = {},
           stats = {},
           toCoord = [],
           fromCoord = [],
           status = false,
-          spawnIndex = 0,
-          count = 0;
+          spawnIndex = 0;
 
       //console.log('EnemyRound enemyTurn: ', enemyTurn, 'roundCount: ', roundCount, 'currentIndex: ', currentIndex, 'this.pollCount: ', this.pollCount);
 
@@ -159,15 +183,11 @@ var EnemyManager = function (_React$Component) {
           }
           enemyTurn[currentIndex].status = status;
         } else if (type === 'attack') {
-          if (exchangeAttacks.spawnIndex === currentIndex) {
-            enemyTurn[currentIndex].status = true;
-          } else {
-            count = enemyAttack.count + 1;
-            spawnIndex = currentIndex;
+          count++;
+          spawnIndex = currentIndex;
+          enemyTurn[currentIndex].status = true;
 
-            props.updateGameClassState({ enemyAttack: { count: count, roundCount: roundCount, spawnIndex: spawnIndex, stats: stats, source: source } });
-            break;
-          }
+          props.updateGameClassState({ enemyAttack: { count: count, roundCount: roundCount, spawnIndex: spawnIndex, stats: stats, source: source } });
         }
         currentIndex++;
       }
@@ -185,13 +205,19 @@ var EnemyManager = function (_React$Component) {
     }
   }, {
     key: 'handleEnemyDead',
-    value: function handleEnemyDead(enemyDead) {
-      var coord = enemyDead.coord;
-      var roundEnemyArr = this.state.roundEnemyArr;
+    value: function handleEnemyDead(nextProps) {
+      var enemyDead = nextProps.enemyDead,
+          coord = enemyDead.coord,
+          count = enemyDead.count;
+      var enemyArr = nextProps.enemyArr,
+          roundEnemyArr = this.state.roundEnemyArr;
 
 
       roundEnemyArr[coord[0]][coord[1]] = 0;
+      enemyArr = [].concat(_toConsumableArray(roundEnemyArr));
+      this.enemyDeadCount = count;
 
+      nextProps.updateGameClassState({ enemyArr: enemyArr });
       this.setState({ roundEnemyArr: roundEnemyArr });
     }
   }, {
@@ -202,26 +228,93 @@ var EnemyManager = function (_React$Component) {
       this.setState(updatedEls);
     }
   }, {
+    key: 'drawEnemyIcon',
+    value: function drawEnemyIcon(icon) {
+      var ts = this.props.tileSize;
+
+      var ctx = getById('enemy-icon').getContext('2d');
+
+      if (icon) ctx.drawImage(icon, 0, 0);else ctx.clearRect(0, 0, ts, ts);
+    }
+  }, {
+    key: 'setEnemyDisplay',
+    value: function setEnemyDisplay(nextProps, nextState) {
+      var playerArr = nextProps.playerArr,
+          enemyDisplayArr = this.enemyDisplayArr,
+          displayRange = 3;
+
+
+      var displayChoice = {},
+          position = [],
+          icon = null,
+          updateDisplayChoice = false,
+          distance = 0,
+          healthLost = 0,
+          maxHealth = 0,
+          curHealth = 0,
+          index = 0;
+
+      enemyDisplayArr.forEach(function (el, i) {
+        if (el && el.curHealth) {
+          updateDisplayChoice = false;
+          position = enemyDisplayArr[i].position;
+          distance = Math.abs(playerArr[0] - position[0]) + Math.abs(playerArr[1] - position[1]);
+
+          if (distance <= displayRange) {
+            index = i;
+            maxHealth = el.maxHealth;
+            curHealth = el.curHealth;
+            healthLost = maxHealth - curHealth;
+
+            if (!displayChoice.maxHealth || distance < displayChoice.distance) {
+              updateDisplayChoice = true;
+            } else if (distance === displayChoice.distance) {
+              if (healthLost > displayChoice.healthLost) {
+                updateDisplayChoice = true;
+              } else if (healthLost === displayChoice.healthLost) {
+                if (maxHealth > displayChoice.maxHealth) updateDisplayChoice = true;
+              }
+            }
+
+            if (updateDisplayChoice) {
+              displayChoice = { position: position, distance: distance, index: index, maxHealth: maxHealth, curHealth: curHealth, healthLost: healthLost };
+            }
+          }
+        }
+      });
+
+      if (!(displayChoice.index && enemyDisplayArr[displayChoice.index].curHealth === this.enemyDisplay.curHealth && enemyDisplayArr[displayChoice.index].name === this.enemyDisplay.name && enemyDisplayArr[displayChoice.index].level === this.enemyDisplay.level)) {
+
+        this.enemyDisplay = displayChoice.curHealth ? enemyDisplayArr[displayChoice.index] : {};
+        icon = this.enemyDisplay.icon ? this.enemyDisplay.icon : false;
+
+        this.drawEnemyIcon(icon);
+      }
+    }
+  }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
       if (this.pollCount === -1 && this.state.levelEnemies.length && this.props.moveCount !== nextProps.moveCount) {
-        console.log('EnemyManager recieveProps - setPollCount 0');
         this.pollCount = 0;
       }
-      if (this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count && this.pollCount > 0) {
-
-        this.runEnemyRound(nextProps);
+      if (this.enemyDeadCount !== nextProps.enemyDead.count) {
+        this.handleEnemyDead(nextProps);
+      }
+    }
+  }, {
+    key: 'componentWillUpdate',
+    value: function componentWillUpdate(nextProps, nextState) {
+      if (this.props.moveCount !== nextProps.moveCount || this.state.displayCount !== nextState.displayCount) {
+        this.setEnemyDisplay(nextProps, nextState);
       }
     }
   }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate(prevProps, prevState) {
-      if (this.state.levelProcessed !== this.props.gameLevel && Object.keys(this.props.enemyPalettes).length) {
+      if (this.state.levelProcessed !== this.props.bgLevelProcessed && Object.keys(this.props.enemyPalettes).length) {
 
         this.setLevelEnemies();
-      }
-      if (prevProps.enemyDead.count !== this.props.enemyDead.count) {
-        this.handleEnemyDead(this.props.enemyDead);
+        console.log('New Level Enemies');
       }
     }
   }, {
@@ -229,13 +322,19 @@ var EnemyManager = function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
-      var levelEnemies = this.state.levelEnemies;
+      var levelEnemies = this.state.levelEnemies,
+          ts = this.props.tileSize,
+          enemyDisplay = this.enemyDisplay;
 
 
       var enemies = [],
           spawnCoord = [],
           source = {},
-          key = 0;
+          key = 0,
+          displayName = null,
+          displayType = null,
+          displayLevel = null,
+          displayHealth = null;
 
       levelEnemies.forEach(function (obj) {
         source = obj.source;
@@ -253,6 +352,7 @@ var EnemyManager = function (_React$Component) {
           bgArr: _this2.props.bgArr,
           playerArr: _this2.props.playerArr,
           moveCount: _this2.props.moveCount,
+          displayCount: _this2.state.displayCount,
           enemyArr: _this2.props.enemyArr,
           roundEnemyArr: _this2.state.roundEnemyArr,
           enemyPalettes: _this2.props.enemyPalettes,
@@ -261,16 +361,54 @@ var EnemyManager = function (_React$Component) {
           incrementPollCount: _this2.incrementPollCount,
           roundCount: _this2.state.roundCount,
           enemyTurn: _this2.enemyTurn,
+          enemyDisplayArr: _this2.enemyDisplayArr,
           updateEnemyTurn: _this2.updateEnemyTurn,
+          updateEnemyDisplayArr: _this2.updateEnemyDisplayArr,
           exchangeAttacks: _this2.props.exchangeAttacks,
           updateEnemyManager: _this2.updateEnemyManager,
           updateGameClassState: _this2.props.updateGameClassState }));
       });
 
+      if (enemyDisplay.name) {
+        displayName = 'Name: ' + enemyDisplay.name;
+        displayType = 'Type: ' + enemyDisplay.type;
+        displayLevel = 'Level: ' + enemyDisplay.level;
+        displayHealth = 'Health: ' + enemyDisplay.curHealth + '/' + enemyDisplay.maxHealth;
+      }
+
       return React.createElement(
         'div',
         { className: 'enemy-manager' },
-        'Enemy Stats',
+        React.createElement(
+          'p',
+          { className: 'enemy-manager-title' },
+          enemyDisplay.type === 'merchant' ? 'Merchant' : 'Enemy'
+        ),
+        React.createElement('canvas', { id: 'enemy-icon', className: 'enemy-icon', width: ts, height: ts }),
+        React.createElement(
+          'div',
+          { className: 'stat-col' },
+          React.createElement(
+            'p',
+            null,
+            displayName
+          ),
+          React.createElement(
+            'p',
+            null,
+            displayType
+          ),
+          React.createElement(
+            'p',
+            null,
+            displayLevel
+          ),
+          React.createElement(
+            'p',
+            null,
+            displayHealth
+          )
+        ),
         enemies
       );
     }

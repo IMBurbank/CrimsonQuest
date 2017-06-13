@@ -1,7 +1,7 @@
 
 
 //gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks,
-//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead
+//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, bgLevelProcessed
 class EnemyManager extends React.Component {
   constructor(props) {
     super(props);
@@ -11,15 +11,23 @@ class EnemyManager extends React.Component {
     this.updateEnemyManager = this.updateEnemyManager.bind(this);
     this.incrementPollCount = this.incrementPollCount.bind(this);
     this.updateEnemyTurn = this.updateEnemyTurn.bind(this);
+    this.updateEnemyDisplayArr = this.updateEnemyDisplayArr.bind(this);
+    this.setEnemyDisplay = this.setEnemyDisplay.bind(this);
+    this.drawEnemyIcon = this.drawEnemyIcon.bind(this);
 
     this.pollCount = -1;
-
+    this.enemyDeadCount = 0;
     this.enemyTurn = [];
     //enemyTurn: [{ type: '', source: {}, stats: {}, fromCoord: [], toCoord: [], status: bool },]
     //type: 'move', 'stay', 'attack', 'die'
 
+    this.enemyDisplayArr = [];
+    //{name: '', type: '', icon: <memCanvas>, level: 0, curHealth: 0, maxHealth: 0, position: []}
+    this.enemyDisplay = {};
+
     this.state = ({
       roundCount: 0,
+      displayCount: 0,
       levelProcessed: 0,
       enemiesRemaining: 0,
       currentIndex: 0,
@@ -42,23 +50,30 @@ class EnemyManager extends React.Component {
     this.enemyTurn[index] = turn;
   }
 
+  updateEnemyDisplayArr(enemy, index) {
+    this.enemyDisplayArr[index] = enemy;
+  }
+
   setLevelEnemies() {
-    const {gameLevel} = this.props,
-      len = this.props.bgArr.length,
+    const {gameLevel, bgLevelProcessed, bgArr} = this.props,
+      len = bgArr.length,
       enemyList = [
-        enemyAvian/*,
+        enemyAvian,
         enemyDemon,
         enemyElemental,
         enemyHumanoid,
         enemyReptile,
-        enemyUndead*/
-      ];
+        enemyUndead
+      ],
+      centerFloorSpace = 45;
 
     let floorCoords = [...this.props.floorCoords],
       enemyArr = initZeroArray(len),
       {nextKey} = this.state,
       levelEnemies = [],
       spawnCoord = [],
+      curCoord = [0,0],
+      curIndex = 0,
       source = {},
       el = null,
       enemiesRemaining = 0,
@@ -68,21 +83,39 @@ class EnemyManager extends React.Component {
     enemyList.forEach( obj => {
       for (el in obj) {
         source = obj[el];
-        count = source.spawnQuant['' + gameLevel];
+        count = source.spawnQuant['' + gameLevel] ? source.spawnQuant['' + gameLevel] : 0;
         enemiesRemaining += count;
+        i = 0;
 
         while (i < count) {
-          spawnCoord = floorCoords.splice(randInt(0, floorCoords.length - 1), 1)[0];
+          if (source.type === 'merchant') {
+            while (!(bgArr[curCoord[0]][curCoord[1]] === centerFloorSpace &&
+              bgArr[curCoord[0] - 1][curCoord[1]] === centerFloorSpace &&
+              bgArr[curCoord[0]][curCoord[1] + 1] === centerFloorSpace &&
+              bgArr[curCoord[0] + 1][curCoord[1]] === centerFloorSpace &&
+              bgArr[curCoord[0]][curCoord[1] - 1] === centerFloorSpace)) {
+              curIndex = randInt(0, floorCoords.length - 1)
+              curCoord = floorCoords[curIndex];
+            }
+            spawnCoord = floorCoords.splice(curIndex, 1)[0];
+            console.log('Merchant at: ', spawnCoord);
+          } else {
+            spawnCoord = floorCoords.splice(randInt(0, floorCoords.length - 1), 1)[0];
+          }
+
           enemyArr[spawnCoord[0]][spawnCoord[1]] = source;
           nextKey++;
 
           levelEnemies.push({source, spawnCoord, key: nextKey});
           i++;
+
+          if (source.boss) console.log('Boss at: ', spawnCoord);
         }
       }
     });
 
-    if (this.enemyTurn.length < enemiesRemaining) this.enemyTurn.length = enemiesRemaining;
+    this.enemyTurn.length = enemiesRemaining;
+    this.enemyDisplayArr.length = enemiesRemaining;
 
     this.props.updateGameClassState({ floorCoords, enemyArr});
 
@@ -90,27 +123,25 @@ class EnemyManager extends React.Component {
       levelEnemies,
       enemiesRemaining,
       nextKey,
-      levelProcessed: gameLevel,
+      levelProcessed: bgLevelProcessed,
       roundEnemyArr: enemyArr
     });
   }
 
   runEnemyRound(props) {
-    console.log('starting runEnemyRound');
-    const {exchangeAttacks, enemyAttack} = props;
+    const {enemyAttack} = props;
 
     let enemyTurn = [...this.enemyTurn],
       roundEnemyArr = [...this.state.roundEnemyArr],
       {roundCount, currentIndex, levelEnemies} = this.state,
-      nState = {},
+      count = enemyAttack.count,
       type = '',
       source = {},
       stats = {},
       toCoord = [],
       fromCoord = [],
       status = false,
-      spawnIndex = 0,
-      count = 0;
+      spawnIndex = 0;
 
     //console.log('EnemyRound enemyTurn: ', enemyTurn, 'roundCount: ', roundCount, 'currentIndex: ', currentIndex, 'this.pollCount: ', this.pollCount);
 
@@ -129,15 +160,11 @@ class EnemyManager extends React.Component {
         }
         enemyTurn[currentIndex].status = status;
       } else if (type === 'attack') {
-        if (exchangeAttacks.spawnIndex === currentIndex) {
-          enemyTurn[currentIndex].status = true;
-        } else {
-          count = enemyAttack.count + 1;
-          spawnIndex = currentIndex;
+        count++;
+        spawnIndex = currentIndex;
+        enemyTurn[currentIndex].status = true;
 
-          props.updateGameClassState({enemyAttack: {count, roundCount, spawnIndex, stats, source}});
-          break;
-        }
+        props.updateGameClassState({ enemyAttack: {count, roundCount, spawnIndex, stats, source} });
       }
       currentIndex++;
     }
@@ -152,17 +179,20 @@ class EnemyManager extends React.Component {
 
     this.enemyTurn = [...enemyTurn];
     this.setState({ roundEnemyArr, currentIndex, roundCount });
-
-
   }
 
-  handleEnemyDead(enemyDead) {
-    const {coord} = enemyDead;
+  handleEnemyDead(nextProps) {
+    const {enemyDead} = nextProps,
+      {coord, count} = enemyDead;
 
-    let {roundEnemyArr} = this.state;
+    let {enemyArr} = nextProps,
+      {roundEnemyArr} = this.state;
 
     roundEnemyArr[coord[0]][coord[1]] = 0;
+    enemyArr = [...roundEnemyArr];
+    this.enemyDeadCount = count;
 
+    nextProps.updateGameClassState({ enemyArr });
     this.setState({ roundEnemyArr });
   }
 
@@ -170,38 +200,113 @@ class EnemyManager extends React.Component {
     this.setState(updatedEls);
   }
 
+  drawEnemyIcon(icon) {
+    const ts = this.props.tileSize;
+
+    let ctx = getById('enemy-icon').getContext('2d');
+
+    if (icon) ctx.drawImage(icon, 0, 0);
+    else ctx.clearRect(0, 0, ts, ts);
+  }
+
+  setEnemyDisplay(nextProps, nextState) {
+    const {playerArr} = nextProps,
+      enemyDisplayArr = this.enemyDisplayArr,
+      displayRange = 3;
+
+    let displayChoice = {},
+      position = [],
+      icon = null,
+      updateDisplayChoice = false,
+      distance = 0,
+      healthLost = 0,
+      maxHealth = 0,
+      curHealth = 0,
+      index = 0;
+
+    enemyDisplayArr.forEach(
+      (el, i) => {
+        if (el && el.curHealth) {
+          updateDisplayChoice = false;
+          position = enemyDisplayArr[i].position;
+          distance = Math.abs(playerArr[0] - position[0]) + Math.abs(playerArr[1] - position[1]);
+
+          if (distance <= displayRange) {
+            index = i;
+            maxHealth = el.maxHealth;
+            curHealth = el.curHealth;
+            healthLost = maxHealth - curHealth;
+
+            if (!displayChoice.maxHealth || distance < displayChoice.distance) {
+              updateDisplayChoice = true;
+            } else if (distance === displayChoice.distance) {
+              if (healthLost > displayChoice.healthLost) {
+                updateDisplayChoice = true;
+              } else if (healthLost === displayChoice.healthLost) {
+                if (maxHealth > displayChoice.maxHealth) updateDisplayChoice = true;
+              }
+            }
+
+            if (updateDisplayChoice) {
+              displayChoice = {position, distance, index, maxHealth, curHealth, healthLost};
+            }
+          }
+        }
+      }
+    );
+
+    if (!(displayChoice.index &&
+      enemyDisplayArr[displayChoice.index].curHealth === this.enemyDisplay.curHealth &&
+      enemyDisplayArr[displayChoice.index].name === this.enemyDisplay.name &&
+      enemyDisplayArr[displayChoice.index].level === this.enemyDisplay.level)) {
+
+      this.enemyDisplay = displayChoice.curHealth ? enemyDisplayArr[displayChoice.index] : {};
+      icon = this.enemyDisplay.icon ? this.enemyDisplay.icon : false;
+
+      this.drawEnemyIcon(icon);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.pollCount === -1 &&
       this.state.levelEnemies.length &&
       this.props.moveCount !== nextProps.moveCount) {
-      console.log('EnemyManager recieveProps - setPollCount 0');
       this.pollCount = 0;
     }
-    if (this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count &&
-      this.pollCount > 0) {
+    if (this.enemyDeadCount !== nextProps.enemyDead.count) {
+      this.handleEnemyDead(nextProps);
+    }
+  }
 
-      this.runEnemyRound(nextProps);
+  componentWillUpdate(nextProps, nextState) {
+    if (this.props.moveCount !== nextProps.moveCount ||
+      this.state.displayCount !== nextState.displayCount) {
+      this.setEnemyDisplay(nextProps, nextState);
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.levelProcessed !== this.props.gameLevel &&
+    if (this.state.levelProcessed !== this.props.bgLevelProcessed &&
       Object.keys(this.props.enemyPalettes).length) {
 
       this.setLevelEnemies();
-    }
-    if (prevProps.enemyDead.count !== this.props.enemyDead.count) {
-      this.handleEnemyDead(this.props.enemyDead);
+      console.log('New Level Enemies')
     }
   }
 
   render() {
-    const {levelEnemies} = this.state;
+    const {levelEnemies} = this.state,
+      ts = this.props.tileSize,
+      enemyDisplay = this.enemyDisplay;
 
     let enemies = [],
       spawnCoord = [],
       source = {},
-      key = 0;
+      key = 0,
+      displayName = null,
+      displayType = null,
+      displayLevel = null,
+      displayHealth = null;
 
     levelEnemies.forEach( obj => {
       ({source, spawnCoord, key} = obj);
@@ -217,6 +322,7 @@ class EnemyManager extends React.Component {
           bgArr = {this.props.bgArr}
           playerArr = {this.props.playerArr}
           moveCount = {this.props.moveCount}
+          displayCount = {this.state.displayCount}
           enemyArr = {this.props.enemyArr}
           roundEnemyArr = {this.state.roundEnemyArr}
           enemyPalettes = {this.props.enemyPalettes}
@@ -225,17 +331,35 @@ class EnemyManager extends React.Component {
           incrementPollCount = {this.incrementPollCount}
           roundCount = {this.state.roundCount}
           enemyTurn = {this.enemyTurn}
+          enemyDisplayArr = {this.enemyDisplayArr}
           updateEnemyTurn = {this.updateEnemyTurn}
+          updateEnemyDisplayArr = {this.updateEnemyDisplayArr}
           exchangeAttacks = {this.props.exchangeAttacks}
           updateEnemyManager = {this.updateEnemyManager}
           updateGameClassState = {this.props.updateGameClassState}  />
         );
     });
 
+    if (enemyDisplay.name) {
+      displayName = `Name: ${enemyDisplay.name}`;
+      displayType = `Type: ${enemyDisplay.type}`;
+      displayLevel = `Level: ${enemyDisplay.level}`;
+      displayHealth = `Health: ${enemyDisplay.curHealth}/${enemyDisplay.maxHealth}`;
+    }
+
 
     return (
       <div className='enemy-manager'>
-        Enemy Stats
+        <p className='enemy-manager-title'>
+          {enemyDisplay.type === 'merchant' ? 'Merchant' : 'Enemy'}
+        </p>
+        <canvas id='enemy-icon' className='enemy-icon' width={ts} height={ts} />
+        <div className='stat-col'>
+          <p>{displayName}</p>
+          <p>{displayType}</p>
+          <p>{displayLevel}</p>
+          <p>{displayHealth}</p>
+        </div>
         {enemies}
       </div>
     );

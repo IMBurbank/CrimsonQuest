@@ -1,5 +1,5 @@
 //props: boardSize, stageSize, tileSize, gameLevel, levels, bgArr, itemArr, updateGameClassState
-//playerArr, itemPalettes, floorCoords, itemPaletteArrMap, enemyDead
+//playerArr, itemPalettes, floorCoords, itemPaletteArrMap, enemyDead, bgLevelProcessed
 class ItemLayer extends React.Component {
   constructor(props) {
     super(props);
@@ -10,7 +10,11 @@ class ItemLayer extends React.Component {
     this.setPaletteArrMap = this.setPaletteArrMap.bind(this);
     this.setSpawnQuants = this.setSpawnQuants.bind(this);
     this.setItemArr = this.setItemArr.bind(this);
+    this.activatePortal = this.activatePortal.bind(this);
     this.drawItems = this.drawItems.bind(this);
+
+    this.enemyDeadCount = 0;
+    this.levelProcessed = 0;
 
     this.state = ({
       srcTileSize: 16,
@@ -18,7 +22,7 @@ class ItemLayer extends React.Component {
       images: {},
       spawnQuants: [],
       tempCanv: null,
-      lvlProcessed: 0
+      portalCoord: []
     });
   }
 
@@ -40,6 +44,8 @@ class ItemLayer extends React.Component {
       bootImg,
       chest0Img,
       chest1Img,
+      door0Img,
+      door1Img,
       gloveImg,
       hatImg,
       longWepImg,
@@ -57,6 +63,8 @@ class ItemLayer extends React.Component {
         bootImg,
         chest0Img,
         chest1Img,
+        door0Img,
+        door1Img,
         gloveImg,
         hatImg,
         longWepImg,
@@ -141,7 +149,8 @@ class ItemLayer extends React.Component {
       itemShields,
       itemWeapons,
       itemConsumables,
-      chestConsumables
+      chestConsumables,
+      interactivePortals
     ];
 
     let itemPaletteArrMap = {},
@@ -191,8 +200,9 @@ class ItemLayer extends React.Component {
   }
 
   setItemArr(nextProps, nextState) {
-    const quants = nextState.spawnQuants,
-      lvl = nextProps.gameLevel;
+    const {spawnQuants} = nextState,
+      {gameLevel, bgArr} = nextProps,
+      topCenterFloorVal = 42;
 
     let itemArr = [...nextProps.itemArr],
       floorCoords = [...nextProps.floorCoords],
@@ -200,6 +210,7 @@ class ItemLayer extends React.Component {
       fLen = floorCoords.length,
       coord = [],
       index = 0,
+      cur = 0,
       i = 0,
       j = 0;
 
@@ -208,7 +219,7 @@ class ItemLayer extends React.Component {
       j = 0, i++;
     }
 
-    quants[lvl - 1].forEach(
+    spawnQuants[gameLevel - 1].forEach(
       el => {
         for (i = 0; i < el[1]; i++) {
           index = randInt(0, fLen);
@@ -220,19 +231,42 @@ class ItemLayer extends React.Component {
       }
     );
 
-    this.setState({ lvlProcessed: lvl });
+    while (cur !== topCenterFloorVal) {
+      index = randInt(0, fLen);
+      coord = floorCoords[index];
+      cur = bgArr[coord[0]][coord[1]];
+    }
+
+    coord[0]--;
+    itemArr[coord[0]][coord[1]] = interactivePortals['inactivePortal'].itemArrVal;
+
+    this.setState({ portalCoord: coord });
     this.props.updateGameClassState({ floorCoords, itemArr });
   }
 
-  drawItems(nextProps) {
-    const iArr = nextProps.itemArr,
-      pArr = nextProps.playerArr,
-      map = nextProps.itemPaletteArrMap,
-      pals = nextProps.itemPalettes,
-      ts = nextProps.tileSize,
-      px = nextProps.stageSize,
-      iLen = iArr.length,
-      rLen = px / ts;
+  activatePortal() {
+    const {portalCoord} = this.state,
+      activePortal = interactivePortals['activePortal'];
+
+    let itemArr = [...this.props.itemArr];
+
+    itemArr[portalCoord[0]][portalCoord[1]] = activePortal.itemArrVal;
+
+    this.props.updateGameClassState({ itemArr });
+
+    console.log('Potal Activated');
+  }
+
+  drawItems(timestamp) {
+    if (!timeRef) timeRef = timestamp;
+
+    const pIndex = (timestamp - timeRef) % 1000 *.06 > 29 ? 1 : 0,
+      {itemArr, playerArr, itemPaletteArrMap, itemPalettes} = this.props,
+      ts = this.props.tileSize,
+      px = this.props.stageSize,
+      iLen = itemArr.length,
+      rLen = px / ts,
+      displayedItems = ['consumable', 'gold', 'openChest', 'door'];
 
     let dCtx = document.getElementById('item-layer').getContext('2d'),
       tempCanv = this.state.tempCanv,
@@ -248,6 +282,7 @@ class ItemLayer extends React.Component {
       pc = 0,
       sx = 0,
       sy = 0,
+      palette = null,
       img = null,
       imgW = 0,
       m = [],
@@ -265,24 +300,24 @@ class ItemLayer extends React.Component {
     //const padding = calcRenderPadding(playerArr, iLen, rLen);
     //const renderArr = setRenderArr(itemArr, rLen, padding);
 
-    if (pArr[0] - ~~(rLen / 2) < 0) {
+    if (playerArr[0] - ~~(rLen / 2) < 0) {
       sr = 0;
-      pr = -1 * (pArr[0] - ~~(rLen / 2));
-    } else if (pArr[0] + ~~(rLen / 2) + 1 > iLen) {
-      pr =  pArr[0] + ~~(rLen / 2) + 1 - iLen;
+      pr = -1 * (playerArr[0] - ~~(rLen / 2));
+    } else if (playerArr[0] + ~~(rLen / 2) + 1 > iLen) {
+      pr =  playerArr[0] + ~~(rLen / 2) + 1 - iLen;
       sr = iLen - rLen + pr;
     } else {
-      sr = pArr[0] - ~~(rLen / 2);
+      sr = playerArr[0] - ~~(rLen / 2);
       pr = 0;
     }
-    if (pArr[1] - ~~(rLen / 2) < 0) {
+    if (playerArr[1] - ~~(rLen / 2) < 0) {
       sc = 0;
-      pc = -1 * (pArr[1] - ~~(rLen / 2));
-    } else if (pArr[1] + ~~(rLen / 2) + 1 > iLen ) {
-      pc =  pArr[1] + ~~(rLen / 2) + 1 - iLen;
+      pc = -1 * (playerArr[1] - ~~(rLen / 2));
+    } else if (playerArr[1] + ~~(rLen / 2) + 1 > iLen ) {
+      pc =  playerArr[1] + ~~(rLen / 2) + 1 - iLen;
       sc = iLen - rLen + pc;
     } else {
-      sc = pArr[1] - ~~(rLen / 2);
+      sc = playerArr[1] - ~~(rLen / 2);
       pc = 0;
     }
 
@@ -290,7 +325,7 @@ class ItemLayer extends React.Component {
     while(i < rLen - pr) {
       renderArr[i] = [];
       renderArr[i].length = rLen - pc;
-      while (j < rLen - pc) renderArr[i][j] = iArr[sr + i][sc + j], j++;
+      while (j < rLen - pc) renderArr[i][j] = itemArr[sr + i][sc + j], j++;
       j = 0, i++;
     }
 
@@ -301,10 +336,12 @@ class ItemLayer extends React.Component {
       for (j = 0; j < renderArr[i].length; j++) {
         el = renderArr[i][j];
         if (el) {
-          m = ['consumable', 'gold', 'openChest'].includes(map[`${el}`].type) ? map[`${el}`] :
-            chestConsumables.closedChest;;
-          img = pals[m.palette].imgPixData;
-          imgW = pals[m.palette].width;
+          m = displayedItems.includes(itemPaletteArrMap[`${el}`].type) ?
+            itemPaletteArrMap[`${el}`] :
+            chestConsumables.closedChest;
+          palette = m.type === 'door' ? m.palette[pIndex] : m.palette;
+          img = itemPalettes[palette].imgPixData;
+          imgW = itemPalettes[palette].width;
           srcX = m.iconLoc[0];
           srcY = m.iconLoc[1];
           dX = sx + j * ts;
@@ -330,6 +367,8 @@ class ItemLayer extends React.Component {
     }
 
     dCtx.putImageData(tImgData, 0, 0);
+
+    window.requestAnimationFrame(this.drawItems);
   }
 
   componentWillMount() {
@@ -340,17 +379,25 @@ class ItemLayer extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    if ((this.props.playerArr[0] !== nextProps.playerArr[0] ||
-      this.props.playerArr[1] !== nextProps.playerArr[1]) &&
-      nextProps.itemPalettes.potionPalette) {
+    if (this.levelProcessed !== nextProps.bgLevelProcessed) {
+      console.log('New Item Array')
 
-      this.drawItems(nextProps);
-    }
-    if (nextState.lvlProcessed !== nextProps.gameLevel &&
-      (this.props.floorCoords.length !== nextProps.floorCoords.length ||
-      !this.props.floorCoords.every((arr, i) => arr.every((el, j) => el === nextProps.floorCoords[i][j])))) {
-
+      this.levelProcessed = nextProps.bgLevelProcessed;
       this.setItemArr(nextProps, nextState)
+    }
+
+    if (nextProps.enemyDead.count !== this.enemyDeadCount) {
+      this.enemyDeadCount = nextProps.enemyDead.count;
+      if (nextProps.enemyDead.source.boss) this.activatePortal();
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      Object.keys(prevProps.itemPalettes).length !== Object.keys(this.props.itemPalettes).length &&
+      Object.keys(this.props.itemPalettes).length) {
+
+      window.requestAnimationFrame(this.drawItems);
     }
   }
 

@@ -10,7 +10,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead
+//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead, bgLevelProcessed
 var AccentLayer = function (_React$Component) {
   _inherits(AccentLayer, _React$Component);
 
@@ -28,6 +28,8 @@ var AccentLayer = function (_React$Component) {
     _this.setAccArr = _this.setAccArr.bind(_this);
     _this.handleEnemyDead = _this.handleEnemyDead.bind(_this);
     _this.drawAccents = _this.drawAccents.bind(_this);
+
+    _this.enemyDeadCount = 0;
 
     _this.state = {
       srcTileSize: 16,
@@ -117,7 +119,7 @@ var AccentLayer = function (_React$Component) {
       var decorMap = {},
           groundMap = {},
           oreMap = {},
-          corpseMap = [],
+          corpseMap = '',
           w = 0,
           h = 0,
           i = 0,
@@ -368,13 +370,16 @@ var AccentLayer = function (_React$Component) {
     }
   }, {
     key: 'handleEnemyDead',
-    value: function handleEnemyDead(enemyDead) {
-      var coord = enemyDead.coord,
-          corpseMap = this.state.corpseMap;
-      var accArr = this.props.accArr;
+    value: function handleEnemyDead(nextProps) {
+      var enemyDead = nextProps.enemyDead,
+          corpseMap = this.state.corpseMap,
+          coord = enemyDead.coord;
 
+
+      var accArr = [].concat(_toConsumableArray(nextProps.accArr));
 
       accArr[coord[0]][coord[1]] = corpseMap;
+      this.enemyDeadCount = enemyDead.count;
 
       this.props.updateAccArr(accArr);
     }
@@ -520,8 +525,13 @@ var AccentLayer = function (_React$Component) {
           this.setPalettes(this.state.decor0, this.state.decor1, this.state.ground0, this.state.ground1, this.state.ore0, this.state.ore1, nextProps.gameLevel);
         }
       }
-      if (this.props.bgArr !== nextProps.bgArr) {
+      if (this.props.bgLevelProcessed !== nextProps.bgLevelProcessed) {
+        console.log('New Accent Array');
         this.setAccArr(nextProps);
+      }
+
+      if (this.enemyDeadCount !== nextProps.enemyDead.count) {
+        this.handleEnemyDead(nextProps);
       }
     }
   }, {
@@ -530,14 +540,12 @@ var AccentLayer = function (_React$Component) {
       if (prevState.dec0Canv !== this.state.dec0Canv) {
         window.requestAnimationFrame(this.drawAccents);
       }
-      if (prevProps.enemyDead.count !== this.props.enemyDead.count) {
-        this.handleEnemyDead(this.props.enemyDead);
-      }
     }
   }, {
     key: 'render',
     value: function render() {
-      var size = this.props.stageSize;
+      var size = this.props.stageSize,
+          enemyDead = this.props.enemyDead;
       return React.createElement('canvas', {
         id: 'acc-layer',
         className: 'acc-layer',

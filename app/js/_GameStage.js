@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead
+//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -44,6 +44,7 @@ var GameStage = function (_React$Component) {
           boardSize: this.props.boardSize,
           tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
+          bgLevelProcessed: this.props.bgLevelProcessed,
           bgArr: this.props.bgArr,
           updateBgArr: this.props.updateBgArr,
           playerArr: this.props.playerArr }),
@@ -52,6 +53,7 @@ var GameStage = function (_React$Component) {
           boardSize: this.props.boardSize,
           tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
+          bgLevelProcessed: this.props.bgLevelProcessed,
           playerArr: this.props.playerArr,
           bgArr: this.props.bgArr,
           accArr: this.state.accArr,
@@ -62,6 +64,7 @@ var GameStage = function (_React$Component) {
           boardSize: this.props.boardSize,
           tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
+          bgLevelProcessed: this.props.bgLevelProcessed,
           levels: this.props.levels,
           playerArr: this.props.playerArr,
           bgArr: this.props.bgArr,
@@ -85,11 +88,14 @@ var GameStage = function (_React$Component) {
           hero: this.props.hero,
           heroFacing: this.props.heroFacing,
           gameLevel: this.props.gameLevel,
+          bgLevelProcessed: this.props.bgLevelProcessed,
           bgArr: this.props.bgArr,
           playerArr: this.props.playerArr,
           floorCoords: this.props.floorCoords,
           updateGameClassState: this.props.updateGameClassState }),
         React.createElement(OptionOverlay, {
+          playerArr: this.props.playerArr,
+          enemyArr: this.props.enemyArr,
           inventory: this.props.inventory,
           interactItem: this.props.interactItem,
           overlayMode: this.props.overlayMode,
