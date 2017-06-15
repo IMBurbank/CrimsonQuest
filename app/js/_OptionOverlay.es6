@@ -1,5 +1,5 @@
 
-//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState
+//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState, playerPalettes, tileSize
 class OptionOverlay extends React.Component {
 
   render() {
@@ -14,6 +14,11 @@ class OptionOverlay extends React.Component {
           interactItem = {this.props.interactItem}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
+    } else if (mode === 'help-overlay') {
+      content = (
+        <OverlayHelp
+          updateGameClassState = {this.props.updateGameClassState}  />
+      );
     } else if (mode === 'merchant-overlay') {
       content = (
         <OverlayMerchant
@@ -21,6 +26,23 @@ class OptionOverlay extends React.Component {
           enemyArr = {this.props.enemyArr}
           inventory = {this.props.inventory}
           interactItem = {this.props.interactItem}
+          updateGameClassState = {this.props.updateGameClassState}  />
+      );
+    } else if (mode === 'game-over-overlay') {
+      content = (
+        <OverlayGameOver
+          updateGameClassState = {this.props.updateGameClassState}  />
+      );
+    } else if (mode === 'game-win-overlay') {
+      content = (
+        <OverlayGameWin
+          updateGameClassState = {this.props.updateGameClassState}  />
+      );
+    } else if (mode === 'hero-selection-overlay') {
+      content = (
+        <OverlayHeroSelection
+          tileSize = {this.props.tileSize}
+          playerPalettes = {this.props.playerPalettes}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     }

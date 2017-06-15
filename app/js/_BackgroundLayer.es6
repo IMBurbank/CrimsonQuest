@@ -236,7 +236,9 @@ class BackgroundLayer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
+    if ((this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) ||
+      nextProps.bgLevelProcessed === 0) {
+
       const { bgArr, floorCoords, hWallCoords, vWallCoords } = backgroundArray(this.props.boardSize);
 
       const bgLevelProcessed = nextProps.gameLevel;

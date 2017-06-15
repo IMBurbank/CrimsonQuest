@@ -28,6 +28,7 @@ var Game = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
+    _this.resetGame = _this.resetGame.bind(_this);
     _this.updateBgArr = _this.updateBgArr.bind(_this);
     _this.handleKeyDown = _this.handleKeyDown.bind(_this);
     _this.updatePlayerArr = _this.updatePlayerArr.bind(_this);
@@ -36,7 +37,6 @@ var Game = function (_React$Component) {
     _this.focus = _this.focus.bind(_this);
     _this.maintainFocus = _this.maintainFocus.bind(_this);
     _this.endFocus = _this.endFocus.bind(_this);
-    _this.handleGameOver = _this.handleGameOver.bind(_this);
 
     _this.state = {
       boardSize: 120,
@@ -45,10 +45,12 @@ var Game = function (_React$Component) {
       floor: 40,
       gameLevel: 1,
       bgLevelProcessed: 0,
+      itemLevelProcessed: 0,
       levels: 10,
-      hero: 'Warrior',
+      hero: '',
       heroIcon: null,
       heroFacing: '',
+      playerPalettes: {},
       moveCount: 0,
       levelUpCount: 1,
       gameOver: false,
@@ -61,7 +63,7 @@ var Game = function (_React$Component) {
       itemPaletteArrMap: {},
       interactItem: { count: 0, type: '', item: {}, source: {} },
       //type: pickup, use, equip, unequip, buy, sell
-      useStatPoint: { count: 0, stat: '' },
+      useStatPoint: { count: 0, type: '', item: {}, source: {} },
       increasedStat: { count: 0, type: '', stat: '', quant: 0 },
       quickConsume: { count: 0, num: 0 },
       enemyArr: [],
@@ -77,13 +79,52 @@ var Game = function (_React$Component) {
         experience: 0,
         gold: 0
       },
-      overlayMode: 'off'
-      //inv-overlay, inGameOptions, startOptions
+      overlayMode: 'hero-selection-overlay'
+      //off, inv-overlay, help-overlay, merchant-overlay, game-over-overlay, game-win-overlay, hero-selection-overlay
     };
     return _this;
   }
 
   _createClass(Game, [{
+    key: 'resetGame',
+    value: function resetGame() {
+      this.setState({
+        gameLevel: 1,
+        bgLevelProcessed: 0,
+        hero: '',
+        heroIcon: null,
+        heroFacing: '',
+        playerPalettes: {},
+        moveCount: 0,
+        levelUpCount: 1,
+        gameOver: false,
+        inventory: {},
+        playerArr: [],
+        bgArr: [],
+        itemArr: [],
+        floorCoords: [],
+        itemPalettes: {},
+        itemPaletteArrMap: {},
+        interactItem: { count: 0, type: '', item: {}, source: {} },
+        useStatPoint: { count: 0, type: '', item: {}, source: {} },
+        increasedStat: { count: 0, type: '', stat: '', quant: 0 },
+        quickConsume: { count: 0, num: 0 },
+        enemyArr: [],
+        enemyPalettes: {},
+        enemyAttack: { count: 0, roundCount: 0, spawnIndex: 0, stats: {}, source: {} },
+        exchangeAttacks: { count: 0, spawnIndex: 0, attacks: [] },
+        enemyDead: {
+          count: 0,
+          spawnIndex: 0,
+          coord: [],
+          source: {},
+          level: 0,
+          experience: 0,
+          gold: 0
+        }
+      });
+    }
+  }, {
     key: 'updateBgArr',
     value: function updateBgArr(bgArr, bgLevelProcessed, floorCoords) {
       this.setState({ bgArr: bgArr, bgLevelProcessed: bgLevelProcessed, floorCoords: floorCoords });
@@ -140,6 +181,7 @@ var Game = function (_React$Component) {
             _state = this.state,
             boardSize = _state.boardSize,
             floor = _state.floor,
+            levels = _state.levels,
             playerArr = _state.playerArr,
             bgArr = _state.bgArr,
             itemArr = _state.itemArr,
@@ -163,7 +205,9 @@ var Game = function (_React$Component) {
           KeyM: 'bAgility'
         },
             consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
-        var moveCount = this.state.moveCount,
+        var _state2 = this.state,
+            gameLevel = _state2.gameLevel,
+            moveCount = _state2.moveCount,
             nState = {},
             direction = '',
             row = 0,
@@ -190,8 +234,13 @@ var Game = function (_React$Component) {
             }
           } else if (itemArr[row][col] && itemPaletteArrMap['' + itemArr[row][col]].name === 'Active Portal') {
 
-            console.log('NEXT LEVEL!');
-            this.setState({ gameLevel: this.state.gameLevel + 1 });
+            if (gameLevel < levels) {
+              console.log('NEXT LEVEL!');
+              this.setState({ gameLevel: gameLevel + 1 });
+            } else {
+              console.log('VICTORY!!!');
+              this.setState({ gameOver: true, overlayMode: 'game-win-overlay' });
+            }
           } else if (enemyArr[row][col] && enemyArr[row][col].type === 'merchant') {
 
             console.log('Merchant Interaction');
@@ -203,6 +252,8 @@ var Game = function (_React$Component) {
           }
         } else if (el === 'KeyI' || el === 'KeyE') {
           this.setState({ overlayMode: 'inv-overlay' });
+        } else if (el === 'KeyH') {
+          this.setState({ overlayMode: 'help-overlay' });
         } else if (consumeDigits.includes(el)) {
           this.setState({ quickConsume: { count: this.state.quickConsume.count + 1, num: el.slice(-1) } });
         } else if (statIncreaseKeys[el]) {
@@ -231,14 +282,9 @@ var Game = function (_React$Component) {
       clearInterval(this.focusID);
     }
   }, {
-    key: 'handleGameOver',
-    value: function handleGameOver() {
-      console.log('GAME OVER');
-    }
-  }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
-      this.maintainFocus();
+      if (this.state.overlayMode === 'off') this.maintainFocus();
     }
   }, {
     key: 'componentWillUpdate',
@@ -250,20 +296,33 @@ var Game = function (_React$Component) {
   }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate(prevProps, prevState) {
-      if (this.state.gameOver) this.handleGameOver();
+      var _this3 = this;
+
+      if (this.state.gameOver) {
+        this.resetGame();
+      }
+      if (this.state.hero && this.state.heroIcon && this.state.overlayMode === 'hero-selection-overlay') {
+
+        setTimeout(function () {
+          _this3.setState({ overlayMode: 'off' });
+        }, 1000);
+      }
     }
   }, {
     key: 'render',
     value: function render() {
+      var gameOver = this.state.gameOver;
+
+
       return React.createElement(
         'div',
         { className: 'game', tabIndex: '0', onKeyDown: this.handleKeyDown },
         React.createElement(
           'div',
           { className: 'col-lft' },
-          React.createElement(GameLevel, {
+          gameOver ? null : React.createElement(GameLevel, {
             gameLevel: this.state.gameLevel }),
-          React.createElement(Hero, {
+          gameOver ? null : React.createElement(Hero, {
             tileSize: this.state.tileSize,
             hero: this.state.hero,
             heroIcon: this.state.heroIcon,
@@ -286,7 +345,7 @@ var Game = function (_React$Component) {
             { className: 'title' },
             'CrimsonQuest'
           ),
-          React.createElement(GameStage, {
+          gameOver ? null : React.createElement(GameStage, {
             boardSize: this.state.boardSize,
             tileSize: this.state.tileSize,
             floor: this.state.floor,
@@ -294,6 +353,7 @@ var Game = function (_React$Component) {
             bgLevelProcessed: this.state.bgLevelProcessed,
             levels: this.state.levels,
             hero: this.state.hero,
+            playerPalettes: this.state.playerPalettes,
             playerArr: this.state.playerArr,
             heroFacing: this.state.heroFacing,
             updatePlayerArr: this.updatePlayerArr,
@@ -310,7 +370,7 @@ var Game = function (_React$Component) {
             enemyPalettes: this.state.enemyPalettes,
             enemyDead: this.state.enemyDead,
             updateGameClassState: this.updateGameClassState }),
-          React.createElement(ConsumableItems, {
+          gameOver ? null : React.createElement(ConsumableItems, {
             tileSize: this.state.tileSize,
             inventory: this.state.inventory,
             itemPalettes: this.state.itemPalettes,
@@ -321,14 +381,14 @@ var Game = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'col-rgt' },
-          React.createElement(CurrentObjective, {
+          gameOver ? null : React.createElement(CurrentObjective, {
             gameLevel: this.state.gameLevel,
             enemyDead: this.state.enemyDead }),
-          React.createElement(EnemyManager, {
+          gameOver ? null : React.createElement(EnemyManager, {
             tileSize: this.state.tileSize,
             floor: this.state.floor,
             gameLevel: this.state.gameLevel,
-            bgLevelProcessed: this.state.bgLevelProcessed,
+            itemLevelProcessed: this.state.itemLevelProcessed,
             playerArr: this.state.playerArr,
             moveCount: this.state.moveCount,
             bgArr: this.state.bgArr,
@@ -339,7 +399,7 @@ var Game = function (_React$Component) {
             exchangeAttacks: this.state.exchangeAttacks,
             enemyDead: this.state.enemyDead,
             updateGameClassState: this.updateGameClassState }),
-          React.createElement(ActivityLog, {
+          gameOver ? null : React.createElement(ActivityLog, {
             gameLevel: this.state.gameLevel,
             levelUpCount: this.state.levelUpCount,
             interactItem: this.state.interactItem,
@@ -347,7 +407,17 @@ var Game = function (_React$Component) {
             increasedStat: this.state.increasedStat,
             exchangeAttacks: this.state.exchangeAttacks,
             enemyDead: this.state.enemyDead }),
-          React.createElement(GameTips, null)
+          gameOver ? null : React.createElement(GameSounds, {
+            gameOver: this.state.gameOver,
+            gameLevel: this.state.gameLevel,
+            levels: this.state.levels,
+            levelUpCount: this.state.levelUpCount,
+            interactItem: this.state.interactItem,
+            useStatPoint: this.state.useStatPoint,
+            exchangeAttacks: this.state.exchangeAttacks,
+            enemyDead: this.state.enemyDead,
+            overlayMode: this.state.overlayMode }),
+          gameOver ? null : React.createElement(GameTips, null)
         )
       );
     }

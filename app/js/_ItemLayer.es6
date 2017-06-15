@@ -241,7 +241,7 @@ class ItemLayer extends React.Component {
     itemArr[coord[0]][coord[1]] = interactivePortals['inactivePortal'].itemArrVal;
 
     this.setState({ portalCoord: coord });
-    this.props.updateGameClassState({ floorCoords, itemArr });
+    this.props.updateGameClassState({ floorCoords, itemArr, itemLevelProcessed: gameLevel });
   }
 
   activatePortal() {
@@ -379,7 +379,9 @@ class ItemLayer extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    if (this.levelProcessed !== nextProps.bgLevelProcessed) {
+    if (this.levelProcessed !== nextProps.bgLevelProcessed &&
+      (this.props.playerArr[0] !== nextProps.playerArr[0] ||
+      this.props.playerArr[1] !== nextProps.playerArr[1])) {
       console.log('New Item Array')
 
       this.levelProcessed = nextProps.bgLevelProcessed;

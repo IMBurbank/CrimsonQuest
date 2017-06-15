@@ -8,7 +8,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState
+//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState, playerPalettes, tileSize
 var OptionOverlay = function (_React$Component) {
   _inherits(OptionOverlay, _React$Component);
 
@@ -30,12 +30,26 @@ var OptionOverlay = function (_React$Component) {
           inventory: this.props.inventory,
           interactItem: this.props.interactItem,
           updateGameClassState: this.props.updateGameClassState });
+      } else if (mode === 'help-overlay') {
+        content = React.createElement(OverlayHelp, {
+          updateGameClassState: this.props.updateGameClassState });
       } else if (mode === 'merchant-overlay') {
         content = React.createElement(OverlayMerchant, {
           playerArr: this.props.playerArr,
           enemyArr: this.props.enemyArr,
           inventory: this.props.inventory,
           interactItem: this.props.interactItem,
+          updateGameClassState: this.props.updateGameClassState });
+      } else if (mode === 'game-over-overlay') {
+        content = React.createElement(OverlayGameOver, {
+          updateGameClassState: this.props.updateGameClassState });
+      } else if (mode === 'game-win-overlay') {
+        content = React.createElement(OverlayGameWin, {
+          updateGameClassState: this.props.updateGameClassState });
+      } else if (mode === 'hero-selection-overlay') {
+        content = React.createElement(OverlayHeroSelection, {
+          tileSize: this.props.tileSize,
+          playerPalettes: this.props.playerPalettes,
           updateGameClassState: this.props.updateGameClassState });
       }
 

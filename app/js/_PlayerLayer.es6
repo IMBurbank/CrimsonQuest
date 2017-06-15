@@ -1,14 +1,16 @@
 //props: stageSize, tileSize, hero, heroFacing, gameLevel, bgArr, playerArr, updateGameClassState,
-//floorCoords, bgLevelProcessed
+//floorCoords, bgLevelProcessed, playerPalettes
 class PlayerLayer extends React.Component {
   constructor(props) {
     super(props);
     this.getPlayerImages = this.getPlayerImages.bind(this);
-    this.initPaletteMap = this.initPaletteMap.bind(this);
-    this.setPalette = this.setPalette.bind(this);
+    this.setPalettes = this.setPalettes.bind(this);
     this.setHeroIcon = this.setHeroIcon.bind(this);
     this.pickPlayerStart = this.pickPlayerStart.bind(this);
     this.drawPlayer = this.drawPlayer.bind(this);
+
+    this.drawingStart = false;
+    this.startHeroIcon = false;
 
     this.state = ({
       srcTileSize: 16,
@@ -16,8 +18,7 @@ class PlayerLayer extends React.Component {
       rogueImg: null,
       paladinImg: null,
       warriorImg: null,
-      playerPalette: null,
-      playerPaletteMap: {},
+      images: {}
     });
   }
 
@@ -28,15 +29,14 @@ class PlayerLayer extends React.Component {
       warriorImg = new Image,
       that = this;
 
-    let i = 0;
+    let images = {},
+      i = 0;
 
     const handleLoad = function handleImageLoad() {
       i++;
       if (i === 4) {
-        that.setState({ mageImg, rogueImg, paladinImg, warriorImg });
-
-        //temporary palette assignment until start screen is created
-        that.setPalette(that.props);
+        images = { mageImg, rogueImg, paladinImg, warriorImg };
+        that.setState(images, that.setPalettes(images));
       }
     }
 
@@ -50,45 +50,37 @@ class PlayerLayer extends React.Component {
     warriorImg.addEventListener('load', handleLoad);
   }
 
-  initPaletteMap() {
-    const ts = this.props.tileSize,
-      w = 4;
-
-    let playerPaletteMap = {},
-      j = 0;
-
-    ['down', 'left', 'right', 'up'].forEach( (el, i) => {
-      for (j = 0; j < w; j++) {
-        playerPaletteMap[el + (j + 1)] = [i * ts, j * ts];
-      }
-    });
-
-    this.setState({ playerPaletteMap });
-  }
-
-  setPalette(nextProps) {
-    const hero = nextProps.hero.toLowerCase(),
-      srcImg = this.state[hero + 'Img'],
-      srcTS = this.state.srcTileSize,
-      gmTS = nextProps.tileSize,
+  setPalettes(images) {
+    const srcTS = this.state.srcTileSize,
+      gmTS = this.props.tileSize,
       scale = gmTS / srcTS,
       w = 4 * gmTS,
       h = 4 * gmTS;
 
-    let canvas = document.createElement('canvas'),
-      ctx = null;
+    let playerPalettes = {},
+      canvas = null,
+      ctx = null,
+      img = null;
 
-    canvas.width = w;
-    canvas.height = h;
-    ctx = canvas.getContext('2d');
-  	ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(srcImg, 0, 0, w/scale, h/scale, 0, 0, w, h);
+    for (img in images) {
+      canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
 
-    this.setState({ playerPalette: {canvas, ctx} }, this.setHeroIcon(canvas));
+      ctx = canvas.getContext('2d');
+    	ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(images[img], 0, 0, w/scale, h/scale, 0, 0, w, h);
+
+      playerPalettes[img] = canvas;
+    }
+
+    this.props.updateGameClassState({ playerPalettes });
   }
 
-  setHeroIcon(canvas) {
-    const w = this.props.tileSize,
+  setHeroIcon() {
+    const {playerPalettes} = this.props,
+      heroImageKey = this.props.hero.toLowerCase() + 'Img',
+      w = this.props.tileSize,
       h = w;
 
     let heroIcon = document.createElement('canvas'),
@@ -98,19 +90,28 @@ class PlayerLayer extends React.Component {
     heroIcon.height = h;
     hCtx = heroIcon.getContext('2d');
     hCtx.imageSmoothingEnabled = false;
-    hCtx.drawImage(canvas, 0, 0, w, h, 0, 0, w, h);
+    hCtx.drawImage(playerPalettes[heroImageKey], 0, 0, w, h, 0, 0, w, h);
     this.props.updateGameClassState({ heroIcon });
   }
 
   pickPlayerStart(nextProps) {
-    const playerArr = nextProps.floorCoords[randInt(0, nextProps.floorCoords.length - 1)];
-    nextProps.updateGameClassState({ playerArr });
+    let {floorCoords} = nextProps;
+
+    const index = randInt(0, nextProps.floorCoords.length - 1),
+      playerArr = floorCoords[index],
+      filterDistance = 8;
+
+    floorCoords = floorCoords.filter(
+      a => Math.abs( a[0] - playerArr[0] ) + Math.abs( a[1] - playerArr[1] ) > filterDistance
+    );
+
+    this.props.updateGameClassState({ playerArr, floorCoords });
   }
 
   drawPlayer(timestamp) {
     if (!timeRef) timeRef = timestamp;
 
-    const img = this.state.playerPalette.canvas,
+    const img = this.props.playerPalettes[this.props.hero.toLowerCase() + 'Img'],
       imgD = this.props.tileSize,
       dir = this.props.heroFacing,
       dx = (this.props.stageSize - imgD) / 2,
@@ -128,7 +129,6 @@ class PlayerLayer extends React.Component {
 
   componentWillMount() {
     this.getPlayerImages();
-    this.initPaletteMap();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -136,16 +136,29 @@ class PlayerLayer extends React.Component {
       console.log('New Player Start');
       this.pickPlayerStart(nextProps);
     }
-    /*
-    if (!this.state.playerPalette && nextProps.hero && this.state.mageImg) {
-      this.setPalette(nextProps);
+    /*?
+    if (!this.state.playerPalettes && nextProps.hero && this.state.mageImg) {
+      this.setPalettes(nextProps);
     }
     */
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.playerPalette !== this.state.playerPalette) {
+    //REDO
+    if (!this.drawingStart &&
+      this.props.hero &&
+      this.props.playerPalettes[this.props.hero.toLowerCase()+'Img']) {
+
+      this.drawingStart = true;
       window.requestAnimationFrame(this.drawPlayer);
+    }
+    if (!this.props.heroIcon &&
+      !this.startHeroIcon &&
+      this.props.hero &&
+      this.props.playerPalettes[this.props.hero.toLowerCase()+'Img']) {
+
+      this.startHeroIcon = true;
+      this.setHeroIcon();
     }
   }
 

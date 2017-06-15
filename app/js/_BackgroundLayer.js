@@ -260,7 +260,7 @@ var BackgroundLayer = function (_React$Component) {
   }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
-      if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) {
+      if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0 || nextProps.bgLevelProcessed === 0) {
         var _backgroundArray2 = backgroundArray(this.props.boardSize),
             bgArr = _backgroundArray2.bgArr,
             floorCoords = _backgroundArray2.floorCoords,

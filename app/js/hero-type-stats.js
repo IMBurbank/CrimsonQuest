@@ -21,7 +21,8 @@ var heroTypeStats = {
       durability: 0,
       strength: 2,
       agility: 1
-    }
+    },
+    description: 'Not your usual paper tiger. Devasting attack and high vitality.'
   },
   Paladin: {
     heroName: 'Roland',
@@ -43,7 +44,8 @@ var heroTypeStats = {
       durability: 2,
       strength: 1,
       agility: 0
-    }
+    },
+    description: 'Keeper of the faith. Very durable. Not terribly agile.'
   },
   Rogue: {
     heroName: 'Hanzo',
@@ -65,7 +67,8 @@ var heroTypeStats = {
       durability: 0,
       strength: 2,
       agility: 2
-    }
+    },
+    description: 'Fierce. Deadly. Agile. Just don\'t get hit.'
   },
   Warrior: {
     heroName: 'Agis',
@@ -87,7 +90,8 @@ var heroTypeStats = {
       durability: 1,
       strength: 2,
       agility: 1
-    }
+    },
+    description: 'Well-rounded. Fierce. Fairly agile. You don\'t need health if your enemy is dead.'
   }
 };
 

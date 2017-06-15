@@ -9,7 +9,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 //props: stageSize, tileSize, hero, heroFacing, gameLevel, bgArr, playerArr, updateGameClassState,
-//floorCoords, bgLevelProcessed
+//floorCoords, bgLevelProcessed, playerPalettes
 var PlayerLayer = function (_React$Component) {
   _inherits(PlayerLayer, _React$Component);
 
@@ -19,11 +19,13 @@ var PlayerLayer = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (PlayerLayer.__proto__ || Object.getPrototypeOf(PlayerLayer)).call(this, props));
 
     _this.getPlayerImages = _this.getPlayerImages.bind(_this);
-    _this.initPaletteMap = _this.initPaletteMap.bind(_this);
-    _this.setPalette = _this.setPalette.bind(_this);
+    _this.setPalettes = _this.setPalettes.bind(_this);
     _this.setHeroIcon = _this.setHeroIcon.bind(_this);
     _this.pickPlayerStart = _this.pickPlayerStart.bind(_this);
     _this.drawPlayer = _this.drawPlayer.bind(_this);
+
+    _this.drawingStart = false;
+    _this.startHeroIcon = false;
 
     _this.state = {
       srcTileSize: 16,
@@ -31,8 +33,7 @@ var PlayerLayer = function (_React$Component) {
       rogueImg: null,
       paladinImg: null,
       warriorImg: null,
-      playerPalette: null,
-      playerPaletteMap: {}
+      images: {}
     };
     return _this;
   }
@@ -46,15 +47,14 @@ var PlayerLayer = function (_React$Component) {
           warriorImg = new Image(),
           that = this;
 
-      var i = 0;
+      var images = {},
+          i = 0;
 
       var handleLoad = function handleImageLoad() {
         i++;
         if (i === 4) {
-          that.setState({ mageImg: mageImg, rogueImg: rogueImg, paladinImg: paladinImg, warriorImg: warriorImg });
-
-          //temporary palette assignment until start screen is created
-          that.setPalette(that.props);
+          images = { mageImg: mageImg, rogueImg: rogueImg, paladinImg: paladinImg, warriorImg: warriorImg };
+          that.setState(images, that.setPalettes(images));
         }
       };
 
@@ -68,49 +68,41 @@ var PlayerLayer = function (_React$Component) {
       warriorImg.addEventListener('load', handleLoad);
     }
   }, {
-    key: 'initPaletteMap',
-    value: function initPaletteMap() {
-      var ts = this.props.tileSize,
-          w = 4;
-
-      var playerPaletteMap = {},
-          j = 0;
-
-      ['down', 'left', 'right', 'up'].forEach(function (el, i) {
-        for (j = 0; j < w; j++) {
-          playerPaletteMap[el + (j + 1)] = [i * ts, j * ts];
-        }
-      });
-
-      this.setState({ playerPaletteMap: playerPaletteMap });
-    }
-  }, {
-    key: 'setPalette',
-    value: function setPalette(nextProps) {
-      var hero = nextProps.hero.toLowerCase(),
-          srcImg = this.state[hero + 'Img'],
-          srcTS = this.state.srcTileSize,
-          gmTS = nextProps.tileSize,
+    key: 'setPalettes',
+    value: function setPalettes(images) {
+      var srcTS = this.state.srcTileSize,
+          gmTS = this.props.tileSize,
           scale = gmTS / srcTS,
           w = 4 * gmTS,
           h = 4 * gmTS;
 
-      var canvas = document.createElement('canvas'),
-          ctx = null;
+      var playerPalettes = {},
+          canvas = null,
+          ctx = null,
+          img = null;
 
-      canvas.width = w;
-      canvas.height = h;
-      ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(srcImg, 0, 0, w / scale, h / scale, 0, 0, w, h);
+      for (img in images) {
+        canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
 
-      this.setState({ playerPalette: { canvas: canvas, ctx: ctx } }, this.setHeroIcon(canvas));
+        ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(images[img], 0, 0, w / scale, h / scale, 0, 0, w, h);
+
+        playerPalettes[img] = canvas;
+      }
+
+      this.props.updateGameClassState({ playerPalettes: playerPalettes });
     }
   }, {
     key: 'setHeroIcon',
-    value: function setHeroIcon(canvas) {
-      var w = this.props.tileSize,
+    value: function setHeroIcon() {
+      var playerPalettes = this.props.playerPalettes,
+          heroImageKey = this.props.hero.toLowerCase() + 'Img',
+          w = this.props.tileSize,
           h = w;
+
 
       var heroIcon = document.createElement('canvas'),
           hCtx = null;
@@ -119,21 +111,31 @@ var PlayerLayer = function (_React$Component) {
       heroIcon.height = h;
       hCtx = heroIcon.getContext('2d');
       hCtx.imageSmoothingEnabled = false;
-      hCtx.drawImage(canvas, 0, 0, w, h, 0, 0, w, h);
+      hCtx.drawImage(playerPalettes[heroImageKey], 0, 0, w, h, 0, 0, w, h);
       this.props.updateGameClassState({ heroIcon: heroIcon });
     }
   }, {
     key: 'pickPlayerStart',
     value: function pickPlayerStart(nextProps) {
-      var playerArr = nextProps.floorCoords[randInt(0, nextProps.floorCoords.length - 1)];
-      nextProps.updateGameClassState({ playerArr: playerArr });
+      var floorCoords = nextProps.floorCoords;
+
+
+      var index = randInt(0, nextProps.floorCoords.length - 1),
+          playerArr = floorCoords[index],
+          filterDistance = 8;
+
+      floorCoords = floorCoords.filter(function (a) {
+        return Math.abs(a[0] - playerArr[0]) + Math.abs(a[1] - playerArr[1]) > filterDistance;
+      });
+
+      this.props.updateGameClassState({ playerArr: playerArr, floorCoords: floorCoords });
     }
   }, {
     key: 'drawPlayer',
     value: function drawPlayer(timestamp) {
       if (!timeRef) timeRef = timestamp;
 
-      var img = this.state.playerPalette.canvas,
+      var img = this.props.playerPalettes[this.props.hero.toLowerCase() + 'Img'],
           imgD = this.props.tileSize,
           dir = this.props.heroFacing,
           dx = (this.props.stageSize - imgD) / 2,
@@ -152,7 +154,6 @@ var PlayerLayer = function (_React$Component) {
     key: 'componentWillMount',
     value: function componentWillMount() {
       this.getPlayerImages();
-      this.initPaletteMap();
     }
   }, {
     key: 'componentWillReceiveProps',
@@ -161,17 +162,25 @@ var PlayerLayer = function (_React$Component) {
         console.log('New Player Start');
         this.pickPlayerStart(nextProps);
       }
-      /*
-      if (!this.state.playerPalette && nextProps.hero && this.state.mageImg) {
-        this.setPalette(nextProps);
+      /*?
+      if (!this.state.playerPalettes && nextProps.hero && this.state.mageImg) {
+        this.setPalettes(nextProps);
       }
       */
     }
   }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate(prevProps, prevState) {
-      if (prevState.playerPalette !== this.state.playerPalette) {
+      //REDO
+      if (!this.drawingStart && this.props.hero && this.props.playerPalettes[this.props.hero.toLowerCase() + 'Img']) {
+
+        this.drawingStart = true;
         window.requestAnimationFrame(this.drawPlayer);
+      }
+      if (!this.props.heroIcon && !this.startHeroIcon && this.props.hero && this.props.playerPalettes[this.props.hero.toLowerCase() + 'Img']) {
+
+        this.startHeroIcon = true;
+        this.setHeroIcon();
       }
     }
   }, {

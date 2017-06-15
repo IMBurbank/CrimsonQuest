@@ -1,7 +1,7 @@
 
 
 //gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks,
-//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, bgLevelProcessed
+//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, itemLevelProcessed
 class EnemyManager extends React.Component {
   constructor(props) {
     super(props);
@@ -55,7 +55,7 @@ class EnemyManager extends React.Component {
   }
 
   setLevelEnemies() {
-    const {gameLevel, bgLevelProcessed, bgArr} = this.props,
+    const {gameLevel, itemLevelProcessed, bgArr} = this.props,
       len = bgArr.length,
       enemyList = [
         enemyAvian,
@@ -123,7 +123,7 @@ class EnemyManager extends React.Component {
       levelEnemies,
       enemiesRemaining,
       nextKey,
-      levelProcessed: bgLevelProcessed,
+      levelProcessed: itemLevelProcessed,
       roundEnemyArr: enemyArr
     });
   }
@@ -286,7 +286,7 @@ class EnemyManager extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.levelProcessed !== this.props.bgLevelProcessed &&
+    if (this.state.levelProcessed !== this.props.itemLevelProcessed &&
       Object.keys(this.props.enemyPalettes).length) {
 
       this.setLevelEnemies();

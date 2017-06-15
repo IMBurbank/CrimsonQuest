@@ -244,6 +244,14 @@ h4
   .merchant-header
     margin: $tile-size / 2 0
 
+  .game-over-header,
+  .gameOverMessage,
+  .game-over-row,
+  .hero-selection-header,
+  .hero-selection-message
+    margin: $tile-size 0
+
+
   .interact-type
     margin: $tile-size / 2 $tile-size / 4
 
@@ -291,6 +299,33 @@ h4
     width: 15rem
     margin: 0 .5rem
     text-align: center
+
+  .hero-selection-row
+    display: flex
+    flex-wrap: nowrap
+    justify-content: center
+    align-items: center
+    margin: $tile-size / 2
+    border: 2px solid #888
+
+    .hero-description
+      margin: $tile-size / 8 $tile-size / 4
+
+  .hero-selection-focus
+    border: 3px solid #00f
+
+  .help-details
+    margin: $tile-size * 2 $tile-size / 2
+    text-align: left
+
+  .help-row
+    margin: $tile-size / 2 0
+
+    .help-action
+      display: inline-block
+      width: 11.5rem
+      margin-right: 1.5rem
+
 
 .optFocus
   background: #00f

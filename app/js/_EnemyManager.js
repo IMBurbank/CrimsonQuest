@@ -11,7 +11,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 //gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks,
-//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, bgLevelProcessed
+//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, itemLevelProcessed
 var EnemyManager = function (_React$Component) {
   _inherits(EnemyManager, _React$Component);
 
@@ -78,7 +78,7 @@ var EnemyManager = function (_React$Component) {
     value: function setLevelEnemies() {
       var _props = this.props,
           gameLevel = _props.gameLevel,
-          bgLevelProcessed = _props.bgLevelProcessed,
+          itemLevelProcessed = _props.itemLevelProcessed,
           bgArr = _props.bgArr,
           len = bgArr.length,
           enemyList = [enemyAvian, enemyDemon, enemyElemental, enemyHumanoid, enemyReptile, enemyUndead],
@@ -136,7 +136,7 @@ var EnemyManager = function (_React$Component) {
         levelEnemies: levelEnemies,
         enemiesRemaining: enemiesRemaining,
         nextKey: nextKey,
-        levelProcessed: bgLevelProcessed,
+        levelProcessed: itemLevelProcessed,
         roundEnemyArr: enemyArr
       });
     }
@@ -311,7 +311,7 @@ var EnemyManager = function (_React$Component) {
   }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate(prevProps, prevState) {
-      if (this.state.levelProcessed !== this.props.bgLevelProcessed && Object.keys(this.props.enemyPalettes).length) {
+      if (this.state.levelProcessed !== this.props.itemLevelProcessed && Object.keys(this.props.enemyPalettes).length) {
 
         this.setLevelEnemies();
         console.log('New Level Enemies');

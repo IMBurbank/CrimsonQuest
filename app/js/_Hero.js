@@ -30,11 +30,13 @@ var Hero = function (_React$Component) {
     _this.handleUseStatPoint = _this.handleUseStatPoint.bind(_this);
     _this.updateEquipCanvas = _this.updateEquipCanvas.bind(_this);
     _this.handleBattleRound = _this.handleBattleRound.bind(_this);
+    _this.handleHeroDead = _this.handleHeroDead.bind(_this);
 
     _this.enemyDeadCount = 0;
+    _this.heroDead = false;
 
     _this.state = {
-      heroName: "",
+      heroName: '',
       experience: 0,
       expToLevel: 0,
       charLevel: 0,
@@ -466,9 +468,16 @@ var Hero = function (_React$Component) {
       nextProps.updateGameClassState({ exchangeAttacks: exchangeAttacks });
     }
   }, {
+    key: "handleHeroDead",
+    value: function handleHeroDead() {
+      this.heroDead = true;
+      this.props.updateGameClassState({ gameOver: true, overlayMode: 'game-over-overlay' });
+      console.log('GAME OVER');
+    }
+  }, {
     key: "componentWillReceiveProps",
     value: function componentWillReceiveProps(nextProps) {
-      if (this.state.heroName === "" && nextProps.hero) {
+      if (this.state.heroName === '' && nextProps.hero) {
         this.initHero(nextProps.hero);
       }
       if (this.props.interactItem.count !== nextProps.interactItem.count && nextProps.interactItem.count) {
@@ -499,8 +508,8 @@ var Hero = function (_React$Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      if (this.state.curHealth <= 0) {
-        this.props.updateGameClassState({ gameOver: true });
+      if (this.state.curHealth <= 0 && !this.heroDead && this.state.heroName) {
+        this.handleHeroDead();
       }
     }
   }, {

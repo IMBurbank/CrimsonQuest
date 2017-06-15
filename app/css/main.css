@@ -217,6 +217,12 @@ h4 {
   .stage-overlay .inv-header,
   .stage-overlay .merchant-header {
     margin: 16px 0; }
+  .stage-overlay .game-over-header,
+  .stage-overlay .gameOverMessage,
+  .stage-overlay .game-over-row,
+  .stage-overlay .hero-selection-header,
+  .stage-overlay .hero-selection-message {
+    margin: 32px 0; }
   .stage-overlay .interact-type {
     margin: 16px 8px; }
   .stage-overlay .inv-categories {
@@ -264,6 +270,33 @@ h4 {
     width: 15rem;
     margin: 0 .5rem;
     text-align: center; }
+  .stage-overlay .hero-selection-row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    margin: 16px;
+    border: 2px solid #888; }
+    .stage-overlay .hero-selection-row .hero-description {
+      margin: 4px 8px; }
+  .stage-overlay .hero-selection-focus {
+    border: 3px solid #00f; }
+  .stage-overlay .help-details {
+    margin: 64px 16px;
+    text-align: left; }
+  .stage-overlay .help-row {
+    margin: 16px 0; }
+    .stage-overlay .help-row .help-action {
+      display: inline-block;
+      width: 11.5rem;
+      margin-right: 1.5rem; }
 
 .optFocus {
   background: #00f; }

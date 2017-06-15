@@ -15,11 +15,13 @@ class Hero extends React.Component {
     this.handleUseStatPoint = this.handleUseStatPoint.bind(this);
     this.updateEquipCanvas = this.updateEquipCanvas.bind(this);
     this.handleBattleRound = this.handleBattleRound.bind(this);
+    this.handleHeroDead = this.handleHeroDead.bind(this);
 
     this.enemyDeadCount = 0;
+    this.heroDead = false;
 
     this.state = ({
-      heroName: "",
+      heroName: '',
       experience: 0,
       expToLevel: 0,
       charLevel: 0,
@@ -434,8 +436,14 @@ class Hero extends React.Component {
     nextProps.updateGameClassState({ exchangeAttacks });
   }
 
+  handleHeroDead() {
+    this.heroDead = true;
+    this.props.updateGameClassState({ gameOver: true, overlayMode: 'game-over-overlay' });
+    console.log('GAME OVER');
+  }
+
   componentWillReceiveProps(nextProps) {
-    if (this.state.heroName === "" && nextProps.hero) {
+    if (this.state.heroName === '' && nextProps.hero) {
       this.initHero(nextProps.hero);
     }
     if (this.props.interactItem.count !== nextProps.interactItem.count &&
@@ -465,8 +473,8 @@ class Hero extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.curHealth <= 0) {
-      this.props.updateGameClassState({ gameOver: true });
+    if (this.state.curHealth <= 0 && !this.heroDead && this.state.heroName) {
+      this.handleHeroDead();
     }
   }
 

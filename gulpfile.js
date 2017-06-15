@@ -62,13 +62,18 @@ gulp.task('images', function(){
     .pipe(gulp.dest('dist/img/'))
 });
 
+gulp.task('sounds', function(){
+  return gulp.src('app/sounds/**')
+    .pipe(gulp.dest('dist/sounds/'))
+});
+
 gulp.task('fonts', function(){
   return gulp.src('app/fonts/**')
     .pipe(gulp.dest('dist/css/fonts/'))
 });
 
 gulp.task('update', function (callback) {
-  runSequence('clean:dist', 'images', 'fonts', 'useref', 'reload',
+  runSequence('clean:dist', 'sounds', 'images', 'fonts', 'useref', 'reload',
     callback
   )
 })

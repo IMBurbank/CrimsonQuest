@@ -12,6 +12,7 @@ const roomSize = {
 class Game extends React.Component {
   constructor(props) {
     super(props);
+    this.resetGame = this.resetGame.bind(this);
     this.updateBgArr = this.updateBgArr.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.updatePlayerArr = this.updatePlayerArr.bind(this);
@@ -20,7 +21,6 @@ class Game extends React.Component {
     this.focus = this.focus.bind(this);
     this.maintainFocus = this.maintainFocus.bind(this);
     this.endFocus = this.endFocus.bind(this);
-    this.handleGameOver = this.handleGameOver.bind(this);
 
     this.state = ({
       boardSize: 120,
@@ -29,10 +29,12 @@ class Game extends React.Component {
       floor: 40,
       gameLevel: 1,
       bgLevelProcessed: 0,
+      itemLevelProcessed: 0,
       levels: 10,
-      hero: 'Warrior',
+      hero: '',
       heroIcon: null,
       heroFacing: '',
+      playerPalettes: {},
       moveCount: 0,
       levelUpCount: 1,
       gameOver: false,
@@ -45,7 +47,7 @@ class Game extends React.Component {
       itemPaletteArrMap: {},
       interactItem: {count: 0, type: '', item: {}, source: {}},
       //type: pickup, use, equip, unequip, buy, sell
-      useStatPoint: {count: 0, stat: ''},
+      useStatPoint: {count: 0, type: '', item: {}, source: {}},
       increasedStat: {count: 0, type: '', stat: '', quant: 0},
       quickConsume: {count: 0, num: 0},
       enemyArr: [],
@@ -61,8 +63,46 @@ class Game extends React.Component {
         experience: 0,
         gold: 0
       },
-      overlayMode: 'off'
-      //inv-overlay, inGameOptions, startOptions
+      overlayMode: 'hero-selection-overlay'
+      //off, inv-overlay, help-overlay, merchant-overlay, game-over-overlay, game-win-overlay, hero-selection-overlay
+    });
+  }
+
+  resetGame() {
+    this.setState({
+      gameLevel: 1,
+      bgLevelProcessed: 0,
+      hero: '',
+      heroIcon: null,
+      heroFacing: '',
+      playerPalettes: {},
+      moveCount: 0,
+      levelUpCount: 1,
+      gameOver: false,
+      inventory: {},
+      playerArr: [],
+      bgArr: [],
+      itemArr: [],
+      floorCoords: [],
+      itemPalettes: {},
+      itemPaletteArrMap: {},
+      interactItem: {count: 0, type: '', item: {}, source: {}},
+      useStatPoint: {count: 0, type: '', item: {}, source: {}},
+      increasedStat: {count: 0, type: '', stat: '', quant: 0},
+      quickConsume: {count: 0, num: 0},
+      enemyArr: [],
+      enemyPalettes: {},
+      enemyAttack: {count: 0, roundCount: 0, spawnIndex: 0, stats: {}, source: {}},
+      exchangeAttacks: {count: 0, spawnIndex: 0, attacks: []},
+      enemyDead: {
+        count: 0,
+        spawnIndex: 0,
+        coord: [],
+        source: {},
+        level: 0,
+        experience: 0,
+        gold: 0
+      },
     });
   }
 
@@ -118,7 +158,7 @@ class Game extends React.Component {
     if (this.state.overlayMode === 'off') {
 
       const el = e.nativeEvent.code,
-        {boardSize, floor, playerArr, bgArr, itemArr, itemPaletteArrMap, enemyArr, heroFacing} = this.state,
+        {boardSize, floor, levels,  playerArr, bgArr, itemArr, itemPaletteArrMap, enemyArr, heroFacing} = this.state,
         directionKeys = {
           ArrowUp: 'up',
           KeyW: 'up',
@@ -146,7 +186,7 @@ class Game extends React.Component {
           'Digit8',
         ];
 
-      let {moveCount} = this.state,
+      let {gameLevel, moveCount} = this.state,
         nState = {},
         direction = '',
         row = 0,
@@ -182,8 +222,13 @@ class Game extends React.Component {
         } else if (itemArr[row][col] &&
           itemPaletteArrMap['' + itemArr[row][col]].name === 'Active Portal') {
 
-          console.log('NEXT LEVEL!');
-          this.setState({ gameLevel: this.state.gameLevel + 1 });
+          if (gameLevel < levels) {
+            console.log('NEXT LEVEL!');
+            this.setState({ gameLevel: gameLevel + 1 });
+          } else {
+            console.log('VICTORY!!!');
+            this.setState({ gameOver: true, overlayMode: 'game-win-overlay' });
+          }
         } else if (enemyArr[row][col] &&
           enemyArr[row][col].type === 'merchant') {
 
@@ -196,6 +241,8 @@ class Game extends React.Component {
         }
       } else if (el === 'KeyI' || el === 'KeyE') {
         this.setState({overlayMode: 'inv-overlay'});
+      } else if (el === 'KeyH') {
+        this.setState({overlayMode: 'help-overlay'});
       } else if (consumeDigits.includes(el)) {
         this.setState({quickConsume: {count: this.state.quickConsume.count + 1,num: el.slice(-1)}});
       } else if (statIncreaseKeys[el]) {
@@ -217,12 +264,8 @@ class Game extends React.Component {
     clearInterval(this.focusID);
   }
 
-  handleGameOver() {
-    console.log('GAME OVER');
-  }
-
   componentDidMount() {
-    this.maintainFocus()
+    if (this.state.overlayMode === 'off')this.maintainFocus()
   }
 
   componentWillUpdate(nextProps, nextState) {
@@ -233,92 +276,131 @@ class Game extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.gameOver) this.handleGameOver();
+    if (this.state.gameOver) {
+      this.resetGame();
+    }
+    if (this.state.hero &&
+      this.state.heroIcon &&
+      this.state.overlayMode === 'hero-selection-overlay') {
+
+      setTimeout(() => {this.setState({ overlayMode: 'off'});}, 1000);
+    }
   }
 
   render() {
+    const {gameOver} = this.state;
+
     return (
       <div className='game' tabIndex='0' onKeyDown={this.handleKeyDown}>
         <div className='col-lft'>
-          <GameLevel
-            gameLevel =  {this.state.gameLevel} />
-          <Hero
-            tileSize = {this.state.tileSize}
-            hero = {this.state.hero}
-            heroIcon = {this.state.heroIcon}
-            inventory = {this.state.inventory}
-            itemPalettes = {this.state.itemPalettes}
-            interactItem = {this.state.interactItem}
-            useStatPoint = {this.state.useStatPoint}
-            increasedStat = {this.state.increasedStat}
-            enemyAttack = {this.state.enemyAttack}
-            exchangeAttacks = {this.state.exchangeAttacks}
-            enemyDead = {this.state.enemyDead}
-            gameOver = {this.state.gameOver}
-            updateGameClassState = {this.updateGameClassState}  />
+          { gameOver ? null :
+            <GameLevel
+              gameLevel =  {this.state.gameLevel} />
+          }
+          { gameOver ? null :
+            <Hero
+              tileSize = {this.state.tileSize}
+              hero = {this.state.hero}
+              heroIcon = {this.state.heroIcon}
+              inventory = {this.state.inventory}
+              itemPalettes = {this.state.itemPalettes}
+              interactItem = {this.state.interactItem}
+              useStatPoint = {this.state.useStatPoint}
+              increasedStat = {this.state.increasedStat}
+              enemyAttack = {this.state.enemyAttack}
+              exchangeAttacks = {this.state.exchangeAttacks}
+              enemyDead = {this.state.enemyDead}
+              gameOver = {this.state.gameOver}
+              updateGameClassState = {this.updateGameClassState}  />
+          }
         </div>
         <div className='col-mid'>
           <div className='title'>CrimsonQuest</div>
-          <GameStage
-            boardSize =  {this.state.boardSize}
-            tileSize = {this.state.tileSize}
-            floor = {this.state.floor}
-            gameLevel =  {this.state.gameLevel}
-            bgLevelProcessed = {this.state.bgLevelProcessed}
-            levels = {this.state.levels}
-            hero = {this.state.hero}
-            playerArr = {this.state.playerArr}
-            heroFacing = {this.state.heroFacing}
-            updatePlayerArr = {this.updatePlayerArr}
-            bgArr = {this.state.bgArr}
-            updateBgArr = {this.updateBgArr}
-            floorCoords = {this.state.floorCoords}
-            itemArr = {this.state.itemArr}
-            itemPalettes = {this.state.itemPalettes}
-            itemPaletteArrMap = {this.state.itemPaletteArrMap}
-            inventory = {this.state.inventory}
-            interactItem = {this.state.interactItem}
-            overlayMode = {this.state.overlayMode}
-            enemyArr = {this.state.enemyArr}
-            enemyPalettes = {this.state.enemyPalettes}
-            enemyDead = {this.state.enemyDead}
-            updateGameClassState = {this.updateGameClassState}  />
-          <ConsumableItems
-            tileSize = {this.state.tileSize}
-            inventory = {this.state.inventory}
-            itemPalettes = {this.state.itemPalettes}
-            interactItem = {this.state.interactItem}
-            quickConsume = {this.state.quickConsume}
-            updateGameClassState = {this.updateGameClassState} />
+          { gameOver ? null :
+            <GameStage
+              boardSize =  {this.state.boardSize}
+              tileSize = {this.state.tileSize}
+              floor = {this.state.floor}
+              gameLevel =  {this.state.gameLevel}
+              bgLevelProcessed = {this.state.bgLevelProcessed}
+              levels = {this.state.levels}
+              hero = {this.state.hero}
+              playerPalettes = {this.state.playerPalettes}
+              playerArr = {this.state.playerArr}
+              heroFacing = {this.state.heroFacing}
+              updatePlayerArr = {this.updatePlayerArr}
+              bgArr = {this.state.bgArr}
+              updateBgArr = {this.updateBgArr}
+              floorCoords = {this.state.floorCoords}
+              itemArr = {this.state.itemArr}
+              itemPalettes = {this.state.itemPalettes}
+              itemPaletteArrMap = {this.state.itemPaletteArrMap}
+              inventory = {this.state.inventory}
+              interactItem = {this.state.interactItem}
+              overlayMode = {this.state.overlayMode}
+              enemyArr = {this.state.enemyArr}
+              enemyPalettes = {this.state.enemyPalettes}
+              enemyDead = {this.state.enemyDead}
+              updateGameClassState = {this.updateGameClassState}  />
+          }
+          { gameOver ? null :
+            <ConsumableItems
+              tileSize = {this.state.tileSize}
+              inventory = {this.state.inventory}
+              itemPalettes = {this.state.itemPalettes}
+              interactItem = {this.state.interactItem}
+              quickConsume = {this.state.quickConsume}
+              updateGameClassState = {this.updateGameClassState} />
+          }
         </div>
         <div className='col-rgt'>
-          <CurrentObjective
-            gameLevel =  {this.state.gameLevel}
-            enemyDead = {this.state.enemyDead}  />
-          <EnemyManager
-            tileSize = {this.state.tileSize}
-            floor = {this.state.floor}
-            gameLevel =  {this.state.gameLevel}
-            bgLevelProcessed = {this.state.bgLevelProcessed}
-            playerArr = {this.state.playerArr}
-            moveCount = {this.state.moveCount}
-            bgArr = {this.state.bgArr}
-            floorCoords = {this.state.floorCoords}
-            enemyArr = {this.state.enemyArr}
-            enemyPalettes = {this.state.enemyPalettes}
-            enemyAttack = {this.state.enemyAttack}
-            exchangeAttacks = {this.state.exchangeAttacks}
-            enemyDead = {this.state.enemyDead}
-            updateGameClassState = {this.updateGameClassState}  />
-          <ActivityLog
-            gameLevel =  {this.state.gameLevel}
-            levelUpCount = {this.state.levelUpCount}
-            interactItem = {this.state.interactItem}
-            useStatPoint = {this.state.useStatPoint}
-            increasedStat = {this.state.increasedStat}
-            exchangeAttacks = {this.state.exchangeAttacks}
-            enemyDead = {this.state.enemyDead}  />
-          <GameTips/>
+          { gameOver ? null :
+            <CurrentObjective
+              gameLevel =  {this.state.gameLevel}
+              enemyDead = {this.state.enemyDead}  />
+          }
+          { gameOver ? null :
+            <EnemyManager
+              tileSize = {this.state.tileSize}
+              floor = {this.state.floor}
+              gameLevel =  {this.state.gameLevel}
+              itemLevelProcessed = {this.state.itemLevelProcessed}
+              playerArr = {this.state.playerArr}
+              moveCount = {this.state.moveCount}
+              bgArr = {this.state.bgArr}
+              floorCoords = {this.state.floorCoords}
+              enemyArr = {this.state.enemyArr}
+              enemyPalettes = {this.state.enemyPalettes}
+              enemyAttack = {this.state.enemyAttack}
+              exchangeAttacks = {this.state.exchangeAttacks}
+              enemyDead = {this.state.enemyDead}
+              updateGameClassState = {this.updateGameClassState}  />
+          }
+          { gameOver ? null :
+            <ActivityLog
+              gameLevel =  {this.state.gameLevel}
+              levelUpCount = {this.state.levelUpCount}
+              interactItem = {this.state.interactItem}
+              useStatPoint = {this.state.useStatPoint}
+              increasedStat = {this.state.increasedStat}
+              exchangeAttacks = {this.state.exchangeAttacks}
+              enemyDead = {this.state.enemyDead}  />
+          }
+          { gameOver ? null :
+            <GameSounds
+              gameOver = {this.state.gameOver}
+              gameLevel =  {this.state.gameLevel}
+              levels = {this.state.levels}
+              levelUpCount = {this.state.levelUpCount}
+              interactItem = {this.state.interactItem}
+              useStatPoint = {this.state.useStatPoint}
+              exchangeAttacks = {this.state.exchangeAttacks}
+              enemyDead = {this.state.enemyDead}
+              overlayMode = {this.state.overlayMode}  />
+          }
+          { gameOver ? null :
+            <GameTips/>
+          }
         </div>
       </div>
     );

@@ -2,7 +2,7 @@
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed
+//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed, playerPalettes
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
@@ -69,6 +69,7 @@ class GameStage extends React.Component {
           tileSize =  {this.props.tileSize}
           hero = {this.props.hero}
           heroFacing = {this.props.heroFacing}
+          playerPalettes = {this.props.playerPalettes}
           gameLevel = {this.props.gameLevel}
           bgLevelProcessed = {this.props.bgLevelProcessed}
           bgArr = {this.props.bgArr}
@@ -76,10 +77,12 @@ class GameStage extends React.Component {
           floorCoords = {this.props.floorCoords}
           updateGameClassState = {this.props.updateGameClassState}  />
         <OptionOverlay
+          tileSize =  {this.props.tileSize}
           playerArr = {this.props.playerArr}
           enemyArr = {this.props.enemyArr}
           inventory = {this.props.inventory}
           interactItem = {this.props.interactItem}
+          playerPalettes = {this.props.playerPalettes}
           overlayMode = {this.props.overlayMode}
           updateGameClassState = {this.props.updateGameClassState}  />
       </div>
