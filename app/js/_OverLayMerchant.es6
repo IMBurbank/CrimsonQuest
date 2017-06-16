@@ -1,4 +1,4 @@
-//props: playerArr, enemyArr, inventory, interactItem, updateGameClassState
+//props: playerArr, enemyArr, inventory, interactItem, updateGameClassState, toggleMute
 
 
 class OverlayMerchant extends React.Component {
@@ -74,6 +74,7 @@ class OverlayMerchant extends React.Component {
 
       this.handleInteractItem(name);
     }
+    else if (el === 'KeyQ' || el === 'KeyP') this.props.toggleMute();
 
     if (delta.length > 0) this.updateOptFocus([row, col], delta);
   }

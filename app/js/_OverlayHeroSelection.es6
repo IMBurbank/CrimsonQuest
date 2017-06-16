@@ -1,4 +1,4 @@
-//props: updateGameClassState, playerPalettes, tileSize
+//props: updateGameClassState, playerPalettes, tileSize, toggleMute
 
 class OverlayHeroSelection extends React.Component {
   constructor(props) {
@@ -48,6 +48,8 @@ class OverlayHeroSelection extends React.Component {
 
     } else if (el === 'Space' || el === 'Enter') {
       this.props.updateGameClassState({ hero: currentSelection });
+    } else if (el === 'KeyQ' || el === 'KeyP') {
+      this.props.toggleMute();
     }
   }
 

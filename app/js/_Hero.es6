@@ -5,7 +5,6 @@ class Hero extends React.Component {
     super(props);
     this.initHero = this.initHero.bind(this);
     this.changeStats = this.changeStats.bind(this);
-    this.gainExperience = this.gainExperience.bind(this);
     this.handleLevelUp = this.handleLevelUp.bind(this);
     this.paintHeroIcon = this.paintHeroIcon.bind(this);
     this.attemptPurchase = this.attemptPurchase.bind(this);
@@ -116,22 +115,7 @@ class Hero extends React.Component {
     return newState;
   }
 
-  gainExperience(enemyDead) {
-    let {charLevel, experience, expToLevel} = this.state;
-
-    experience += enemyDead.experience;
-    this.enemyDeadCount = enemyDead.count;
-
-    if (experience >= expToLevel) {
-      experience -= expToLevel;
-      charLevel++;
-      this.handleLevelUp(charLevel, experience)
-    } else {
-      this.setState({ experience });
-    }
-  }
-
-  handleLevelUp(charLevel, experience) {
+  handleLevelUp(charLevel, experience, gold) {
     const onLvl = this.state.onLevelUp,
       bHealth = this.state.bHealth + onLvl.health,
       bVitality = this.state.bVitality + onLvl.vitality,
@@ -151,6 +135,7 @@ class Hero extends React.Component {
     this.props.updateGameClassState({ levelUpCount: charLevel });
 
     this.setState({
+      gold,
       charLevel,
       experience,
       expToLevel,
@@ -231,14 +216,21 @@ class Hero extends React.Component {
   }
 
   handleEnemyDead(nextProps) {
-    const {enemyDead} = nextProps,
-      {gold} = enemyDead;
+    const {enemyDead} = nextProps;
 
-    let nState = this.changeStats({gold});
+    let {charLevel, experience, expToLevel, gold} = this.state;
 
-    this.gainExperience(enemyDead);
+    experience += enemyDead.experience;
+    gold += enemyDead.gold;
+    this.enemyDeadCount = enemyDead.count;
 
-    this.setState(nState);
+    if (experience >= expToLevel) {
+      experience -= expToLevel;
+      charLevel++;
+      this.handleLevelUp(charLevel, experience, gold);
+    } else {
+      this.setState({ experience, gold });
+    }
   }
 
   handleInteractItem(nextProps) {
@@ -459,7 +451,6 @@ class Hero extends React.Component {
     }
     if (this.enemyDeadCount !== nextProps.enemyDead.count) {
       this.handleEnemyDead(nextProps);
-      //DELETE: this.gainExperience(nextProps);
     }
     if (this.props.useStatPoint.count !== nextProps.useStatPoint.count) {
       this.handleUseStatPoint(nextProps);

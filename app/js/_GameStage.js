@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed, playerPalettes
+//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed, playerPalettes, toggleMute
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -102,6 +102,7 @@ var GameStage = function (_React$Component) {
           interactItem: this.props.interactItem,
           playerPalettes: this.props.playerPalettes,
           overlayMode: this.props.overlayMode,
+          toggleMute: this.props.toggleMute,
           updateGameClassState: this.props.updateGameClassState })
       );
     }

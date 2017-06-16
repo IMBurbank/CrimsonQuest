@@ -1,10 +1,16 @@
-//props: gameOver, gameLevel, levels , levelUpCount, interactItem, useStatPoint,
+//props: gameOver, gameLevel, gameMuted, levels, levelUpCount, interactItem, useStatPoint,
 //exchangeAttacks, enemyDead, overlayMode
 
 class GameSounds extends React.Component {
   constructor(props) {
     super(props);
-    this.getSounds = this.getSounds.bind(this);
+    this.loadEffects = this.loadEffects.bind(this);
+    this.playBackgroundSong = this.playBackgroundSong.bind(this);
+    this.toggleMute = this.toggleMute.bind(this);
+    this.playEffect = this.playEffect.bind(this);
+    this.handleInteractItem = this.handleInteractItem.bind(this);
+    this.handleOverlayToggle = this.handleOverlayToggle.bind(this);
+    this.handleEnemyDead = this.handleEnemyDead.bind(this);
 
     this.soundKeys = {
       path: 'sounds/',
@@ -42,85 +48,158 @@ class GameSounds extends React.Component {
       musicType: 'audio/mp3'
     };
 
-    this.state = {
-      music: {},
+    this.musicOverlays = {
+      'hero-selection-overlay': {overlay: 'hero-selection-overlay', pointerKey: 'intro'},
+      'game-over-overlay': {overlay: 'game-over-overlay', pointerKey: 'gameOver'},
+      'game-win-overlay': {overlay: 'game-win-overlay', pointerKey: 'gameWin'}
+    };
+
+    this.effectOverlays = {
+      'inv-overlay': {overlay: 'inv-overlay'},
+      'help-overlay': {overlay: 'help-overlay'},
+      'merchant-overlay': {overlay: 'merchant-overlay'},
+    };
+
+    this.state = ({
+      song: null,
       effects: {},
-    }
+    });
   }
 
-  getSounds() {
-    const {levels} = this.props,
-      {path, effectKeys, effectPre, effectPost, effectType} = this.soundKeys,
-      {musicKeys, musicPre, musicPost, musicType} = this.soundKeys,
-      that = this;
+  loadEffects() {
+    const {path, effectKeys, effectPre, effectPost, effectType} = this.soundKeys;
 
     let effects = {},
-      music = {},
-      el = '',
-      key = '',
-      len = 0,
-      i = 0,
-      j = 0;
-
-    console.log('Starting getSounds: ');
-    console.log('effectKeys, musicKeys: ', effectKeys, musicKeys);
-
-    const handleLoad = function handleSoundLoad(e) {
-      i++;
-      if (i === len) {
-        that.setState({ effects, music });
-        console.log('MUSIC LOADED');
-      }
-    }
-
-    for (el in musicKeys) {
-      if (el === 'level') {
-        for (j = 1; j <= levels; j++) {
-          key = el + j;
-          music[key] = new Audio();
-          music[key].src = path + musicPre + ('0'+len).slice(-2) + musicKeys[el] + musicPost;
-          music[key].type = musicType;
-          music[key].loop = true;
-          music[key].addEventListener('loadstart', handleLoad);
-          len++;
-        }
-      } else {
-        music[el] = new Audio();
-        music[el].src = path + musicPre + musicKeys[el] + musicPost;
-        music[el].type = musicType;
-        music[el].loop = true;
-        music[el].addEventListener('loadstart', handleLoad);
-        len++;
-      }
-      if (el === 'intro') music[el].play();
-    }
+      el = '';
 
     for (el in effectKeys) {
       effects[el] = new Audio();
       effects[el].src = path + effectPre + effectKeys[el] + effectPost;
       effects[el].type = effectType;
-      effects[el].addEventListener('loadstart', handleLoad);
-      len++;
     }
 
+    this.setState({ effects });
+  }
+
+  playBackgroundSong(gameLevel, overlayMode, props = this.props) {
+    const {path, musicKeys, musicPre, musicPost, musicType} = this.soundKeys,
+      musicOverlays = this.musicOverlays
+
+    let song = null,
+      key = '',
+      el = '';
+
+    const playSong = function handlePlaySong() {
+      console.log('playing song: ', song.src);
+      song.play();
+      if (props.gameMuted) song.muted = true;
+    }
+
+    for (el in musicOverlays) {
+      if (musicOverlays[el].overlay === overlayMode) {
+        key = musicKeys[musicOverlays[el].pointerKey];
+      }
+    }
+
+    if (!key) key = ('0' + gameLevel).slice(-2) + musicKeys.level;
+
+    song = new Audio();
+    song.src = path + musicPre + key + musicPost;
+    song.type = musicType;
+    song.loop = true;
+    song.addEventListener('loadeddata', playSong);
+
+    this.setState({ song });
+  }
+
+  playEffect(key) {
+    this.state.effects[key].play();
+  }
+
+  toggleMute(gameMuted) {
+    this.state.song.muted = gameMuted;
+  }
+
+  handleInteractItem(props = this.props) {
+    const {type, item} = props.interactItem;
+
+    let key = '';
+
+    if (type === 'buyFail') key = 'notEnoughGold'
+    else if (['buySuccess', 'sell'].includes(type)) key = 'buySellItem'
+    else if (['equip', 'unequip'].includes(type)) key = 'changeEquipment';
+    else if (type === 'pickup') key = item.type === 'gold' ? 'pickupGold' : 'pickupItem';
+    else if (type === 'use') key = item.name.slice(-6) === 'Potion' ? 'usePotion': 'useTome';
+    else console.log('GAMESOUND HANDLEINTERACTITEM ERROR');
+
+    this.playEffect(key);
+  }
+
+  handleEnemyDead(props = this.props) {
+    const {source} = props.enemyDead,
+      portalSoundDelay = 200;
+
+    this.playEffect('enemyDead');
+
+    if (source.boss) setTimeout(() => {this.playEffect('activatePortal');}, portalSoundDelay);
+  }
+
+  handleOverlayToggle(nextOverlay) {
+    let key = this.effectOverlays[nextOverlay] ? 'openOverlay' : 'closeOverlay';
+
+    this.playEffect(key);
   }
 
   componentWillMount() {
-    this.getSounds();
+    this.loadEffects();
+  }
+
+  componentDidMount() {
+    this.playBackgroundSong(this.props.gameLevel, this.props.overlayMode);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.overlayMode === 'hero-selection-overlay' &&
+    if (this.props.gameLevel !== nextProps.gameLevel ||
+      ((this.musicOverlays[this.props.overlayMode] ||
+        this.musicOverlays[nextProps.overlayMode]) &&
+      this.props.overlayMode !== nextProps.overlayMode)) {
+
+      if (nextProps.gameLevel === 1 && nextProps.overlayMode === 'off') {
+        this.playEffect('heroSelection');
+        console.log('Ca-Ching!');
+      }
+
+      console.log('Change Background Song');
+      this.state.song.pause();
+      this.playBackgroundSong(nextProps.gameLevel, nextProps.overlayMode, nextProps);
+    }
+    if ((this.effectOverlays[this.props.overlayMode] ||
+      this.effectOverlays[nextProps.overlayMode]) &&
       this.props.overlayMode !== nextProps.overlayMode) {
 
-      console.log('stop intro song');
-      this.state.music.intro.pause();
-      this.state.music.level1.play();
+      this.handleOverlayToggle(nextProps.overlayMode);
+    }
+    if (this.props.gameMuted !== nextProps.gameMuted) {
+      this.toggleMute(nextProps.gameMuted);
+    }
+    if (this.props.levelUpCount !== nextProps.levelUpCount) {
+      this.playEffect('levelUp');
+    }
+    if (this.props.interactItem.count !== nextProps.interactItem.count) {
+      this.handleInteractItem(nextProps);
+    }
+    if (this.props.useStatPoint.count !== nextProps.useStatPoint.count) {
+      this.playEffect('useStatPoint');
+    }
+    if (this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count) {
+      this.playEffect('attackRound');
+    }
+    if (this.props.enemyDead.count !== nextProps.enemyDead.count) {
+      this.handleEnemyDead(nextProps);
     }
   }
 
   render() {
-    let content = null;
 
     return (
       <div>

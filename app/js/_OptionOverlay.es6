@@ -1,5 +1,6 @@
 
-//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState, playerPalettes, tileSize
+//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState,
+//playerPalettes, tileSize, toggleMute
 class OptionOverlay extends React.Component {
 
   render() {
@@ -12,11 +13,13 @@ class OptionOverlay extends React.Component {
         <InventoryOverlay
           inventory = {this.props.inventory}
           interactItem = {this.props.interactItem}
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     } else if (mode === 'help-overlay') {
       content = (
         <OverlayHelp
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     } else if (mode === 'merchant-overlay') {
@@ -26,16 +29,19 @@ class OptionOverlay extends React.Component {
           enemyArr = {this.props.enemyArr}
           inventory = {this.props.inventory}
           interactItem = {this.props.interactItem}
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     } else if (mode === 'game-over-overlay') {
       content = (
         <OverlayGameOver
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     } else if (mode === 'game-win-overlay') {
       content = (
         <OverlayGameWin
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     } else if (mode === 'hero-selection-overlay') {
@@ -43,6 +49,7 @@ class OptionOverlay extends React.Component {
         <OverlayHeroSelection
           tileSize = {this.props.tileSize}
           playerPalettes = {this.props.playerPalettes}
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       );
     }

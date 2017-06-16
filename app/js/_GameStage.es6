@@ -2,7 +2,7 @@
 
 //props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, updateBgArr, floorCoords,
 //updateFloorCoords, updatePlayerArr, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed, playerPalettes
+//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed, playerPalettes, toggleMute
 class GameStage extends React.Component {
   constructor(props) {
     super(props);
@@ -84,6 +84,7 @@ class GameStage extends React.Component {
           interactItem = {this.props.interactItem}
           playerPalettes = {this.props.playerPalettes}
           overlayMode = {this.props.overlayMode}
+          toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       </div>
     );

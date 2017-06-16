@@ -1,4 +1,4 @@
-//props: updateGameClassState
+//props: updateGameClassState, toggleMute
 
 class OverlayHelp extends React.Component {
   constructor(props) {
@@ -25,6 +25,8 @@ class OverlayHelp extends React.Component {
 
     if (el === 'KeyH' || el === 'Space' || el === 'Enter' || el === 'Escape') {
       this.props.updateGameClassState({overlayMode: 'off'});
+    } else if (el === 'KeyQ' || el === 'KeyP') {
+      this.props.toggleMute();
     }
   }
 

@@ -10,7 +10,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: inventory, interactItem, updateGameClassState
+//props: inventory, interactItem, updateGameClassState, toggleMute
 var InventoryOverlay = function (_React$Component) {
   _inherits(InventoryOverlay, _React$Component);
 
@@ -54,7 +54,7 @@ var InventoryOverlay = function (_React$Component) {
             type = this.state.invCategories[this.state.col].toLowerCase();
 
         this.handleInteractItem(name);
-      }
+      } else if (el === 'KeyQ' || el === 'KeyP') this.props.toggleMute();
 
       if (delta.length > 0) this.updateOptFocus([row, col], delta);
     }

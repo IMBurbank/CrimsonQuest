@@ -1,5 +1,5 @@
 
-//props: inventory, interactItem, updateGameClassState
+//props: inventory, interactItem, updateGameClassState, toggleMute
 class InventoryOverlay extends React.Component {
   constructor(props) {
     super(props);
@@ -38,6 +38,7 @@ class InventoryOverlay extends React.Component {
 
       this.handleInteractItem(name);
     }
+    else if (el === 'KeyQ' || el === 'KeyP') this.props.toggleMute();
 
     if (delta.length > 0) this.updateOptFocus([row, col], delta);
   }

@@ -8,7 +8,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: updateGameClassState, playerPalettes, tileSize
+//props: updateGameClassState, playerPalettes, tileSize, toggleMute
 
 var OverlayHeroSelection = function (_React$Component) {
   _inherits(OverlayHeroSelection, _React$Component);
@@ -61,6 +61,8 @@ var OverlayHeroSelection = function (_React$Component) {
         this.setState({ currentSelection: currentSelection });
       } else if (el === 'Space' || el === 'Enter') {
         this.props.updateGameClassState({ hero: currentSelection });
+      } else if (el === 'KeyQ' || el === 'KeyP') {
+        this.props.toggleMute();
       }
     }
   }, {

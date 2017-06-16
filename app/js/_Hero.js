@@ -20,7 +20,6 @@ var Hero = function (_React$Component) {
 
     _this.initHero = _this.initHero.bind(_this);
     _this.changeStats = _this.changeStats.bind(_this);
-    _this.gainExperience = _this.gainExperience.bind(_this);
     _this.handleLevelUp = _this.handleLevelUp.bind(_this);
     _this.paintHeroIcon = _this.paintHeroIcon.bind(_this);
     _this.attemptPurchase = _this.attemptPurchase.bind(_this);
@@ -134,28 +133,8 @@ var Hero = function (_React$Component) {
       }return newState;
     }
   }, {
-    key: "gainExperience",
-    value: function gainExperience(enemyDead) {
-      var _state = this.state,
-          charLevel = _state.charLevel,
-          experience = _state.experience,
-          expToLevel = _state.expToLevel;
-
-
-      experience += enemyDead.experience;
-      this.enemyDeadCount = enemyDead.count;
-
-      if (experience >= expToLevel) {
-        experience -= expToLevel;
-        charLevel++;
-        this.handleLevelUp(charLevel, experience);
-      } else {
-        this.setState({ experience: experience });
-      }
-    }
-  }, {
     key: "handleLevelUp",
-    value: function handleLevelUp(charLevel, experience) {
+    value: function handleLevelUp(charLevel, experience, gold) {
       var onLvl = this.state.onLevelUp,
           bHealth = this.state.bHealth + onLvl.health,
           bVitality = this.state.bVitality + onLvl.vitality,
@@ -175,6 +154,7 @@ var Hero = function (_React$Component) {
       this.props.updateGameClassState({ levelUpCount: charLevel });
 
       this.setState({
+        gold: gold,
         charLevel: charLevel,
         experience: experience,
         expToLevel: expToLevel,
@@ -260,15 +240,25 @@ var Hero = function (_React$Component) {
   }, {
     key: "handleEnemyDead",
     value: function handleEnemyDead(nextProps) {
-      var enemyDead = nextProps.enemyDead,
-          gold = enemyDead.gold;
+      var enemyDead = nextProps.enemyDead;
+      var _state = this.state,
+          charLevel = _state.charLevel,
+          experience = _state.experience,
+          expToLevel = _state.expToLevel,
+          gold = _state.gold;
 
 
-      var nState = this.changeStats({ gold: gold });
+      experience += enemyDead.experience;
+      gold += enemyDead.gold;
+      this.enemyDeadCount = enemyDead.count;
 
-      this.gainExperience(enemyDead);
-
-      this.setState(nState);
+      if (experience >= expToLevel) {
+        experience -= expToLevel;
+        charLevel++;
+        this.handleLevelUp(charLevel, experience, gold);
+      } else {
+        this.setState({ experience: experience, gold: gold });
+      }
     }
   }, {
     key: "handleInteractItem",
@@ -492,7 +482,6 @@ var Hero = function (_React$Component) {
       }
       if (this.enemyDeadCount !== nextProps.enemyDead.count) {
         this.handleEnemyDead(nextProps);
-        //DELETE: this.gainExperience(nextProps);
       }
       if (this.props.useStatPoint.count !== nextProps.useStatPoint.count) {
         this.handleUseStatPoint(nextProps);

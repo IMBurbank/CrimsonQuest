@@ -30,6 +30,7 @@ var Game = function (_React$Component) {
 
     _this.resetGame = _this.resetGame.bind(_this);
     _this.updateBgArr = _this.updateBgArr.bind(_this);
+    _this.toggleMute = _this.toggleMute.bind(_this);
     _this.handleKeyDown = _this.handleKeyDown.bind(_this);
     _this.updatePlayerArr = _this.updatePlayerArr.bind(_this);
     _this.updateGameClassState = _this.updateGameClassState.bind(_this);
@@ -54,6 +55,7 @@ var Game = function (_React$Component) {
       moveCount: 0,
       levelUpCount: 1,
       gameOver: false,
+      gameMuted: false,
       inventory: {},
       playerArr: [],
       bgArr: [],
@@ -62,7 +64,7 @@ var Game = function (_React$Component) {
       itemPalettes: {},
       itemPaletteArrMap: {},
       interactItem: { count: 0, type: '', item: {}, source: {} },
-      //type: pickup, use, equip, unequip, buy, sell
+      //type: pickup, use, equip, unequip, buy, buySuccess, buyFail, sell
       useStatPoint: { count: 0, type: '', item: {}, source: {} },
       increasedStat: { count: 0, type: '', stat: '', quant: 0 },
       quickConsume: { count: 0, num: 0 },
@@ -133,6 +135,11 @@ var Game = function (_React$Component) {
     key: 'updatePlayerArr',
     value: function updatePlayerArr(playerArr) {
       this.setState({ playerArr: [].concat(_toConsumableArray(playerArr)) });
+    }
+  }, {
+    key: 'toggleMute',
+    value: function toggleMute() {
+      this.setState({ gameMuted: !this.state.gameMuted });
     }
   }, {
     key: 'updateGameClassState',
@@ -258,6 +265,8 @@ var Game = function (_React$Component) {
           this.setState({ quickConsume: { count: this.state.quickConsume.count + 1, num: el.slice(-1) } });
         } else if (statIncreaseKeys[el]) {
           this.setState({ useStatPoint: { count: this.state.useStatPoint.count + 1, stat: statIncreaseKeys[el] } });
+        } else if (el === 'KeyQ' || el === 'KeyP') {
+          this.toggleMute();
         }
       }
     }
@@ -369,6 +378,7 @@ var Game = function (_React$Component) {
             enemyArr: this.state.enemyArr,
             enemyPalettes: this.state.enemyPalettes,
             enemyDead: this.state.enemyDead,
+            toggleMute: this.toggleMute,
             updateGameClassState: this.updateGameClassState }),
           gameOver ? null : React.createElement(ConsumableItems, {
             tileSize: this.state.tileSize,
@@ -410,6 +420,7 @@ var Game = function (_React$Component) {
           gameOver ? null : React.createElement(GameSounds, {
             gameOver: this.state.gameOver,
             gameLevel: this.state.gameLevel,
+            gameMuted: this.state.gameMuted,
             levels: this.state.levels,
             levelUpCount: this.state.levelUpCount,
             interactItem: this.state.interactItem,
