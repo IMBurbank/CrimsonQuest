@@ -36,6 +36,7 @@ class AccentLayer extends React.Component {
       corpseMap: '',
       paletteArrMap: {},
       tempCanv: null,
+      renderArr: []
     });
   }
 
@@ -83,11 +84,19 @@ class AccentLayer extends React.Component {
   }
 
   initTempCanvas() {
-    const size = this.props.stageSize,
+    const {stageSize, tileSize} = this.props,
+      rLen = stageSize / tileSize,
       smoothRender = false,
-      tempCanv = initMemCanvas(size, size, smoothRender);
+      tempCanv = initMemCanvas(stageSize, stageSize, smoothRender);
 
-    this.setState({ tempCanv });
+    let renderArr = [],
+      i = 0;
+
+    renderArr.length = rLen;
+
+    while (i < rLen) renderArr[i] = Array(rLen).fill(0), i++;
+
+    this.setState({ tempCanv, renderArr });
   }
 
   initPaletteMaps() {
@@ -356,51 +365,34 @@ class AccentLayer extends React.Component {
   drawAccents(timestamp) {
     if (!timeRef) timeRef = timestamp;
 
-    const accArr = this.props.accArr,
-      map = this.state.paletteArrMap,
-      playerArr = this.props.playerArr,
+    const {playerArr, accArr} = this.props,
+      {paletteArrMap} = this.state,
       ts = this.props.tileSize,
       px = this.props.stageSize,
-      decor0 = this.state.dec0Canv,
-      decor1 = this.state.dec1Canv,
-      ground0 = this.state.grnd0Canv,
-      ground1 = this.state.grnd1Canv,
-      ore0 = this.state.ore0Canv,
-      ore1 = this.state.ore1Canv,
-      dec0Data = decor0.getContext('2d').getImageData(0,0,decor0.width,decor0.height).data,
-      dec1Data = decor1.getContext('2d').getImageData(0,0,decor1.width,decor1.height).data,
-      grnd0Data = ground0.getContext('2d').getImageData(0,0,ground0.width,ground0.height).data,
-      grnd1Data = ground1.getContext('2d').getImageData(0,0,ground1.width,ground1.height).data,
-      ore0Data = ore0.getContext('2d').getImageData(0,0,ore0.width,ore0.height).data,
-      ore1Data = ore1.getContext('2d').getImageData(0,0,ore1.width,ore1.height).data,
+      {dec0Canv, dec1Canv, grnd0Canv, grnd1Canv, ore0Canv, ore1Canv} = this.state,
       rLen = px / ts,
       accLen = accArr.length,
       frame = (timestamp - timeRef) % 1000 *.06;
 
-    let dCtx = document.getElementById('acc-layer').getContext('2d'),
+    let {renderArr} = this.state,
+      dCtx = document.getElementById('acc-layer').getContext('2d'),
       tempCanv = this.state.tempCanv,
       tempCtx = tempCanv.getContext('2d'),
-      tImgData = tempCtx.createImageData(px, px),
-      tImgPixData = tImgData.data,
-      renderArr = [],
-      iData = 0,
-      pData = 0,
+      img = null,
+      m = [],
+      renderArrHeight = 0,
+      renderArrWidth = 0,
       sr = 0,
       sc = 0,
       pr = 0,
       pc = 0,
       sx = 0,
       sy = 0,
-      img = null,
-      imgW = 0,
-      m = [],
       el = 0,
       srcX = 0,
       srcY = 0,
       dX = 0,
       dY = 0,
-      h = 0,
-      w = 0,
       i = 0,
       j = 0;
 
@@ -414,6 +406,7 @@ class AccentLayer extends React.Component {
       sr = playerArr[0] - ~~(rLen / 2);
       pr = 0;
     }
+
     if (playerArr[1] - ~~(rLen / 2) < 0) {
       sc = 0;
       pc = -1 * (playerArr[1] - ~~(rLen / 2));
@@ -425,58 +418,47 @@ class AccentLayer extends React.Component {
       pc = 0;
     }
 
-    renderArr.length = rLen - pr;
-    while(i < rLen - pr) {
-      renderArr[i] = [];
-      renderArr[i].length = rLen - pc;
-      while (j < rLen - pc) renderArr[i][j] = accArr[sr + i][sc + j], j++;
+    renderArrHeight = rLen - pr;
+    renderArrWidth = rLen - pc;
+
+    while(i < renderArrHeight) {
+      while (j < renderArrWidth) renderArr[i][j] = accArr[sr + i][sc + j], j++;
       j = 0, i++;
     }
 
     sx = (!sc && pc) ? pc * ts : 0;
     sy = (!sr && pr) ? pr * ts : 0;
 
-    for (i = 0; i < renderArr.length; i++) {
-      for (j = 0; j < renderArr[i].length; j++) {
+    tempCtx.clearRect(0, 0, px, px);
+
+    for (i = 0; i < renderArrHeight; i++) {
+      for (j = 0; j < renderArrWidth; j++) {
         el = renderArr[i][j];
         if (el) {
-          m = map['' + el];
+          m = paletteArrMap['' + el];
 
           if (frame > 29) {
-            if (m[1] === 'decor') img = dec0Data, imgW = decor0.width;
-            else if (m[1] === 'ore') img = ore0Data, imgW = ore0.width;
-            else img = grnd0Data, imgW = ground0.width;
+            if (m[1] === 'decor') img = dec0Canv;
+            else if (m[1] === 'ore') img = ore0Canv;
+            else img = grnd0Canv;
           } else {
-            if (m[1] === 'decor') img = dec1Data, imgW = decor1.width;
-            else if (m[1] === 'ore') img = ore1Data, imgW = ore1.width;
-            else img = grnd1Data, imgW = ground1.width;
+            if (m[1] === 'decor') img = dec1Canv;
+            else if (m[1] === 'ore') img = ore1Canv;
+            else img = grnd1Canv;
           }
 
           srcX = m[0][0];
           srcY = m[0][1];
           dX = sx + j * ts;
           dY = sy + i * ts;
-          h = 0;
 
-          while (h < ts) {
-            w = 0;
-            while (w < ts) {
-              pData = ( (dX + w) + (dY + h) * px ) * 4;
-              iData = ( (srcX + w) + (srcY + h) * imgW ) * 4;
-
-              tImgPixData[pData] = img[iData];
-              tImgPixData[pData + 1] = img[iData + 1];
-              tImgPixData[pData + 2] = img[iData + 2];
-              tImgPixData[pData + 3] = img[iData + 3];
-              w++;
-            }
-            h++;
-          }
+          tempCtx.drawImage(img, srcX, srcY, ts, ts, dX, dY, ts, ts);
         }
       }
     }
 
-    dCtx.putImageData(tImgData, 0, 0);
+    dCtx.clearRect(0, 0, px, px);
+    dCtx.drawImage(tempCanv, 0, 0);
     window.requestAnimationFrame(this.drawAccents);
   }
 
@@ -519,8 +501,7 @@ class AccentLayer extends React.Component {
   }
 
   render() {
-    const size = this.props.stageSize,
-      enemyDead = this.props.enemyDead;
+    const size = this.props.stageSize;
     return (
       <canvas
         id = 'acc-layer'

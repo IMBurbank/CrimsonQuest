@@ -14,13 +14,14 @@ class EnemyLayer extends React.Component {
       srcTileSize: 16,
       images: {},
       tempCanv: null,
+      renderArr: [],
       renderPadArr: [3, 2, 1, 0, 0, 0, 1, 2, 3]
     });
   }
 
   initEnemyArr() {
-    const len = this.props.boardSize,
-      enemyArr = initZeroArray(len);
+    const {boardSize} = this.props,
+      enemyArr = initZeroArray(boardSize);
 
     this.props.updateGameClassState({ enemyArr });
   }
@@ -77,11 +78,19 @@ class EnemyLayer extends React.Component {
   }
 
   initTempCanvas() {
-    const size = this.props.stageSize,
+    const {stageSize, tileSize} = this.props,
       smoothRender = false,
-      tempCanv = initMemCanvas(size, size, smoothRender);
+      tempCanv = initMemCanvas(stageSize, stageSize, smoothRender),
+      renderLen = stageSize / tileSize;
 
-    this.setState({ tempCanv });
+    let renderArr = [],
+      i = 0;
+
+    renderArr.length = renderLen
+
+    while (i < renderLen) renderArr[i] = initZeroArray(renderLen), i++;
+
+    this.setState({ tempCanv, renderArr });
   }
 
   setPalettes(images) {
@@ -128,31 +137,24 @@ class EnemyLayer extends React.Component {
       renderLenBase = stageSize / tileSize - 2 * renderInset, //9
       enemyArrLen = enemyArr.length;
 
-    let dCtx = getById('enemy-layer').getContext('2d'),
+    let {renderArr} = this.state,
+      dCtx = getById('enemy-layer').getContext('2d'),
       tempCanv = this.state.tempCanv,
       tempCtx = tempCanv.getContext('2d'),
-      tImgData = tempCtx.createImageData(stageSize, stageSize),
-      tImgPixData = tImgData.data,
       canvas = null,
-      renderArr = [],
-      iData = 0,
-      pData = 0,
       startRow = 0,
       startCol = 0,
       padRow = 0,
       padCol = 0,
+      renderArrHeight = 0,
+      renderArrWidth = 0,
       renderPadX = 0,
       renderPadY = 0,
-      img = null,
-      imgW = 0,
-      imgH = 0,
       el = 0,
       srcX = 0,
       srcY = 0,
       dX = 0,
       dY = 0,
-      pxRow = 0,
-      pxCol = 0,
       i = 0,
       j = 0;
 
@@ -178,69 +180,57 @@ class EnemyLayer extends React.Component {
       padCol = 0;
     }
 
-    renderArr.length = renderLenBase - padRow;
+    renderArrHeight = renderLenBase - padRow;
+    renderArrWidth = renderLenBase - padCol;
 
-    while(i < renderLenBase - padRow) {
-      renderArr[i] = [];
-      renderArr[i].length = renderLenBase - padCol;
-
-      while (j < renderLenBase - padCol) {
+    while(i < renderArrHeight) {
+      while (j < renderArrWidth) {
         if (j >= renderPadArr[(startRow ? i : i + padRow)] &&
-          j < renderLenBase - padRow - renderPadArr[(startCol ? i : i + padCol)]) {
+          j < renderArrHeight - renderPadArr[(startCol ? i : i + padCol)]) {
 
           renderArr[i][j] = enemyArr[startRow + i][startCol + j];
 
         } else {
           renderArr[i][j] = 0;
         }
-
         j++;
       }
-
       j = 0, i++;
     }
 
     renderPadX = (!startCol && padCol) ? (padCol + renderInset) * tileSize : renderInset * tileSize;
-
     renderPadY = (!startRow && padRow) ? (padRow + renderInset) * tileSize : renderInset * tileSize;
 
-    for (i = 0; i < renderArr.length; i++) {
-      for (j = 0; j < renderArr[i].length; j++) {
+    tempCtx.clearRect(0, 0, stageSize, stageSize);
+
+    for (i = 0; i < renderArrHeight; i++) {
+      for (j = 0; j < renderArrWidth; j++) {
         el = renderArr[i][j];
 
         if (el) {
           canvas = enemyPalettes[el.palette[pIndex]];
-          imgW = canvas.width;
-          imgH = canvas.height;
-          img = canvas.getContext('2d').getImageData(0, 0, imgW, imgH).data;
-
           srcX = el.iconLoc[0];
           srcY = el.iconLoc[1];
           dX = renderPadX + j * tileSize;
           dY = renderPadY + i * tileSize;
-          pxRow = 0;
 
-          while (pxRow < tileSize) {
-            pxCol = 0;
-
-            while (pxCol < tileSize) {
-              pData = ( (dX + pxCol) + (dY + pxRow) * stageSize ) * 4;
-              iData = ( (srcX + pxCol) + (srcY + pxRow) * imgW ) * 4;
-
-              tImgPixData[pData] = img[iData];
-              tImgPixData[pData + 1] = img[iData + 1];
-              tImgPixData[pData + 2] = img[iData + 2];
-              tImgPixData[pData + 3] = img[iData + 3];
-              pxCol++;
-            }
-
-            pxRow++;
-          }
+          tempCtx.drawImage(
+            canvas,
+            srcX,
+            srcY,
+            tileSize,
+            tileSize,
+            dX,
+            dY,
+            tileSize,
+            tileSize
+          );
         }
       }
     }
 
-    dCtx.putImageData(tImgData, 0, 0);
+    dCtx.clearRect(0, 0, stageSize, stageSize);
+    dCtx.drawImage(tempCanv, 0, 0);
 
     window.requestAnimationFrame(this.drawEnemies);
   }

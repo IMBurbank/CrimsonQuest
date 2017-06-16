@@ -16,7 +16,8 @@ class BackgroundLayer extends React.Component {
       wallPalette: {},
       floorPaletteMap: {},
       wallPaletteMap: {},
-      tempCanv: {},
+      tempCanv: null,
+      renderArr: [],
       playerLoc: []
     });
   }
@@ -45,15 +46,19 @@ class BackgroundLayer extends React.Component {
   }
 
   initTempCanvas() {
-    let canvas = document.createElement('canvas'),
-      ctx = canvas.getContext('2d'),
-      size = this.props.stageSize;
+    const {stageSize, tileSize} = this.props,
+      rLen = stageSize / tileSize,
+      smoothRender = false,
+      tempCanv = initMemCanvas(stageSize, stageSize, smoothRender);
 
-    canvas.width = size;
-    canvas.height = size;
-    ctx.imageSmoothingEnabled = false;
+    let renderArr = [],
+      i = 0;
 
-    this.setState({ tempCanv: { canvas, ctx } });
+    renderArr.length = rLen;
+
+    while (i < rLen) renderArr[i] = initZeroArray(rLen), i++;
+
+    this.setState({ tempCanv, renderArr });
   }
 
   initPaletteMaps() {
@@ -137,16 +142,15 @@ class BackgroundLayer extends React.Component {
     });
 
     //Delete after start screen created
-    (this.props.playerArr !== [0,0] && this.drawBackground(this.props, this.state));
+    //(this.props.playerArr !== [0,0] && this.drawBackground(this.props, this.state));
   }
 
-  drawBackground(nextProps, nextState) {
-    const flrImg = nextState.floorPalette.canvas,
-      wallImg = nextState.wallPalette.canvas,
-      flrImgMap = nextState.floorPaletteMap,
-      wallImgMap = nextState.wallPaletteMap,
-      bgArr = nextProps.bgArr,
-      playerArr = nextProps.playerArr,
+  drawBackground(nextProps) {
+    const {bgArr, playerArr} = nextProps,
+      flrImg = this.state.floorPalette.canvas,
+      wallImg = this.state.wallPalette.canvas,
+      flrImgMap = this.state.floorPaletteMap,
+      wallImgMap = this.state.wallPaletteMap,
       ts = nextProps.tileSize,
       px = nextProps.stageSize,
       bgLen = bgArr.length,
@@ -154,10 +158,11 @@ class BackgroundLayer extends React.Component {
       air = 10,
       flr = 40;
 
-    let dCtx = document.getElementById('bg-layer').getContext('2d'),
-      tempCanv = nextState.tempCanv.canvas,
-      tempCtx = nextState.tempCanv.ctx,
-      renderArr = [],
+    let {renderArr, tempCanv} = this.state,
+      dCtx = document.getElementById('bg-layer').getContext('2d'),
+      tempCtx = tempCanv.getContext('2d'),
+      renderArrHeight = 0,
+      renderArrWidth = 0,
       sr = 0,
       sc = 0,
       pr = 0,
@@ -182,6 +187,7 @@ class BackgroundLayer extends React.Component {
       sr = playerArr[0] - ~~(rLen / 2);
       pr = 0;
     }
+
     if (playerArr[1] - ~~(rLen / 2) < 0) {
       sc = 0;
       pc = -1 * (playerArr[1] - ~~(rLen / 2));
@@ -193,11 +199,11 @@ class BackgroundLayer extends React.Component {
       pc = 0;
     }
 
-    renderArr.length = rLen - pr;
-    while(i < rLen - pr) {
-      renderArr[i] = [];
-      renderArr[i].length = rLen - pc;
-      while (j < rLen - pc) renderArr[i][j] = bgArr[sr + i][sc + j], j++;
+    renderArrHeight = rLen - pr;
+    renderArrWidth = rLen - pc;
+
+    while(i < renderArrHeight) {
+      while (j < renderArrWidth) renderArr[i][j] = bgArr[sr + i][sc + j], j++;
       j = 0, i++;
     }
 
@@ -205,14 +211,16 @@ class BackgroundLayer extends React.Component {
     sy = (!sr && pr) ? pr * ts : 0;
 
     tempCtx.fillRect(0, 0, px, px);
-    for (i = 0; i < renderArr.length; i++) {
-      for (j = 0; j < renderArr[i].length; j++) {
+
+    for (i = 0; i < renderArrHeight; i++) {
+      for (j = 0; j < renderArrWidth; j++) {
         el = renderArr[i][j];
         if (el > air) {
           img = el < flr ? wallImg : flrImg;
           map = el < flr ? wallImgMap : flrImgMap;
           srcX = map['' + el][0];
           srcY = map['' + el][1];
+
           tempCtx.drawImage(img, srcX, srcY, ts, ts, sx + j * ts, sy + i * ts, ts, ts);
         }
       }
@@ -236,10 +244,10 @@ class BackgroundLayer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if ((this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0) ||
+    if ((this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel) ||
       nextProps.bgLevelProcessed === 0) {
 
-      const { bgArr, floorCoords, hWallCoords, vWallCoords } = backgroundArray(this.props.boardSize);
+      const { bgArr, floorCoords } = backgroundArray(this.props.boardSize);
 
       const bgLevelProcessed = nextProps.gameLevel;
 
@@ -252,10 +260,12 @@ class BackgroundLayer extends React.Component {
       }
     }
 
-    if (nextProps.playerArr !== this.state.playerLoc &&
+    if ((nextProps.playerArr[0] !== this.state.playerLoc[0] ||
+      nextProps.playerArr[1] !== this.state.playerLoc[1]) &&
       nextProps.playerArr !== [0,0] &&
       this.state.floorPalette.canvas) {
-      this.drawBackground(nextProps, this.state);
+
+      this.drawBackground(nextProps);
     }
   }
 

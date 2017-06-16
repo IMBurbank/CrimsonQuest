@@ -33,7 +33,8 @@ var BackgroundLayer = function (_React$Component) {
       wallPalette: {},
       floorPaletteMap: {},
       wallPaletteMap: {},
-      tempCanv: {},
+      tempCanv: null,
+      renderArr: [],
       playerLoc: []
     };
     return _this;
@@ -66,15 +67,22 @@ var BackgroundLayer = function (_React$Component) {
   }, {
     key: 'initTempCanvas',
     value: function initTempCanvas() {
-      var canvas = document.createElement('canvas'),
-          ctx = canvas.getContext('2d'),
-          size = this.props.stageSize;
+      var _props = this.props,
+          stageSize = _props.stageSize,
+          tileSize = _props.tileSize,
+          rLen = stageSize / tileSize,
+          smoothRender = false,
+          tempCanv = initMemCanvas(stageSize, stageSize, smoothRender);
 
-      canvas.width = size;
-      canvas.height = size;
-      ctx.imageSmoothingEnabled = false;
 
-      this.setState({ tempCanv: { canvas: canvas, ctx: ctx } });
+      var renderArr = [],
+          i = 0;
+
+      renderArr.length = rLen;
+
+      while (i < rLen) {
+        renderArr[i] = initZeroArray(rLen), i++;
+      }this.setState({ tempCanv: tempCanv, renderArr: renderArr });
     }
   }, {
     key: 'initPaletteMaps',
@@ -153,28 +161,30 @@ var BackgroundLayer = function (_React$Component) {
       });
 
       //Delete after start screen created
-      this.props.playerArr !== [0, 0] && this.drawBackground(this.props, this.state);
+      //(this.props.playerArr !== [0,0] && this.drawBackground(this.props, this.state));
     }
   }, {
     key: 'drawBackground',
-    value: function drawBackground(nextProps, nextState) {
-      var flrImg = nextState.floorPalette.canvas,
-          wallImg = nextState.wallPalette.canvas,
-          flrImgMap = nextState.floorPaletteMap,
-          wallImgMap = nextState.wallPaletteMap,
-          bgArr = nextProps.bgArr,
+    value: function drawBackground(nextProps) {
+      var bgArr = nextProps.bgArr,
           playerArr = nextProps.playerArr,
+          flrImg = this.state.floorPalette.canvas,
+          wallImg = this.state.wallPalette.canvas,
+          flrImgMap = this.state.floorPaletteMap,
+          wallImgMap = this.state.wallPaletteMap,
           ts = nextProps.tileSize,
           px = nextProps.stageSize,
           bgLen = bgArr.length,
           rLen = px / ts,
           air = 10,
           flr = 40;
-
-      var dCtx = document.getElementById('bg-layer').getContext('2d'),
-          tempCanv = nextState.tempCanv.canvas,
-          tempCtx = nextState.tempCanv.ctx,
-          renderArr = [],
+      var _state = this.state,
+          renderArr = _state.renderArr,
+          tempCanv = _state.tempCanv,
+          dCtx = document.getElementById('bg-layer').getContext('2d'),
+          tempCtx = tempCanv.getContext('2d'),
+          renderArrHeight = 0,
+          renderArrWidth = 0,
           sr = 0,
           sc = 0,
           pr = 0,
@@ -189,6 +199,7 @@ var BackgroundLayer = function (_React$Component) {
           i = 0,
           j = 0;
 
+
       if (playerArr[0] - ~~(rLen / 2) < 0) {
         sr = 0;
         pr = -1 * (playerArr[0] - ~~(rLen / 2));
@@ -199,6 +210,7 @@ var BackgroundLayer = function (_React$Component) {
         sr = playerArr[0] - ~~(rLen / 2);
         pr = 0;
       }
+
       if (playerArr[1] - ~~(rLen / 2) < 0) {
         sc = 0;
         pc = -1 * (playerArr[1] - ~~(rLen / 2));
@@ -210,11 +222,11 @@ var BackgroundLayer = function (_React$Component) {
         pc = 0;
       }
 
-      renderArr.length = rLen - pr;
-      while (i < rLen - pr) {
-        renderArr[i] = [];
-        renderArr[i].length = rLen - pc;
-        while (j < rLen - pc) {
+      renderArrHeight = rLen - pr;
+      renderArrWidth = rLen - pc;
+
+      while (i < renderArrHeight) {
+        while (j < renderArrWidth) {
           renderArr[i][j] = bgArr[sr + i][sc + j], j++;
         }j = 0, i++;
       }
@@ -223,14 +235,16 @@ var BackgroundLayer = function (_React$Component) {
       sy = !sr && pr ? pr * ts : 0;
 
       tempCtx.fillRect(0, 0, px, px);
-      for (i = 0; i < renderArr.length; i++) {
-        for (j = 0; j < renderArr[i].length; j++) {
+
+      for (i = 0; i < renderArrHeight; i++) {
+        for (j = 0; j < renderArrWidth; j++) {
           el = renderArr[i][j];
           if (el > air) {
             img = el < flr ? wallImg : flrImg;
             map = el < flr ? wallImgMap : flrImgMap;
             srcX = map['' + el][0];
             srcY = map['' + el][1];
+
             tempCtx.drawImage(img, srcX, srcY, ts, ts, sx + j * ts, sy + i * ts, ts, ts);
           }
         }
@@ -260,12 +274,10 @@ var BackgroundLayer = function (_React$Component) {
   }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
-      if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel !== 0 || nextProps.bgLevelProcessed === 0) {
+      if (this.props.gameLevel !== nextProps.gameLevel && nextProps.gameLevel || nextProps.bgLevelProcessed === 0) {
         var _backgroundArray2 = backgroundArray(this.props.boardSize),
             bgArr = _backgroundArray2.bgArr,
-            floorCoords = _backgroundArray2.floorCoords,
-            hWallCoords = _backgroundArray2.hWallCoords,
-            vWallCoords = _backgroundArray2.vWallCoords;
+            floorCoords = _backgroundArray2.floorCoords;
 
         var bgLevelProcessed = nextProps.gameLevel;
 
@@ -278,8 +290,9 @@ var BackgroundLayer = function (_React$Component) {
         }
       }
 
-      if (nextProps.playerArr !== this.state.playerLoc && nextProps.playerArr !== [0, 0] && this.state.floorPalette.canvas) {
-        this.drawBackground(nextProps, this.state);
+      if ((nextProps.playerArr[0] !== this.state.playerLoc[0] || nextProps.playerArr[1] !== this.state.playerLoc[1]) && nextProps.playerArr !== [0, 0] && this.state.floorPalette.canvas) {
+
+        this.drawBackground(nextProps);
       }
     }
   }, {

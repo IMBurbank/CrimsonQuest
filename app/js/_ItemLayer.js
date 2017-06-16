@@ -39,6 +39,7 @@ var ItemLayer = function (_React$Component) {
       images: {},
       spawnQuants: [],
       tempCanv: null,
+      renderArr: [],
       portalCoord: []
     };
     return _this;
@@ -119,11 +120,22 @@ var ItemLayer = function (_React$Component) {
   }, {
     key: 'initTempCanvas',
     value: function initTempCanvas() {
-      var size = this.props.stageSize,
+      var _props = this.props,
+          stageSize = _props.stageSize,
+          tileSize = _props.tileSize,
+          rLen = stageSize / tileSize,
           smoothRender = false,
-          tempCanv = initMemCanvas(size, size, smoothRender);
+          tempCanv = initMemCanvas(stageSize, stageSize, smoothRender);
 
-      this.setState({ tempCanv: tempCanv });
+
+      var renderArr = [],
+          i = 0;
+
+      renderArr.length = rLen;
+
+      while (i < rLen) {
+        renderArr[i] = initZeroArray(rLen), i++;
+      }this.setState({ tempCanv: tempCanv, renderArr: renderArr });
     }
   }, {
     key: 'setPalettes',
@@ -279,43 +291,37 @@ var ItemLayer = function (_React$Component) {
       if (!timeRef) timeRef = timestamp;
 
       var pIndex = (timestamp - timeRef) % 1000 * .06 > 29 ? 1 : 0,
-          _props = this.props,
-          itemArr = _props.itemArr,
-          playerArr = _props.playerArr,
-          itemPaletteArrMap = _props.itemPaletteArrMap,
-          itemPalettes = _props.itemPalettes,
+          _props2 = this.props,
+          itemArr = _props2.itemArr,
+          playerArr = _props2.playerArr,
+          itemPaletteArrMap = _props2.itemPaletteArrMap,
+          itemPalettes = _props2.itemPalettes,
           ts = this.props.tileSize,
           px = this.props.stageSize,
           iLen = itemArr.length,
           rLen = px / ts,
           displayedItems = ['consumable', 'gold', 'openChest', 'door'];
-
-
-      var dCtx = document.getElementById('item-layer').getContext('2d'),
-          tempCanv = this.state.tempCanv,
+      var _state = this.state,
+          renderArr = _state.renderArr,
+          tempCanv = _state.tempCanv,
+          dCtx = document.getElementById('item-layer').getContext('2d'),
           tempCtx = tempCanv.getContext('2d'),
-          tImgData = tempCtx.createImageData(px, px),
-          tImgPixData = tImgData.data,
-          renderArr = [],
-          iData = 0,
-          pData = 0,
+          renderArrHeight = 0,
+          renderArrWidth = 0,
           sr = 0,
           sc = 0,
           pr = 0,
           pc = 0,
           sx = 0,
           sy = 0,
-          palette = null,
+          palette = '',
           img = null,
-          imgW = 0,
           m = [],
           el = 0,
           srcX = 0,
           srcY = 0,
           dX = 0,
           dY = 0,
-          h = 0,
-          w = 0,
           i = 0,
           j = 0;
 
@@ -344,11 +350,11 @@ var ItemLayer = function (_React$Component) {
         pc = 0;
       }
 
-      renderArr.length = rLen - pr;
-      while (i < rLen - pr) {
-        renderArr[i] = [];
-        renderArr[i].length = rLen - pc;
-        while (j < rLen - pc) {
+      renderArrHeight = rLen - pr;
+      renderArrWidth = rLen - pc;
+
+      while (i < renderArrHeight) {
+        while (j < renderArrWidth) {
           renderArr[i][j] = itemArr[sr + i][sc + j], j++;
         }j = 0, i++;
       }
@@ -356,40 +362,28 @@ var ItemLayer = function (_React$Component) {
       sx = !sc && pc ? pc * ts : 0;
       sy = !sr && pr ? pr * ts : 0;
 
-      for (i = 0; i < renderArr.length; i++) {
-        for (j = 0; j < renderArr[i].length; j++) {
+      tempCtx.clearRect(0, 0, px, px);
+
+      for (i = 0; i < renderArrHeight; i++) {
+        for (j = 0; j < renderArrWidth; j++) {
           el = renderArr[i][j];
           if (el) {
             m = displayedItems.includes(itemPaletteArrMap['' + el].type) ? itemPaletteArrMap['' + el] : chestConsumables.closedChest;
             palette = m.type === 'door' ? m.palette[pIndex] : m.palette;
-            img = itemPalettes[palette].imgPixData;
-            imgW = itemPalettes[palette].width;
+            img = itemPalettes[palette];
+
             srcX = m.iconLoc[0];
             srcY = m.iconLoc[1];
             dX = sx + j * ts;
-            dY = sy + i * ts;
-            h = 0;
+            dY = sy + i * ts; //here
 
-            while (h < ts) {
-              w = 0;
-              while (w < ts) {
-                pData = (dX + w + (dY + h) * px) * 4;
-                iData = (srcX + w + (srcY + h) * imgW) * 4;
-
-                tImgPixData[pData] = img[iData];
-                tImgPixData[pData + 1] = img[iData + 1];
-                tImgPixData[pData + 2] = img[iData + 2];
-                tImgPixData[pData + 3] = img[iData + 3];
-                w++;
-              }
-              h++;
-            }
+            tempCtx.drawImage(img, srcX, srcY, ts, ts, dX, dY, ts, ts);
           }
         }
       }
 
-      dCtx.putImageData(tImgData, 0, 0);
-
+      dCtx.clearRect(0, 0, px, px);
+      dCtx.drawImage(tempCanv, 0, 0);
       window.requestAnimationFrame(this.drawItems);
     }
   }, {
