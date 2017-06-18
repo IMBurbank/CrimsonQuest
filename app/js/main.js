@@ -39,6 +39,24 @@ var Game = function (_React$Component) {
     _this.maintainFocus = _this.maintainFocus.bind(_this);
     _this.endFocus = _this.endFocus.bind(_this);
 
+    _this.directionKeys = {
+      ArrowUp: 'up',
+      KeyW: 'up',
+      ArrowRight: 'right',
+      KeyD: 'right',
+      ArrowDown: 'down',
+      KeyS: 'down',
+      ArrowLeft: 'left',
+      KeyA: 'left'
+    };
+    _this.statIncreaseKeys = {
+      KeyV: 'bVitality',
+      KeyB: 'bDurability',
+      KeyN: 'bStrength',
+      KeyM: 'bAgility'
+    };
+    _this.consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
+
     _this.state = {
       boardSize: 120,
       tileSize: 32,
@@ -194,24 +212,7 @@ var Game = function (_React$Component) {
             itemArr = _state.itemArr,
             itemPaletteArrMap = _state.itemPaletteArrMap,
             enemyArr = _state.enemyArr,
-            heroFacing = _state.heroFacing,
-            directionKeys = {
-          ArrowUp: 'up',
-          KeyW: 'up',
-          ArrowRight: 'right',
-          KeyD: 'right',
-          ArrowDown: 'down',
-          KeyS: 'down',
-          ArrowLeft: 'left',
-          KeyA: 'left'
-        },
-            statIncreaseKeys = {
-          KeyV: 'bVitality',
-          KeyB: 'bDurability',
-          KeyN: 'bStrength',
-          KeyM: 'bAgility'
-        },
-            consumeDigits = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
+            heroFacing = _state.heroFacing;
         var _state2 = this.state,
             gameLevel = _state2.gameLevel,
             moveCount = _state2.moveCount,
@@ -221,9 +222,9 @@ var Game = function (_React$Component) {
             col = 0;
 
 
-        if (directionKeys[el]) {
+        if (this.directionKeys[el]) {
           moveCount++;
-          direction = directionKeys[el];
+          direction = this.directionKeys[el];
 
           row = direction === 'up' ? playerArr[0] - 1 : direction === 'down' ? playerArr[0] + 1 : playerArr[0];
 
@@ -261,10 +262,10 @@ var Game = function (_React$Component) {
           this.setState({ overlayMode: 'inv-overlay' });
         } else if (el === 'KeyH') {
           this.setState({ overlayMode: 'help-overlay' });
-        } else if (consumeDigits.includes(el)) {
+        } else if (this.consumeDigits.includes(el)) {
           this.setState({ quickConsume: { count: this.state.quickConsume.count + 1, num: el.slice(-1) } });
-        } else if (statIncreaseKeys[el]) {
-          this.setState({ useStatPoint: { count: this.state.useStatPoint.count + 1, stat: statIncreaseKeys[el] } });
+        } else if (this.statIncreaseKeys[el]) {
+          this.setState({ useStatPoint: { count: this.state.useStatPoint.count + 1, stat: this.statIncreaseKeys[el] } });
         } else if (el === 'KeyQ' || el === 'KeyP') {
           this.toggleMute();
         }

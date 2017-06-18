@@ -15,7 +15,10 @@ class EnemyLayer extends React.Component {
       images: {},
       tempCanv: null,
       renderArr: [],
-      renderPadArr: [3, 2, 1, 0, 0, 0, 1, 2, 3]
+      renderPadArr: [3, 2, 1, 0, 0, 0, 1, 2, 3],
+      renderInset: 3,
+      renderLenBase: 0,
+      minPadPx: 0,
     });
   }
 
@@ -79,18 +82,21 @@ class EnemyLayer extends React.Component {
 
   initTempCanvas() {
     const {stageSize, tileSize} = this.props,
+      {renderInset} = this.state,
+      renderLenBase = stageSize / tileSize - 2 * renderInset,
+      minPadPx = renderInset * tileSize,
       smoothRender = false,
-      tempCanv = initMemCanvas(stageSize, stageSize, smoothRender),
-      renderLen = stageSize / tileSize;
+      maxRenderSize = renderLenBase * tileSize,
+      tempCanv = initMemCanvas(maxRenderSize, maxRenderSize, smoothRender);
 
     let renderArr = [],
       i = 0;
 
-    renderArr.length = renderLen
+    renderArr.length = renderLenBase
 
-    while (i < renderLen) renderArr[i] = initZeroArray(renderLen), i++;
+    while (i < renderLenBase) renderArr[i] = initZeroArray(renderLenBase), i++;
 
-    this.setState({ tempCanv, renderArr });
+    this.setState({ tempCanv, renderArr, renderLenBase, minPadPx, maxRenderSize });
   }
 
   setPalettes(images) {
@@ -132,9 +138,7 @@ class EnemyLayer extends React.Component {
 
     const pIndex = (timestamp - timeRef) % 1000 *.06 > 29 ? 1 : 0,
       {stageSize, tileSize, playerArr, enemyArr, enemyPalettes} = this.props,
-      {renderPadArr} = this.state,
-      renderInset = 3,
-      renderLenBase = stageSize / tileSize - 2 * renderInset, //9
+      {renderPadArr, renderInset, renderLenBase, maxRenderSize, minPadPx} = this.state,
       enemyArrLen = enemyArr.length;
 
     let {renderArr} = this.state,
@@ -198,10 +202,10 @@ class EnemyLayer extends React.Component {
       j = 0, i++;
     }
 
-    renderPadX = (!startCol && padCol) ? (padCol + renderInset) * tileSize : renderInset * tileSize;
-    renderPadY = (!startRow && padRow) ? (padRow + renderInset) * tileSize : renderInset * tileSize;
+    renderPadX = (!startCol && padCol) ? (padCol) * tileSize : 0;
+    renderPadY = (!startRow && padRow) ? (padRow) * tileSize : 0;
 
-    tempCtx.clearRect(0, 0, stageSize, stageSize);
+    tempCtx.clearRect(0, 0, maxRenderSize, maxRenderSize);
 
     for (i = 0; i < renderArrHeight; i++) {
       for (j = 0; j < renderArrWidth; j++) {
@@ -229,8 +233,17 @@ class EnemyLayer extends React.Component {
       }
     }
 
-    dCtx.clearRect(0, 0, stageSize, stageSize);
-    dCtx.drawImage(tempCanv, 0, 0);
+    dCtx.clearRect(minPadPx, minPadPx, maxRenderSize, maxRenderSize);
+    dCtx.drawImage(
+      tempCanv,
+      renderPadX,
+      renderPadY,
+      renderArrWidth * tileSize,
+      renderArrHeight * tileSize,
+      minPadPx + renderPadX,
+      minPadPx + renderPadY,
+      renderArrWidth * tileSize,
+      renderArrHeight * tileSize);
 
     window.requestAnimationFrame(this.drawEnemies);
   }

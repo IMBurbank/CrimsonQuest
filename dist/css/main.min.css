@@ -21,7 +21,7 @@
   text-align: center;
   background-color: #101010; }
 
-.bg-layer, .acc-layer, .item-layer, .enemy-layer, .player-layer, .stage-overlay {
+.bg-layer, .acc-layer, .item-layer, .enemy-layer, .player-layer, .layer-distance-fog, .layer-explore-fog, .stage-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -206,6 +206,12 @@ h4 {
 
 .player-layer {
   z-index: 14; }
+
+.layer-distance-fog {
+  z-index: 15; }
+
+.layer-explore-fog {
+  z-index: 16; }
 
 .stage-overlay {
   z-index: 20;

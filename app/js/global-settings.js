@@ -39,3 +39,4 @@ var consumableAbbrevMap = {
 
 //Global state
 var timeRef = null;
+var paddingCache = {};

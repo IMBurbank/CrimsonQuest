@@ -63,7 +63,6 @@ class GameStage extends React.Component {
           enemyArr = {this.props.enemyArr}
           enemyPalettes = {this.props.enemyPalettes}
         	updateGameClassState = {this.props.updateGameClassState} 	/>
-        {/*<FogLayer	/>*/}
         <PlayerLayer
           stageSize = {this.state.stageSize}
           tileSize =  {this.props.tileSize}
@@ -76,6 +75,15 @@ class GameStage extends React.Component {
           playerArr = {this.props.playerArr}
           floorCoords = {this.props.floorCoords}
           updateGameClassState = {this.props.updateGameClassState}  />
+        <LayerDistanceFog
+          stageSize = {this.state.stageSize}
+          tileSize =  {this.props.tileSize}  />
+        <LayerExploreFog
+          stageSize = {this.state.stageSize}
+          boardSize = {this.props.boardSize}
+          tileSize =  {this.props.tileSize}
+          gameLevel = {this.props.gameLevel}
+          playerArr = {this.props.playerArr}  />
         <OptionOverlay
           tileSize =  {this.props.tileSize}
           playerArr = {this.props.playerArr}

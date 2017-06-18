@@ -94,6 +94,15 @@ var GameStage = function (_React$Component) {
           playerArr: this.props.playerArr,
           floorCoords: this.props.floorCoords,
           updateGameClassState: this.props.updateGameClassState }),
+        React.createElement(LayerDistanceFog, {
+          stageSize: this.state.stageSize,
+          tileSize: this.props.tileSize }),
+        React.createElement(LayerExploreFog, {
+          stageSize: this.state.stageSize,
+          boardSize: this.props.boardSize,
+          tileSize: this.props.tileSize,
+          gameLevel: this.props.gameLevel,
+          playerArr: this.props.playerArr }),
         React.createElement(OptionOverlay, {
           tileSize: this.props.tileSize,
           playerArr: this.props.playerArr,

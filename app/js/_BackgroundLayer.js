@@ -183,56 +183,27 @@ var BackgroundLayer = function (_React$Component) {
           tempCanv = _state.tempCanv,
           dCtx = document.getElementById('bg-layer').getContext('2d'),
           tempCtx = tempCanv.getContext('2d'),
-          renderArrHeight = 0,
-          renderArrWidth = 0,
-          sr = 0,
-          sc = 0,
-          pr = 0,
-          pc = 0,
-          sx = 0,
-          sy = 0,
           img = null,
-          map = {},
+          map = null,
           el = 0,
           srcX = 0,
           srcY = 0,
           i = 0,
           j = 0;
 
-
-      if (playerArr[0] - ~~(rLen / 2) < 0) {
-        sr = 0;
-        pr = -1 * (playerArr[0] - ~~(rLen / 2));
-      } else if (playerArr[0] + ~~(rLen / 2) + 1 > bgLen) {
-        pr = playerArr[0] + ~~(rLen / 2) + 1 - bgLen;
-        sr = bgLen - rLen + pr;
-      } else {
-        sr = playerArr[0] - ~~(rLen / 2);
-        pr = 0;
-      }
-
-      if (playerArr[1] - ~~(rLen / 2) < 0) {
-        sc = 0;
-        pc = -1 * (playerArr[1] - ~~(rLen / 2));
-      } else if (playerArr[1] + ~~(rLen / 2) + 1 > bgLen) {
-        pc = playerArr[1] + ~~(rLen / 2) + 1 - bgLen;
-        sc = bgLen - rLen + pc;
-      } else {
-        sc = playerArr[1] - ~~(rLen / 2);
-        pc = 0;
-      }
-
-      renderArrHeight = rLen - pr;
-      renderArrWidth = rLen - pc;
+      var _calcRenderPadding = calcRenderPadding(playerArr, bgLen, rLen, ts),
+          startRow = _calcRenderPadding.startRow,
+          startCol = _calcRenderPadding.startCol,
+          renderArrHeight = _calcRenderPadding.renderArrHeight,
+          renderArrWidth = _calcRenderPadding.renderArrWidth,
+          sX = _calcRenderPadding.sX,
+          sY = _calcRenderPadding.sY;
 
       while (i < renderArrHeight) {
         while (j < renderArrWidth) {
-          renderArr[i][j] = bgArr[sr + i][sc + j], j++;
+          renderArr[i][j] = bgArr[startRow + i][startCol + j], j++;
         }j = 0, i++;
       }
-
-      sx = !sc && pc ? pc * ts : 0;
-      sy = !sr && pr ? pr * ts : 0;
 
       tempCtx.fillRect(0, 0, px, px);
 
@@ -245,12 +216,12 @@ var BackgroundLayer = function (_React$Component) {
             srcX = map['' + el][0];
             srcY = map['' + el][1];
 
-            tempCtx.drawImage(img, srcX, srcY, ts, ts, sx + j * ts, sy + i * ts, ts, ts);
+            tempCtx.drawImage(img, srcX, srcY, ts, ts, sX + j * ts, sY + i * ts, ts, ts);
           }
         }
       }
 
-      dCtx.drawImage(tempCanv, 0, 0);
+      dCtx.drawImage(tempCanv, 0, 0, px, px);
       this.setState({ playerLoc: [].concat(_toConsumableArray(playerArr)) });
     }
   }, {

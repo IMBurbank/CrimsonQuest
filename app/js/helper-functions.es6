@@ -71,34 +71,52 @@ const linearDistance = function calcLinearDistance(a, b) {
   return Math.sqrt(Math.pow(a[1] - b[1], 2) + Math.pow(a[0] - b[0], 2));
 }
 
-const calcRenderPadding = function calcCanvasRenderPadding(playerArr, aLen, rLen) {
-  let sr = 0,
-    pr = 0,
-    sc = 0,
-    pc = 0;
+const calcRenderPadding = function calcCanvasRenderPadding(playerArr, aLen, rLen, tileSize) {
+  let startRow = 0,
+    padRow = 0,
+    startCol = 0,
+    padCol = 0,
+    renderArrHeight = 0,
+    renderArrWidth = 0,
+    sX = 0,
+    sY = 0;
 
-  if (playerArr[0] - ~~(rLen / 2) < 0) {
-    sr = 0;
-    pr = -1 * (playerArr[0] - ~~(rLen / 2));
-  } else if (playerArr[0] + ~~(rLen / 2) + 1 > aLen) {
-    pr =  playerArr[0] + ~~(rLen / 2) + 1 - aLen;
-    sr = aLen - rLen + pr;
+  if (paddingCache['' + playerArr]) {
+    ({ startRow, startCol, renderArrHeight, renderArrWidth, sX, sY } =
+      paddingCache['' + playerArr]);
   } else {
-    sr = playerArr[0] - ~~(rLen / 2);
-    pr = 0;
-  }
-  if (playerArr[1] - ~~(rLen / 2) < 0) {
-    sc = 0;
-    pc = -1 * (playerArr[1] - ~~(rLen / 2));
-  } else if (playerArr[1] + ~~(rLen / 2) + 1 > aLen ) {
-    pc =  playerArr[1] + ~~(rLen / 2) + 1 - aLen;
-    sc = aLen - rLen + pc;
-  } else {
-    sc = playerArr[1] - ~~(rLen / 2);
-    pc = 0;
+    if (playerArr[0] - ~~(rLen / 2) < 0) {
+      startRow = 0;
+      padRow = -1 * (playerArr[0] - ~~(rLen / 2));
+    } else if (playerArr[0] + ~~(rLen / 2) + 1 > aLen) {
+      padRow =  playerArr[0] + ~~(rLen / 2) + 1 - aLen;
+      startRow = aLen - rLen + padRow;
+    } else {
+      startRow = playerArr[0] - ~~(rLen / 2);
+      padRow = 0;
+    }
+
+    if (playerArr[1] - ~~(rLen / 2) < 0) {
+      startCol = 0;
+      padCol = -1 * (playerArr[1] - ~~(rLen / 2));
+    } else if (playerArr[1] + ~~(rLen / 2) + 1 > aLen ) {
+      padCol =  playerArr[1] + ~~(rLen / 2) + 1 - aLen;
+      startCol = aLen - rLen + padCol;
+    } else {
+      startCol = playerArr[1] - ~~(rLen / 2);
+      padCol = 0;
+    }
+
+    renderArrHeight = rLen - padRow;
+    renderArrWidth = rLen - padCol;
+    sX = (!startCol && padCol) ? padCol * tileSize : 0;
+    sY = (!startRow && padRow) ? padRow * tileSize : 0;
+
+    paddingCache['' + playerArr] =
+      { startRow, startCol, renderArrHeight, renderArrWidth, sX, sY };
   }
 
-  return { sr, sc, pr, pc };
+  return { startRow, startCol, renderArrHeight, renderArrWidth, sX, sY };
 }
 
 const setRenderArr = function setCanvasRenderArr(arr, rLen, padding) {

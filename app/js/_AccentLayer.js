@@ -401,11 +401,11 @@ var AccentLayer = function (_React$Component) {
       if (!timeRef) timeRef = timestamp;
 
       var _props2 = this.props,
+          tileSize = _props2.tileSize,
+          stageSize = _props2.stageSize,
           playerArr = _props2.playerArr,
           accArr = _props2.accArr,
           paletteArrMap = this.state.paletteArrMap,
-          ts = this.props.tileSize,
-          px = this.props.stageSize,
           _state = this.state,
           dec0Canv = _state.dec0Canv,
           dec1Canv = _state.dec1Canv,
@@ -413,7 +413,7 @@ var AccentLayer = function (_React$Component) {
           grnd1Canv = _state.grnd1Canv,
           ore0Canv = _state.ore0Canv,
           ore1Canv = _state.ore1Canv,
-          rLen = px / ts,
+          rLen = stageSize / tileSize,
           accLen = accArr.length,
           frame = (timestamp - timeRef) % 1000 * .06;
       var renderArr = this.state.renderArr,
@@ -421,59 +421,31 @@ var AccentLayer = function (_React$Component) {
           tempCanv = this.state.tempCanv,
           tempCtx = tempCanv.getContext('2d'),
           img = null,
-          m = [],
-          renderArrHeight = 0,
-          renderArrWidth = 0,
-          sr = 0,
-          sc = 0,
-          pr = 0,
-          pc = 0,
-          sx = 0,
-          sy = 0,
-          el = 0,
+          m = undefined,
           srcX = 0,
           srcY = 0,
           dX = 0,
           dY = 0,
+          el = 0,
           i = 0,
           j = 0;
 
-
-      if (playerArr[0] - ~~(rLen / 2) < 0) {
-        sr = 0;
-        pr = -1 * (playerArr[0] - ~~(rLen / 2));
-      } else if (playerArr[0] + ~~(rLen / 2) + 1 > accLen) {
-        pr = playerArr[0] + ~~(rLen / 2) + 1 - accLen;
-        sr = accLen - rLen + pr;
-      } else {
-        sr = playerArr[0] - ~~(rLen / 2);
-        pr = 0;
-      }
-
-      if (playerArr[1] - ~~(rLen / 2) < 0) {
-        sc = 0;
-        pc = -1 * (playerArr[1] - ~~(rLen / 2));
-      } else if (playerArr[1] + ~~(rLen / 2) + 1 > accLen) {
-        pc = playerArr[1] + ~~(rLen / 2) + 1 - accLen;
-        sc = accLen - rLen + pc;
-      } else {
-        sc = playerArr[1] - ~~(rLen / 2);
-        pc = 0;
-      }
-
-      renderArrHeight = rLen - pr;
-      renderArrWidth = rLen - pc;
+      var _calcRenderPadding = calcRenderPadding(playerArr, accLen, rLen, tileSize),
+          startRow = _calcRenderPadding.startRow,
+          startCol = _calcRenderPadding.startCol,
+          renderArrHeight = _calcRenderPadding.renderArrHeight,
+          renderArrWidth = _calcRenderPadding.renderArrWidth,
+          sX = _calcRenderPadding.sX,
+          sY = _calcRenderPadding.sY;
 
       while (i < renderArrHeight) {
         while (j < renderArrWidth) {
-          renderArr[i][j] = accArr[sr + i][sc + j], j++;
-        }j = 0, i++;
+          renderArr[i][j] = accArr[startRow + i][startCol + j], j++;
+        }
+        j = 0, i++;
       }
 
-      sx = !sc && pc ? pc * ts : 0;
-      sy = !sr && pr ? pr * ts : 0;
-
-      tempCtx.clearRect(0, 0, px, px);
+      tempCtx.clearRect(0, 0, stageSize, stageSize);
 
       for (i = 0; i < renderArrHeight; i++) {
         for (j = 0; j < renderArrWidth; j++) {
@@ -489,16 +461,16 @@ var AccentLayer = function (_React$Component) {
 
             srcX = m[0][0];
             srcY = m[0][1];
-            dX = sx + j * ts;
-            dY = sy + i * ts;
+            dX = sX + j * tileSize;
+            dY = sY + i * tileSize;
 
-            tempCtx.drawImage(img, srcX, srcY, ts, ts, dX, dY, ts, ts);
+            tempCtx.drawImage(img, srcX, srcY, tileSize, tileSize, dX, dY, tileSize, tileSize);
           }
         }
       }
 
-      dCtx.clearRect(0, 0, px, px);
-      dCtx.drawImage(tempCanv, 0, 0);
+      dCtx.clearRect(0, 0, stageSize, stageSize);
+      dCtx.drawImage(tempCanv, 0, 0, stageSize, stageSize);
       window.requestAnimationFrame(this.drawAccents);
     }
   }, {

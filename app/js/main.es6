@@ -23,6 +23,33 @@ class Game extends React.Component {
     this.maintainFocus = this.maintainFocus.bind(this);
     this.endFocus = this.endFocus.bind(this);
 
+    this.directionKeys = {
+      ArrowUp: 'up',
+      KeyW: 'up',
+      ArrowRight: 'right',
+      KeyD: 'right',
+      ArrowDown: 'down',
+      KeyS: 'down',
+      ArrowLeft: 'left',
+      KeyA: 'left'
+    };
+    this.statIncreaseKeys = {
+      KeyV: 'bVitality',
+      KeyB: 'bDurability',
+      KeyN: 'bStrength',
+      KeyM: 'bAgility'
+    };
+    this.consumeDigits = [
+      'Digit1',
+      'Digit2',
+      'Digit3',
+      'Digit4',
+      'Digit5',
+      'Digit6',
+      'Digit7',
+      'Digit8',
+    ];
+
     this.state = ({
       boardSize: 120,
       tileSize: 32,
@@ -164,33 +191,7 @@ class Game extends React.Component {
     if (this.state.overlayMode === 'off') {
 
       const el = e.nativeEvent.code,
-        {boardSize, floor, levels,  playerArr, bgArr, itemArr, itemPaletteArrMap, enemyArr, heroFacing} = this.state,
-        directionKeys = {
-          ArrowUp: 'up',
-          KeyW: 'up',
-          ArrowRight: 'right',
-          KeyD: 'right',
-          ArrowDown: 'down',
-          KeyS: 'down',
-          ArrowLeft: 'left',
-          KeyA: 'left'
-        },
-        statIncreaseKeys = {
-          KeyV: 'bVitality',
-          KeyB: 'bDurability',
-          KeyN: 'bStrength',
-          KeyM: 'bAgility'
-        },
-        consumeDigits = [
-          'Digit1',
-          'Digit2',
-          'Digit3',
-          'Digit4',
-          'Digit5',
-          'Digit6',
-          'Digit7',
-          'Digit8',
-        ];
+        {boardSize, floor, levels,  playerArr, bgArr, itemArr, itemPaletteArrMap, enemyArr, heroFacing} = this.state;
 
       let {gameLevel, moveCount} = this.state,
         nState = {},
@@ -198,9 +199,9 @@ class Game extends React.Component {
         row = 0,
         col = 0;
 
-      if (directionKeys[el]) {
+      if (this.directionKeys[el]) {
         moveCount++;
-        direction = directionKeys[el];
+        direction = this.directionKeys[el];
 
         row = direction === 'up' ? playerArr[0] - 1 :
           direction === 'down' ? playerArr[0] + 1 :
@@ -249,10 +250,10 @@ class Game extends React.Component {
         this.setState({overlayMode: 'inv-overlay'});
       } else if (el === 'KeyH') {
         this.setState({overlayMode: 'help-overlay'});
-      } else if (consumeDigits.includes(el)) {
+      } else if (this.consumeDigits.includes(el)) {
         this.setState({quickConsume: {count: this.state.quickConsume.count + 1,num: el.slice(-1)}});
-      } else if (statIncreaseKeys[el]) {
-        this.setState({useStatPoint: {count: this.state.useStatPoint.count + 1, stat: statIncreaseKeys[el]}});
+      } else if (this.statIncreaseKeys[el]) {
+        this.setState({useStatPoint: {count: this.state.useStatPoint.count + 1, stat: this.statIncreaseKeys[el]}});
       } else if (el === 'KeyQ' || el === 'KeyP') {
         this.toggleMute();
       }

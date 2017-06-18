@@ -37,3 +37,4 @@ const consumableAbbrevMap = {
 
 //Global state
 let timeRef = null;
+let paddingCache = {};
