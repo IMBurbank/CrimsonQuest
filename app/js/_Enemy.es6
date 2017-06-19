@@ -184,7 +184,6 @@ class Enemy extends React.Component {
       turn = {};
 
     toCoord = this.chooseMove(fromCoord, playerArr, roundEnemyArr, bgArr);
-    //console.log('chooseMove: ', JSON.stringify(toCoord), 'from: ', JSON.stringify(fromCoord));
     stats.curHealth = this.state.curHealth;
     turn = {
       stats,
@@ -253,8 +252,6 @@ class Enemy extends React.Component {
       gold = 0,
       i = 0;
 
-    console.log('enemyDead')
-
     for (; i < level; i++) {
       experience += randInt(conv.lvlToExpRange[0], conv.lvlToExpRange[1]);
       gold += randInt(conv.lvlToGoldRange[0], conv.lvlToGoldRange[1]);
@@ -281,8 +278,6 @@ class Enemy extends React.Component {
 
     curHealth = curHealth - damage > 0 ? curHealth - damage : 0;
 
-    console.log('Damage to enemy: ', damage);
-
     if (!curHealth) this.die();
 
     this.updateEnemyDisplay(this.state.position, curHealth);
@@ -294,8 +289,6 @@ class Enemy extends React.Component {
     const {position, curHealth} = this.state,
       {playerArr} = nextProps,
       {aggression} = nextProps.source;
-
-    //console.log('Enemy startTurn: ', curHealth, JSON.stringify(position), JSON.stringify(playerArr), aggression);
 
     if (linearDistance(position, playerArr) > aggression || curHealth < 1) {
       this.stay(nextProps);
@@ -314,21 +307,14 @@ class Enemy extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.pollCount === 0 &&
       this.props.moveCount !== nextProps.moveCount) {
-      //console.log('Enemy receiveProps startTurn');
+
       this.startTurn(nextProps);
     }
     if (this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count &&
       nextProps.exchangeAttacks.spawnIndex === nextProps.spawnIndex) {
 
       this.takeDamage(nextProps.exchangeAttacks.attacks);
-    }/*
-    if (this.props.roundCount !== nextProps.roundCount &&
-      this.props.enemyTurn[this.props.spawnIndex].type === 'move' &&
-      this.props.enemyTurn[this.props.spawnIndex].status) {
-
-      console.log('completeMove!: ', nextProps.enemyTurn[nextProps.spawnIndex].toCoord);
-      this.completeMove(nextProps.enemyTurn[nextProps.spawnIndex].toCoord);
-    }*/
+    }
     if (this.props.roundCount !== nextProps.roundCount &&
       nextProps.enemyTurn[this.props.spawnIndex].type === 'move' &&
       nextProps.enemyTurn[this.props.spawnIndex].status) {

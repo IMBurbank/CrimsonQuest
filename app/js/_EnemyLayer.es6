@@ -10,6 +10,9 @@ class EnemyLayer extends React.Component {
     this.setPalettes = this.setPalettes.bind(this);
     this.drawEnemies = this.drawEnemies.bind(this);
 
+    this.lastRenderFrame = 0;
+    this.lastPlayerArr = [];
+
     this.state = ({
       srcTileSize: 16,
       images: {},
@@ -136,114 +139,124 @@ class EnemyLayer extends React.Component {
   drawEnemies(timestamp) {
     if (!timeRef) timeRef = timestamp;
 
-    const pIndex = (timestamp - timeRef) % 1000 *.06 > 29 ? 1 : 0,
-      {stageSize, tileSize, playerArr, enemyArr, enemyPalettes} = this.props,
-      {renderPadArr, renderInset, renderLenBase, maxRenderSize, minPadPx} = this.state,
-      enemyArrLen = enemyArr.length;
+    const {playerArr} = this.props,
+      frame = (timestamp - timeRef) % 1000 *.06 > 29 ? 1 : 0;
 
-    let {renderArr} = this.state,
-      dCtx = getById('enemy-layer').getContext('2d'),
-      tempCanv = this.state.tempCanv,
-      tempCtx = tempCanv.getContext('2d'),
-      canvas = null,
-      startRow = 0,
-      startCol = 0,
-      padRow = 0,
-      padCol = 0,
-      renderArrHeight = 0,
-      renderArrWidth = 0,
-      renderPadX = 0,
-      renderPadY = 0,
-      el = 0,
-      srcX = 0,
-      srcY = 0,
-      dX = 0,
-      dY = 0,
-      i = 0,
-      j = 0;
+    let lastArr = this.lastPlayerArr,
+      lastFrame = this.lastRenderFrame;
 
-    if (playerArr[0] < ~~(renderLenBase / 2)) {
-      startRow = 0;
-      padRow = ~~(renderLenBase / 2) - playerArr[0];
-    } else if (playerArr[0] + ~~(renderLenBase / 2) + 1 > enemyArrLen) {
-      padRow =  playerArr[0] + ~~(renderLenBase / 2) + 1 - enemyArrLen;
-      startRow = enemyArrLen - renderLenBase + padRow;
-    } else {
-      startRow = playerArr[0] - ~~(renderLenBase / 2);
-      padRow = 0;
-    }
+    if (playerArr[0] !== lastArr[0] || playerArr[1] !== lastArr[1] || lastFrame !== frame) {
+      this.lastPlayerArr = playerArr.slice(0);
+      this.lastRenderFrame = frame;
 
-    if (playerArr[1] < ~~(renderLenBase / 2)) {
-      startCol = 0;
-      padCol = ~~(renderLenBase / 2) - playerArr[1];
-    } else if (playerArr[1] + ~~(renderLenBase / 2) + 1 > enemyArrLen ) {
-      padCol =  playerArr[1] + ~~(renderLenBase / 2) + 1 - enemyArrLen;
-      startCol = enemyArrLen - renderLenBase + padCol;
-    } else {
-      startCol = playerArr[1] - ~~(renderLenBase / 2);
-      padCol = 0;
-    }
+      const {tileSize, enemyArr, enemyPalettes} = this.props,
+        {renderPadArr, renderLenBase, maxRenderSize, minPadPx} = this.state,
+        enemyArrLen = enemyArr.length;
 
-    renderArrHeight = renderLenBase - padRow;
-    renderArrWidth = renderLenBase - padCol;
+      let {renderArr} = this.state,
+        dCtx = getById('enemy-layer').getContext('2d'),
+        tempCanv = this.state.tempCanv,
+        tempCtx = tempCanv.getContext('2d'),
+        canvas = null,
+        startRow = 0,
+        startCol = 0,
+        padRow = 0,
+        padCol = 0,
+        renderArrHeight = 0,
+        renderArrWidth = 0,
+        renderPadX = 0,
+        renderPadY = 0,
+        el = 0,
+        srcX = 0,
+        srcY = 0,
+        dX = 0,
+        dY = 0,
+        i = 0,
+        j = 0;
 
-    while(i < renderArrHeight) {
-      while (j < renderArrWidth) {
-        if (j >= renderPadArr[(startRow ? i : i + padRow)] &&
-          j < renderArrHeight - renderPadArr[(startCol ? i : i + padCol)]) {
-
-          renderArr[i][j] = enemyArr[startRow + i][startCol + j];
-
-        } else {
-          renderArr[i][j] = 0;
-        }
-        j++;
+      if (playerArr[0] < ~~(renderLenBase / 2)) {
+        startRow = 0;
+        padRow = ~~(renderLenBase / 2) - playerArr[0];
+      } else if (playerArr[0] + ~~(renderLenBase / 2) + 1 > enemyArrLen) {
+        padRow =  playerArr[0] + ~~(renderLenBase / 2) + 1 - enemyArrLen;
+        startRow = enemyArrLen - renderLenBase + padRow;
+      } else {
+        startRow = playerArr[0] - ~~(renderLenBase / 2);
+        padRow = 0;
       }
-      j = 0, i++;
-    }
 
-    renderPadX = (!startCol && padCol) ? (padCol) * tileSize : 0;
-    renderPadY = (!startRow && padRow) ? (padRow) * tileSize : 0;
+      if (playerArr[1] < ~~(renderLenBase / 2)) {
+        startCol = 0;
+        padCol = ~~(renderLenBase / 2) - playerArr[1];
+      } else if (playerArr[1] + ~~(renderLenBase / 2) + 1 > enemyArrLen ) {
+        padCol =  playerArr[1] + ~~(renderLenBase / 2) + 1 - enemyArrLen;
+        startCol = enemyArrLen - renderLenBase + padCol;
+      } else {
+        startCol = playerArr[1] - ~~(renderLenBase / 2);
+        padCol = 0;
+      }
 
-    tempCtx.clearRect(0, 0, maxRenderSize, maxRenderSize);
+      renderArrHeight = renderLenBase - padRow;
+      renderArrWidth = renderLenBase - padCol;
 
-    for (i = 0; i < renderArrHeight; i++) {
-      for (j = 0; j < renderArrWidth; j++) {
-        el = renderArr[i][j];
+      while(i < renderArrHeight) {
+        while (j < renderArrWidth) {
+          if (j >= renderPadArr[(startRow ? i : i + padRow)] &&
+            j < renderArrHeight - renderPadArr[(startCol ? i : i + padCol)]) {
 
-        if (el) {
-          canvas = enemyPalettes[el.palette[pIndex]];
-          srcX = el.iconLoc[0];
-          srcY = el.iconLoc[1];
-          dX = renderPadX + j * tileSize;
-          dY = renderPadY + i * tileSize;
+            renderArr[i][j] = enemyArr[startRow + i][startCol + j];
 
-          tempCtx.drawImage(
-            canvas,
-            srcX,
-            srcY,
-            tileSize,
-            tileSize,
-            dX,
-            dY,
-            tileSize,
-            tileSize
-          );
+          } else {
+            renderArr[i][j] = 0;
+          }
+          j++;
+        }
+        j = 0, i++;
+      }
+
+      renderPadX = (!startCol && padCol) ? (padCol) * tileSize : 0;
+      renderPadY = (!startRow && padRow) ? (padRow) * tileSize : 0;
+
+      tempCtx.clearRect(0, 0, maxRenderSize, maxRenderSize);
+
+      for (i = 0; i < renderArrHeight; i++) {
+        for (j = 0; j < renderArrWidth; j++) {
+          el = renderArr[i][j];
+
+          if (el) {
+            canvas = enemyPalettes[el.palette[frame]];
+            srcX = el.iconLoc[0];
+            srcY = el.iconLoc[1];
+            dX = renderPadX + j * tileSize;
+            dY = renderPadY + i * tileSize;
+
+            tempCtx.drawImage(
+              canvas,
+              srcX,
+              srcY,
+              tileSize,
+              tileSize,
+              dX,
+              dY,
+              tileSize,
+              tileSize
+            );
+          }
         }
       }
-    }
 
-    dCtx.clearRect(minPadPx, minPadPx, maxRenderSize, maxRenderSize);
-    dCtx.drawImage(
-      tempCanv,
-      renderPadX,
-      renderPadY,
-      renderArrWidth * tileSize,
-      renderArrHeight * tileSize,
-      minPadPx + renderPadX,
-      minPadPx + renderPadY,
-      renderArrWidth * tileSize,
-      renderArrHeight * tileSize);
+      dCtx.clearRect(minPadPx, minPadPx, maxRenderSize, maxRenderSize);
+      dCtx.drawImage(
+        tempCanv,
+        renderPadX,
+        renderPadY,
+        renderArrWidth * tileSize,
+        renderArrHeight * tileSize,
+        minPadPx + renderPadX,
+        minPadPx + renderPadY,
+        renderArrWidth * tileSize,
+        renderArrHeight * tileSize);
+    }
 
     window.requestAnimationFrame(this.drawEnemies);
   }
@@ -254,13 +267,19 @@ class EnemyLayer extends React.Component {
     this.initTempCanvas();
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      Object.keys(prevProps.enemyPalettes).length !== Object.keys(this.props.enemyPalettes).length &&
-      Object.keys(this.props.enemyPalettes).length) {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!Object.keys(this.props.enemyPalettes).length &&
+      Object.keys(nextProps.enemyPalettes).length) {
 
-      window.requestAnimationFrame(this.drawEnemies);
+      return true;
+    } else {
+      return false;
     }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    window.requestAnimationFrame(this.drawEnemies);
+
   }
 
   render() {

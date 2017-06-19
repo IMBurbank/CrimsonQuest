@@ -64,7 +64,6 @@ class ConsumableItems extends React.Component {
       update = true;
     }
 
-    console.log('update, item.count, type: ', update, item.count, type);
     if (update) {
       for (props in m) {
         if (item.name === m[props].name) dCtx = getById(props + '-canvas').getContext('2d');
@@ -89,7 +88,6 @@ class ConsumableItems extends React.Component {
       ['pickup', 'use', 'buySuccess', 'sell'].includes(nextProps.interactItem.type) &&
       nextProps.interactItem.item.type === 'consumable') {
 
-      console.log('ConsumableItems begin updateConsumeCanvas');
       this.updateConsumeCanvas(nextProps);
     }
   }

@@ -168,7 +168,6 @@ var Hero = function (_React$Component) {
         statPoints: statPoints,
         curHealth: maxHealth
       });
-      console.log('Hero Level Up!!: ', charLevel);
     }
   }, {
     key: "attemptPurchase",
@@ -182,12 +181,9 @@ var Hero = function (_React$Component) {
 
 
       if (gold >= item.buy) {
-        console.log('Hero Attempt Buy Success');
         nInteractItem.type = buySuccessType;
         gold -= item.buy;
-        console.log('merchantInventory[item.name]: ', merchantInventory[item.name]);
         merchantInventory[item.name].count -= 1;
-        console.log('inventory[item.name] : ', inventory[item.name]);
 
         if (inventory[item.name]) {
           inventory[item.name].count += 1;
@@ -195,11 +191,9 @@ var Hero = function (_React$Component) {
           inventory[item.name] = Object.assign({}, item);
           inventory[item.name].count = 1;
         }
-        console.log('inventory[item.name] : ', inventory[item.name]);
         nState = { inventory: inventory };
         this.setState({ gold: gold });
       } else {
-        console.log('Hero Attempt Buy Fail');
         nInteractItem.type = buyFailType;
       }
 
@@ -235,7 +229,6 @@ var Hero = function (_React$Component) {
 
       this.setState(nState);
       this.props.updateGameClassState({ inventory: inventory });
-      console.log('Hero item sold (inventoryItem, inventory): ', inventory[item.name], inventory);
     }
   }, {
     key: "handleEnemyDead",
@@ -309,10 +302,8 @@ var Hero = function (_React$Component) {
         item.equipped = true;
         nState[iType] = item;
       } else if (action === 'buy') {
-        console.log('Hero handleInteractItem buy start');
         this.attemptPurchase(item, inventory, merchantInventory, interactItem);
       } else if (action === 'sell') {
-        console.log('Hero handleInteractItem sell start');
         this.sellItem(item, inventory, merchantInventory, interactItem);
       }
 
@@ -471,9 +462,6 @@ var Hero = function (_React$Component) {
         this.initHero(nextProps.hero);
       }
       if (this.props.interactItem.count !== nextProps.interactItem.count && nextProps.interactItem.count) {
-
-        console.log('interactItem', nextProps.interactItem);
-        console.log(nextProps.interactItem.type, nextProps.interactItem.item.name);
 
         this.handleInteractItem(nextProps);
       }

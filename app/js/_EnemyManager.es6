@@ -143,8 +143,6 @@ class EnemyManager extends React.Component {
       status = false,
       spawnIndex = 0;
 
-    //console.log('EnemyRound enemyTurn: ', enemyTurn, 'roundCount: ', roundCount, 'currentIndex: ', currentIndex, 'this.pollCount: ', this.pollCount);
-
     while (currentIndex < this.pollCount) {
       ({type, source, stats, fromCoord, toCoord, status} = enemyTurn[currentIndex]);
 
@@ -152,7 +150,6 @@ class EnemyManager extends React.Component {
         enemyTurn[currentIndex].status = true;
       } else if (type === 'move') {
         status =  roundEnemyArr[toCoord[0]][toCoord[1]] === 0 ? true : false;
-        //console.log('start Move - currentIndex, fromCoord, toCoord, status: ', currentIndex, fromCoord, toCoord, status);
 
         if (status) {
           roundEnemyArr[fromCoord[0]][fromCoord[1]] = 0;
@@ -290,7 +287,6 @@ class EnemyManager extends React.Component {
       Object.keys(this.props.enemyPalettes).length) {
 
       this.setLevelEnemies();
-      console.log('New Level Enemies')
     }
   }
 
@@ -303,6 +299,7 @@ class EnemyManager extends React.Component {
       spawnCoord = [],
       source = {},
       key = 0,
+      containerHeader = null,
       displayName = null,
       displayType = null,
       displayLevel = null,
@@ -341,6 +338,7 @@ class EnemyManager extends React.Component {
     });
 
     if (enemyDisplay.name) {
+      containerHeader = enemyDisplay.type === 'merchant' ? 'Merchant' : 'Enemy';
       displayName = `Name: ${enemyDisplay.name}`;
       displayType = `Type: ${enemyDisplay.type}`;
       displayLevel = `Level: ${enemyDisplay.level}`;
@@ -351,7 +349,7 @@ class EnemyManager extends React.Component {
     return (
       <div className='enemy-manager'>
         <p className='enemy-manager-title'>
-          {enemyDisplay.type === 'merchant' ? 'Merchant' : 'Enemy'}
+          {containerHeader}
         </p>
         <canvas id='enemy-icon' className='enemy-icon' width={ts} height={ts} />
         <div className='stat-col'>

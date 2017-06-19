@@ -48,6 +48,10 @@ class OverlayGameWin extends React.Component {
     clearInterval(this.focusID);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return false;
+  }
+
 
   render() {
     const {gameOverMessage, focusClass} = this.state;

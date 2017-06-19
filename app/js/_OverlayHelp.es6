@@ -51,6 +51,10 @@ class OverlayHelp extends React.Component {
     this.maintainFocus();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return false;
+  }
+
   componentWillUnmount() {
     this.endFocus();
   }

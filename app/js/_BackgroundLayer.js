@@ -2,8 +2,6 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -24,6 +22,8 @@ var BackgroundLayer = function (_React$Component) {
     _this.initPaletteMaps = _this.initPaletteMaps.bind(_this);
     _this.setPalettes = _this.setPalettes.bind(_this);
     _this.drawBackground = _this.drawBackground.bind(_this);
+
+    _this.lastPlayerArr = [];
 
     _this.state = {
       srcTileSize: 16,
@@ -165,64 +165,72 @@ var BackgroundLayer = function (_React$Component) {
     }
   }, {
     key: 'drawBackground',
-    value: function drawBackground(nextProps) {
-      var bgArr = nextProps.bgArr,
-          playerArr = nextProps.playerArr,
-          flrImg = this.state.floorPalette.canvas,
-          wallImg = this.state.wallPalette.canvas,
-          flrImgMap = this.state.floorPaletteMap,
-          wallImgMap = this.state.wallPaletteMap,
-          ts = nextProps.tileSize,
-          px = nextProps.stageSize,
-          bgLen = bgArr.length,
-          rLen = px / ts,
-          air = 10,
-          flr = 40;
-      var _state = this.state,
-          renderArr = _state.renderArr,
-          tempCanv = _state.tempCanv,
-          dCtx = document.getElementById('bg-layer').getContext('2d'),
-          tempCtx = tempCanv.getContext('2d'),
-          img = null,
-          map = null,
-          el = 0,
-          srcX = 0,
-          srcY = 0,
-          i = 0,
-          j = 0;
+    value: function drawBackground(timestamp) {
+      var playerArr = this.props.playerArr;
 
-      var _calcRenderPadding = calcRenderPadding(playerArr, bgLen, rLen, ts),
-          startRow = _calcRenderPadding.startRow,
-          startCol = _calcRenderPadding.startCol,
-          renderArrHeight = _calcRenderPadding.renderArrHeight,
-          renderArrWidth = _calcRenderPadding.renderArrWidth,
-          sX = _calcRenderPadding.sX,
-          sY = _calcRenderPadding.sY;
+      var lastArr = this.lastPlayerArr;
 
-      while (i < renderArrHeight) {
-        while (j < renderArrWidth) {
-          renderArr[i][j] = bgArr[startRow + i][startCol + j], j++;
-        }j = 0, i++;
-      }
+      if (playerArr[0] !== lastArr[0] || playerArr[1] !== lastArr[1]) {
+        this.lastPlayerArr = playerArr.slice(0);
 
-      tempCtx.fillRect(0, 0, px, px);
+        var bgArr = this.props.bgArr,
+            flrImg = this.state.floorPalette.canvas,
+            wallImg = this.state.wallPalette.canvas,
+            flrImgMap = this.state.floorPaletteMap,
+            wallImgMap = this.state.wallPaletteMap,
+            ts = this.props.tileSize,
+            px = this.props.stageSize,
+            bgLen = bgArr.length,
+            rLen = px / ts,
+            air = 10,
+            flr = 40;
+        var _state = this.state,
+            renderArr = _state.renderArr,
+            tempCanv = _state.tempCanv,
+            dCtx = document.getElementById('bg-layer').getContext('2d'),
+            tempCtx = tempCanv.getContext('2d'),
+            img = null,
+            map = null,
+            el = 0,
+            srcX = 0,
+            srcY = 0,
+            i = 0,
+            j = 0;
 
-      for (i = 0; i < renderArrHeight; i++) {
-        for (j = 0; j < renderArrWidth; j++) {
-          el = renderArr[i][j];
-          if (el > air) {
-            img = el < flr ? wallImg : flrImg;
-            map = el < flr ? wallImgMap : flrImgMap;
-            srcX = map['' + el][0];
-            srcY = map['' + el][1];
+        var _calcRenderPadding = calcRenderPadding(playerArr, bgLen, rLen, ts),
+            startRow = _calcRenderPadding.startRow,
+            startCol = _calcRenderPadding.startCol,
+            renderArrHeight = _calcRenderPadding.renderArrHeight,
+            renderArrWidth = _calcRenderPadding.renderArrWidth,
+            sX = _calcRenderPadding.sX,
+            sY = _calcRenderPadding.sY;
 
-            tempCtx.drawImage(img, srcX, srcY, ts, ts, sX + j * ts, sY + i * ts, ts, ts);
+        while (i < renderArrHeight) {
+          while (j < renderArrWidth) {
+            renderArr[i][j] = bgArr[startRow + i][startCol + j], j++;
+          }j = 0, i++;
+        }
+
+        tempCtx.fillRect(0, 0, px, px);
+
+        for (i = 0; i < renderArrHeight; i++) {
+          for (j = 0; j < renderArrWidth; j++) {
+            el = renderArr[i][j];
+            if (el > air) {
+              img = el < flr ? wallImg : flrImg;
+              map = el < flr ? wallImgMap : flrImgMap;
+              srcX = map['' + el][0];
+              srcY = map['' + el][1];
+
+              tempCtx.drawImage(img, srcX, srcY, ts, ts, sX + j * ts, sY + i * ts, ts, ts);
+            }
           }
         }
+
+        dCtx.drawImage(tempCanv, 0, 0, px, px);
       }
 
-      dCtx.drawImage(tempCanv, 0, 0, px, px);
-      this.setState({ playerLoc: [].concat(_toConsumableArray(playerArr)) });
+      window.requestAnimationFrame(this.drawBackground);
     }
   }, {
     key: 'componentWillMount',
@@ -260,11 +268,20 @@ var BackgroundLayer = function (_React$Component) {
           this.setPalettes(this.state.floorImg, this.state.wallImg, nextProps.gameLevel);
         }
       }
-
-      if ((nextProps.playerArr[0] !== this.state.playerLoc[0] || nextProps.playerArr[1] !== this.state.playerLoc[1]) && nextProps.playerArr !== [0, 0] && this.state.floorPalette.canvas) {
-
-        this.drawBackground(nextProps);
+    }
+  }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      if (!this.state.floorImg && nextState.floorImg) {
+        return true;
+      } else {
+        return false;
       }
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps, prevState) {
+      window.requestAnimationFrame(this.drawBackground);
     }
   }, {
     key: 'render',

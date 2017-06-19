@@ -73,6 +73,11 @@ var OverlayGameOver = function (_React$Component) {
       clearInterval(this.focusID);
     }
   }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      return false;
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _state = this.state,

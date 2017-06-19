@@ -86,6 +86,15 @@ var OverlayHeroSelection = function (_React$Component) {
       }, 250);
     }
   }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      if (this.state.currentSelection !== nextState.currentSelection || !Object.keys(this.props.playerPalettes).length && Object.keys(nextProps.playerPalettes).length) {
+        return true;
+      }
+
+      return false;
+    }
+  }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
       clearInterval(this.focusID);

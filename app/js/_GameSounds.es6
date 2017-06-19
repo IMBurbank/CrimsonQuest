@@ -166,10 +166,8 @@ class GameSounds extends React.Component {
 
       if (nextProps.gameLevel === 1 && nextProps.overlayMode === 'off') {
         this.playEffect('heroSelection');
-        console.log('Ca-Ching!');
       }
 
-      console.log('Change Background Song');
       this.state.song.pause();
       this.playBackgroundSong(nextProps.gameLevel, nextProps.overlayMode, nextProps);
     }

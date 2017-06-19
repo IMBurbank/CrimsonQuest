@@ -66,6 +66,16 @@ class OverlayHeroSelection extends React.Component {
     this.focusID = setInterval( () => this.focus(), 250 );
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.state.currentSelection !== nextState.currentSelection ||
+      (!Object.keys(this.props.playerPalettes).length &&
+        Object.keys(nextProps.playerPalettes).length)) {
+      return true;
+    }
+
+    return false
+  }
+
   componentWillUnmount() {
     clearInterval(this.focusID);
   }

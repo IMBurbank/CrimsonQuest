@@ -39,6 +39,14 @@ class OverlayHeroSelectionRow extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.propscurrentSelection !== nextProps.currentSelection) {
+      return true;
+    }
+
+    return false
+  }
+
   render() {
     const {position, heroType, currentSelection, tileSize} = this.props,
       hero = heroTypeStats[heroType],

@@ -187,8 +187,6 @@ var Game = function (_React$Component) {
         interactItem.type = 'pickup';
         interactItem.item = item;
         nState = { itemArr: itemArr, inventory: inventory, interactItem: interactItem, moveCount: moveCount };
-
-        console.log('Picked up', item.name);
       }
 
       dir = coord[0] < pArr[0] ? 'up' : coord[0] > pArr[0] ? 'down' : coord[1] < pArr[1] ? 'left' : 'right';
@@ -243,7 +241,6 @@ var Game = function (_React$Component) {
           } else if (itemArr[row][col] && itemPaletteArrMap['' + itemArr[row][col]].name === 'Active Portal') {
 
             if (gameLevel < levels) {
-              console.log('NEXT LEVEL!');
               this.setState({ gameLevel: gameLevel + 1 });
             } else {
               console.log('VICTORY!!!');
@@ -251,7 +248,6 @@ var Game = function (_React$Component) {
             }
           } else if (enemyArr[row][col] && enemyArr[row][col].type === 'merchant') {
 
-            console.log('Merchant Interaction');
             this.setState({ overlayMode: 'merchant-overlay' });
           } else {
             nState.moveCount = moveCount;

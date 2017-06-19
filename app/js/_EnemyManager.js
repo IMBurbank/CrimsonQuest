@@ -159,7 +159,6 @@ var EnemyManager = function (_React$Component) {
           status = false,
           spawnIndex = 0;
 
-      //console.log('EnemyRound enemyTurn: ', enemyTurn, 'roundCount: ', roundCount, 'currentIndex: ', currentIndex, 'this.pollCount: ', this.pollCount);
 
       while (currentIndex < this.pollCount) {
         var _enemyTurn$currentInd = enemyTurn[currentIndex];
@@ -175,7 +174,6 @@ var EnemyManager = function (_React$Component) {
           enemyTurn[currentIndex].status = true;
         } else if (type === 'move') {
           status = roundEnemyArr[toCoord[0]][toCoord[1]] === 0 ? true : false;
-          //console.log('start Move - currentIndex, fromCoord, toCoord, status: ', currentIndex, fromCoord, toCoord, status);
 
           if (status) {
             roundEnemyArr[fromCoord[0]][fromCoord[1]] = 0;
@@ -314,7 +312,6 @@ var EnemyManager = function (_React$Component) {
       if (this.state.levelProcessed !== this.props.itemLevelProcessed && Object.keys(this.props.enemyPalettes).length) {
 
         this.setLevelEnemies();
-        console.log('New Level Enemies');
       }
     }
   }, {
@@ -331,6 +328,7 @@ var EnemyManager = function (_React$Component) {
           spawnCoord = [],
           source = {},
           key = 0,
+          containerHeader = null,
           displayName = null,
           displayType = null,
           displayLevel = null,
@@ -370,6 +368,7 @@ var EnemyManager = function (_React$Component) {
       });
 
       if (enemyDisplay.name) {
+        containerHeader = enemyDisplay.type === 'merchant' ? 'Merchant' : 'Enemy';
         displayName = 'Name: ' + enemyDisplay.name;
         displayType = 'Type: ' + enemyDisplay.type;
         displayLevel = 'Level: ' + enemyDisplay.level;
@@ -382,7 +381,7 @@ var EnemyManager = function (_React$Component) {
         React.createElement(
           'p',
           { className: 'enemy-manager-title' },
-          enemyDisplay.type === 'merchant' ? 'Merchant' : 'Enemy'
+          containerHeader
         ),
         React.createElement('canvas', { id: 'enemy-icon', className: 'enemy-icon', width: ts, height: ts }),
         React.createElement(

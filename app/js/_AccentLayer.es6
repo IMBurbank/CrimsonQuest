@@ -5,14 +5,17 @@ class AccentLayer extends React.Component {
     this.initAccArr = this.initAccArr.bind(this);
     this.initTempCanvas = this.initTempCanvas.bind(this);
     this.getAccImages = this.getAccImages.bind(this);
+    this.initAccPalettes = this.initAccPalettes.bind(this);
     this.initPaletteMaps = this.initPaletteMaps.bind(this);
-    this.setPalettes = this.setPalettes.bind(this);
+    this.setLevelPalettes = this.setLevelPalettes.bind(this);
     this.setPaletteArrMap = this.setPaletteArrMap.bind(this);
     this.setAccArr = this.setAccArr.bind(this);
     this.handleEnemyDead = this.handleEnemyDead.bind(this);
     this.drawAccents = this.drawAccents.bind(this);
 
     this.enemyDeadCount = 0;
+    this.lastRenderFrame = 0;
+    this.lastPlayerArr = [];
 
     this.state = ({
       srcTileSize: 16,
@@ -28,6 +31,8 @@ class AccentLayer extends React.Component {
       dec1Canv: null,
       grnd0Canv: null,
       grnd1Canv: null,
+      ore0CanvPalette: null,
+      ore1CanvPalette: null,
       ore0Canv: null,
       ore1Canv: null,
       decorMap: {},
@@ -62,9 +67,7 @@ class AccentLayer extends React.Component {
       i++;
       if (i === 6) {
         that.setState({ decor0, decor1, ground0, ground1, ore0, ore1 });
-
-        //Delete after start screen created
-        that.setPalettes(decor0, decor1, ground0, ground1, ore0, ore1, 1);
+        that.initAccPalettes(decor0, decor1, ground0, ground1, ore0, ore1);
       }
     }
 
@@ -89,12 +92,7 @@ class AccentLayer extends React.Component {
       smoothRender = false,
       tempCanv = initMemCanvas(stageSize, stageSize, smoothRender);
 
-    let renderArr = [],
-      i = 0;
-
-    renderArr.length = rLen;
-
-    while (i < rLen) renderArr[i] = Array(rLen).fill(0), i++;
+    let renderArr = initZeroArray(rLen);
 
     this.setState({ tempCanv, renderArr });
   }
@@ -145,15 +143,16 @@ class AccentLayer extends React.Component {
     this.setState({ decorMap, groundMap, oreMap, corpseMap });
   }
 
-  setPalettes(decor0, decor1, ground0, ground1, ore0, ore1, gameLevel) {
-    const lvl = gameLevel,
-      gmTS = this.props.tileSize,
+  initAccPalettes(decor0, decor1, ground0, ground1, ore0, ore1) {
+    const gmTS = this.props.tileSize,
       srcTS = this.state.srcTileSize,
       scale = gmTS / srcTS,
       dH = 19 * gmTS,
       dW = 8 * gmTS,
       gH = 7 * gmTS,
       gW = 8 * gmTS,
+      oPalH = 6 * gmTS,
+      oPalW = 10 * gmTS,
       oH = 2 * gmTS,
       oW = 3 * gmTS;
 
@@ -165,6 +164,10 @@ class AccentLayer extends React.Component {
       grnd0Ctx = grnd0Canv.getContext('2d'),
       grnd1Canv = document.createElement('canvas'),
       grnd1Ctx = grnd1Canv.getContext('2d'),
+      ore0CanvPalette = document.createElement('canvas'),
+      ore0PaletteCtx = ore0CanvPalette.getContext('2d'),
+      ore1CanvPalette = document.createElement('canvas'),
+      ore1PaletteCtx = ore1CanvPalette.getContext('2d'),
       ore0Canv = document.createElement('canvas'),
       ore0Ctx = ore0Canv.getContext('2d'),
       ore1Canv = document.createElement('canvas'),
@@ -195,18 +198,57 @@ class AccentLayer extends React.Component {
     grnd1Ctx.drawImage(ground1, 0, srcY, gW/scale, gH/scale, 0, 0, gW, gH);
 
     //set ore
-    srcX = lvl === 10 ? 5 * srcTS : 0;
-    srcY = lvl === 1 ? 5 * srcTS : lvl === 2 ? 3 * srcTS : lvl === 3 ? 2 * srcTS : srcTS;
+    srcY = srcTS;
+    ore0CanvPalette.width = oPalW;
+    ore0CanvPalette.height = oPalH;
+    ore1CanvPalette.width = oPalW;
+    ore1CanvPalette.height = oPalH;
+    ore0CanvPalette.imageSmoothingEnabled = false;
+    ore1CanvPalette.imageSmoothingEnabled = false;
+    ore0PaletteCtx.drawImage(ore0, srcX, srcY, oPalW/scale, oPalH/scale, 0, 0, oPalW, oPalH);
+    ore1PaletteCtx.drawImage(ore1, srcX, srcY, oPalW/scale, oPalH/scale, 0, 0, oPalW, oPalH);
+
+    srcX = 0;
+    srcY = 4 * gmTS;
     ore0Canv.width = oW;
     ore0Canv.height = oH;
     ore1Canv.width = oW;
     ore1Canv.height = oH;
     ore0Ctx.imageSmoothingEnabled = false;
     ore1Ctx.imageSmoothingEnabled = false;
-    ore0Ctx.drawImage(ore0, srcX, srcY, oW/scale, oH/scale, 0, 0, oW, oH);
-    ore1Ctx.drawImage(ore1, srcX, srcY, oW/scale, oH/scale, 0, 0, oW, oH);
+    ore0Ctx.drawImage(ore0CanvPalette, srcX, srcY, oW, oH, 0, 0, oW, oH);
+    ore1Ctx.drawImage(ore1CanvPalette, srcX, srcY, oW, oH, 0, 0, oW, oH);
 
-    this.setState({ dec0Canv, dec1Canv, grnd0Canv, grnd1Canv, ore0Canv, ore1Canv });
+    this.setState({
+      dec0Canv,
+      dec1Canv,
+      grnd0Canv,
+      grnd1Canv,
+      ore0CanvPalette,
+      ore1CanvPalette,
+      ore0Canv,
+      ore1Canv
+    });
+  }
+
+  setLevelPalettes(gameLevel = this.props.gameLevel) {
+    const {ore0CanvPalette, ore1CanvPalette, ore0Canv, ore1Canv} = this.state,
+      {tileSize} = this.props,
+      oreW = ore0Canv.width,
+      oreH = ore0Canv.height,
+      srcX = gameLevel === 10 ? 5 * tileSize : 0,
+      srcY = gameLevel === 1 ? 4 * tileSize :
+        gameLevel === 2 ? 2 * tileSize :
+        gameLevel === 3 ? tileSize :
+        0;
+
+    let ore0Ctx = ore0Canv.getContext('2d'),
+      ore1Ctx = ore1Canv.getContext('2d');
+
+    ore0Ctx.drawImage(ore0CanvPalette, srcX, srcY, oreW, oreH, 0, 0, oreW, oreH);
+    ore1Ctx.drawImage(ore1CanvPalette, srcX, srcY, oreW, oreH, 0, 0, oreW, oreH);
+
+    this.setState({ ore0Canv, ore1Canv })
   }
 
   setPaletteArrMap(lvl, decorMap, groundMap, oreMap) {
@@ -365,67 +407,77 @@ class AccentLayer extends React.Component {
   drawAccents(timestamp) {
     if (!timeRef) timeRef = timestamp;
 
-    const {tileSize, stageSize, playerArr, accArr} = this.props,
-      {paletteArrMap} = this.state,
-      {dec0Canv, dec1Canv, grnd0Canv, grnd1Canv, ore0Canv, ore1Canv} = this.state,
-      rLen = stageSize / tileSize,
-      accLen = accArr.length,
-      frame = (timestamp - timeRef) % 1000 *.06;
+    const {playerArr} = this.props,
+      frame = (timestamp - timeRef) % 1000 *.06 > 29 ? 1 : 0;
 
-    let {renderArr} = this.state,
-      dCtx = document.getElementById('acc-layer').getContext('2d'),
-      tempCanv = this.state.tempCanv,
-      tempCtx = tempCanv.getContext('2d'),
-      img = null,
-      m = undefined, //[]
-      srcX = 0,
-      srcY = 0,
-      dX = 0,
-      dY = 0,
-      el = 0,
-      i = 0,
-      j = 0;
+    let lastArr = this.lastPlayerArr,
+      lastFrame = this.lastRenderFrame;
 
-    let {startRow, startCol, renderArrHeight, renderArrWidth, sX, sY} =
-      calcRenderPadding(playerArr, accLen, rLen, tileSize);
+    if (playerArr[0] !== lastArr[0] || playerArr[1] !== lastArr[1] || lastFrame !== frame) {
+      this.lastPlayerArr = playerArr.slice(0);
+      this.lastRenderFrame = frame;
 
-    while(i < renderArrHeight) {
-      while (j < renderArrWidth) {
-        renderArr[i][j] = accArr[startRow + i][startCol + j], j++;
+      const {tileSize, stageSize, accArr} = this.props,
+        {paletteArrMap} = this.state,
+        {dec0Canv, dec1Canv, grnd0Canv, grnd1Canv, ore0Canv, ore1Canv} = this.state,
+        rLen = stageSize / tileSize,
+        accLen = accArr.length;
+
+      let {renderArr} = this.state,
+        dCtx = document.getElementById('acc-layer').getContext('2d'),
+        tempCanv = this.state.tempCanv,
+        tempCtx = tempCanv.getContext('2d'),
+        img = null,
+        m = undefined, //[]
+        srcX = 0,
+        srcY = 0,
+        dX = 0,
+        dY = 0,
+        el = 0,
+        i = 0,
+        j = 0;
+
+      let {startRow, startCol, renderArrHeight, renderArrWidth, sX, sY} =
+        calcRenderPadding(playerArr, accLen, rLen, tileSize);
+
+      while(i < renderArrHeight) {
+        while (j < renderArrWidth) {
+          renderArr[i][j] = accArr[startRow + i][startCol + j], j++;
+        }
+        j = 0, i++;
       }
-      j = 0, i++;
-    }
 
-    tempCtx.clearRect(0, 0, stageSize, stageSize);
+      tempCtx.clearRect(0, 0, stageSize, stageSize);
 
-    for (i = 0; i < renderArrHeight; i++) {
-      for (j = 0; j < renderArrWidth; j++) {
-        el = renderArr[i][j];
-        if (el) {
-          m = paletteArrMap['' + el];
+      for (i = 0; i < renderArrHeight; i++) {
+        for (j = 0; j < renderArrWidth; j++) {
+          el = renderArr[i][j];
+          if (el) {
+            m = paletteArrMap['' + el];
 
-          if (frame > 29) {
-            if (m[1] === 'decor') img = dec0Canv;
-            else if (m[1] === 'ore') img = ore0Canv;
-            else img = grnd0Canv;
-          } else {
-            if (m[1] === 'decor') img = dec1Canv;
-            else if (m[1] === 'ore') img = ore1Canv;
-            else img = grnd1Canv;
+            if (frame === 1) {
+              if (m[1] === 'decor') img = dec0Canv;
+              else if (m[1] === 'ore') img = ore0Canv;
+              else img = grnd0Canv;
+            } else {
+              if (m[1] === 'decor') img = dec1Canv;
+              else if (m[1] === 'ore') img = ore1Canv;
+              else img = grnd1Canv;
+            }
+
+            srcX = m[0][0];
+            srcY = m[0][1];
+            dX = sX + j * tileSize;
+            dY = sY + i * tileSize;
+
+            tempCtx.drawImage(img, srcX, srcY, tileSize, tileSize, dX, dY, tileSize, tileSize);
           }
-
-          srcX = m[0][0];
-          srcY = m[0][1];
-          dX = sX + j * tileSize;
-          dY = sY + i * tileSize;
-
-          tempCtx.drawImage(img, srcX, srcY, tileSize, tileSize, dX, dY, tileSize, tileSize);
         }
       }
-    }
 
-    dCtx.clearRect(0, 0, stageSize, stageSize);
-    dCtx.drawImage(tempCanv, 0, 0, stageSize, stageSize);
+      dCtx.clearRect(0, 0, stageSize, stageSize);
+      dCtx.drawImage(tempCanv, 0, 0, stageSize, stageSize);
+    }
     window.requestAnimationFrame(this.drawAccents);
   }
 
@@ -440,15 +492,7 @@ class AccentLayer extends React.Component {
     if (this.props.gameLevel !== nextProps.gameLevel) {
       this.setPaletteArrMap(nextProps.gameLevel);
       if (this.state.decor0) {
-        this.setPalettes(
-          this.state.decor0,
-          this.state.decor1,
-          this.state.ground0,
-          this.state.ground1,
-          this.state.ore0,
-          this.state.ore1,
-          nextProps.gameLevel
-        );
+        this.setLevelPalettes(nextProps.gameLevel);
       }
     }
     if (this.props.bgLevelProcessed !== nextProps.bgLevelProcessed) {
@@ -459,6 +503,11 @@ class AccentLayer extends React.Component {
     if (this.enemyDeadCount !== nextProps.enemyDead.count) {
       this.handleEnemyDead(nextProps);
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!this.state.dec0Canv && nextState.dec0Canv) return true;
+    else return false;
   }
 
   componentDidUpdate(prevProps, prevState) {

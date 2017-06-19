@@ -172,8 +172,6 @@ class Game extends React.Component {
       interactItem.type = 'pickup';
       interactItem.item = item;
       nState = {itemArr, inventory, interactItem, moveCount};
-
-      console.log('Picked up', item.name);
     }
 
     dir = coord[0] < pArr[0] ? 'up' :
@@ -230,7 +228,6 @@ class Game extends React.Component {
           itemPaletteArrMap['' + itemArr[row][col]].name === 'Active Portal') {
 
           if (gameLevel < levels) {
-            console.log('NEXT LEVEL!');
             this.setState({ gameLevel: gameLevel + 1 });
           } else {
             console.log('VICTORY!!!');
@@ -239,7 +236,6 @@ class Game extends React.Component {
         } else if (enemyArr[row][col] &&
           enemyArr[row][col].type === 'merchant') {
 
-          console.log('Merchant Interaction');
           this.setState({ overlayMode: 'merchant-overlay' });
         } else {
           nState.moveCount = moveCount;

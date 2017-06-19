@@ -49,7 +49,7 @@ class LayerExploreFog extends React.Component {
     this.setState({ fogArr, renderArr, fogSquareCanvas, tempCanvas });
   }
 
-  clearExploreFog(fogArr, playerArr) {
+  clearExploreFog(fogArr, playerArr, boardSize) {
     const sightRadius = this.sightRadius,
       sightDecrement = this.sightDecrement,
       [row, col] = playerArr;
@@ -62,10 +62,10 @@ class LayerExploreFog extends React.Component {
       rowRadius = i < 2 ? sightRadius : sightRadius - sightDecrement * i + 1;
 
       for (j = 0; j <= rowRadius; j++) {
-        fogArr[row + i][col + j] = 0;
-        if (i) fogArr[row - i][col + j] = 0;
-        if (j) fogArr[row + i][col - j] = 0;
-        if (i && j) fogArr[row - i][col - j] = 0;
+        if (row + i < boardSize && col + j < boardSize) fogArr[row + i][col + j] = 0;
+        if (i && row - i >= 0 && col + j < boardSize) fogArr[row - i][col + j] = 0;
+        if (j && row + i < boardSize && col - j >= 0) fogArr[row + i][col - j] = 0;
+        if (i && j && row - i >= 0 && col - j >= 0) fogArr[row - i][col - j] = 0;
       }
     }
     return fogArr;
@@ -113,7 +113,7 @@ class LayerExploreFog extends React.Component {
       let {startRow, startCol, renderArrHeight, renderArrWidth, sX, sY} =
         calcRenderPadding(playerArr, boardSize, rLen, tileSize);
 
-      fogArr = this.clearExploreFog(fogArr, playerArr);
+      fogArr = this.clearExploreFog(fogArr, playerArr, boardSize);
 
       //set renderArr
       for (i = 0; i < renderArrHeight; i++) {
@@ -163,7 +163,6 @@ class LayerExploreFog extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('Layer Explore Fog UPDATE... Animating Frame')
     window.requestAnimationFrame(this.drawExploreFog);
   }
 

@@ -42,7 +42,6 @@ class OverlayMerchant extends React.Component {
         curEnemy = enemyArr[coord[0]][coord[1]];
         if (curEnemy && curEnemy.type === 'merchant') {
           source = curEnemy;
-          console.log('Found Merchant ', source);
         }
       }
     );
@@ -177,8 +176,6 @@ class OverlayMerchant extends React.Component {
       item = this.props.inventory[name];
     }
 
-    console.log('OverlayMerchant handleInteractItem name, item: ', name, item);
-
     interactItem.count += 1;
     interactItem.type = action;
     interactItem.item = item;
@@ -194,6 +191,16 @@ class OverlayMerchant extends React.Component {
   componentDidMount() {
     this.focus();
     this.focusID = setInterval( () => this.focus(), 250 );
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.state.interactCategory !== nextState.interactCategory ||
+      this.state.row !== nextState.row ||
+      this.state.col !== nextState.col) {
+
+      return true;
+    }
+    return false;
   }
 
   componentWillUnmount() {

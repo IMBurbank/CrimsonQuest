@@ -8,6 +8,8 @@ class BackgroundLayer extends React.Component {
     this.setPalettes = this.setPalettes.bind(this);
     this.drawBackground = this.drawBackground.bind(this);
 
+    this.lastPlayerArr = [];
+
     this.state = ({
       srcTileSize: 16,
       floorImg: null,
@@ -145,56 +147,64 @@ class BackgroundLayer extends React.Component {
     //(this.props.playerArr !== [0,0] && this.drawBackground(this.props, this.state));
   }
 
-  drawBackground(nextProps) {
-    const {bgArr, playerArr} = nextProps,
-      flrImg = this.state.floorPalette.canvas,
-      wallImg = this.state.wallPalette.canvas,
-      flrImgMap = this.state.floorPaletteMap,
-      wallImgMap = this.state.wallPaletteMap,
-      ts = nextProps.tileSize,
-      px = nextProps.stageSize,
-      bgLen = bgArr.length,
-      rLen = px / ts,
-      air = 10,
-      flr = 40;
+  drawBackground(timestamp) {
+    const {playerArr} = this.props;
+    let lastArr = this.lastPlayerArr;
 
-    let {renderArr, tempCanv} = this.state,
-      dCtx = document.getElementById('bg-layer').getContext('2d'),
-      tempCtx = tempCanv.getContext('2d'),
-      img = null,
-      map = null,
-      el = 0,
-      srcX = 0,
-      srcY = 0,
-      i = 0,
-      j = 0;
+    if (playerArr[0] !== lastArr[0] || playerArr[1] !== lastArr[1]) {
+      this.lastPlayerArr = playerArr.slice(0);
 
-    let {startRow, startCol, renderArrHeight, renderArrWidth, sX, sY} =
-      calcRenderPadding(playerArr, bgLen, rLen, ts);
+      const {bgArr} = this.props,
+        flrImg = this.state.floorPalette.canvas,
+        wallImg = this.state.wallPalette.canvas,
+        flrImgMap = this.state.floorPaletteMap,
+        wallImgMap = this.state.wallPaletteMap,
+        ts = this.props.tileSize,
+        px = this.props.stageSize,
+        bgLen = bgArr.length,
+        rLen = px / ts,
+        air = 10,
+        flr = 40;
 
-    while(i < renderArrHeight) {
-      while (j < renderArrWidth) renderArr[i][j] = bgArr[startRow + i][startCol + j], j++;
-      j = 0, i++;
-    }
+      let {renderArr, tempCanv} = this.state,
+        dCtx = document.getElementById('bg-layer').getContext('2d'),
+        tempCtx = tempCanv.getContext('2d'),
+        img = null,
+        map = null,
+        el = 0,
+        srcX = 0,
+        srcY = 0,
+        i = 0,
+        j = 0;
 
-    tempCtx.fillRect(0, 0, px, px);
+      let {startRow, startCol, renderArrHeight, renderArrWidth, sX, sY} =
+        calcRenderPadding(playerArr, bgLen, rLen, ts);
 
-    for (i = 0; i < renderArrHeight; i++) {
-      for (j = 0; j < renderArrWidth; j++) {
-        el = renderArr[i][j];
-        if (el > air) {
-          img = el < flr ? wallImg : flrImg;
-          map = el < flr ? wallImgMap : flrImgMap;
-          srcX = map['' + el][0];
-          srcY = map['' + el][1];
+      while(i < renderArrHeight) {
+        while (j < renderArrWidth) renderArr[i][j] = bgArr[startRow + i][startCol + j], j++;
+        j = 0, i++;
+      }
 
-          tempCtx.drawImage(img, srcX, srcY, ts, ts, sX + j * ts, sY + i * ts, ts, ts);
+      tempCtx.fillRect(0, 0, px, px);
+
+      for (i = 0; i < renderArrHeight; i++) {
+        for (j = 0; j < renderArrWidth; j++) {
+          el = renderArr[i][j];
+          if (el > air) {
+            img = el < flr ? wallImg : flrImg;
+            map = el < flr ? wallImgMap : flrImgMap;
+            srcX = map['' + el][0];
+            srcY = map['' + el][1];
+
+            tempCtx.drawImage(img, srcX, srcY, ts, ts, sX + j * ts, sY + i * ts, ts, ts);
+          }
         }
       }
+
+      dCtx.drawImage(tempCanv, 0, 0, px, px);
     }
 
-    dCtx.drawImage(tempCanv, 0, 0, px, px);
-    this.setState({ playerLoc: [...playerArr] });
+    window.requestAnimationFrame(this.drawBackground);
   }
 
   componentWillMount() {
@@ -226,15 +236,21 @@ class BackgroundLayer extends React.Component {
         this.setPalettes(this.state.floorImg, this.state.wallImg, nextProps.gameLevel);
       }
     }
+  }
 
-    if ((nextProps.playerArr[0] !== this.state.playerLoc[0] ||
-      nextProps.playerArr[1] !== this.state.playerLoc[1]) &&
-      nextProps.playerArr !== [0,0] &&
-      this.state.floorPalette.canvas) {
-
-      this.drawBackground(nextProps);
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!this.state.floorImg && nextState.floorImg) {
+      return true;
+    } else {
+      return false;
     }
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    window.requestAnimationFrame(this.drawBackground);
+  }
+
+
 
   render() {
     const size = this.props.stageSize;

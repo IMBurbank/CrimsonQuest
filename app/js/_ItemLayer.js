@@ -32,6 +32,8 @@ var ItemLayer = function (_React$Component) {
 
     _this.enemyDeadCount = 0;
     _this.levelProcessed = 0;
+    _this.lastRenderFrame = 0;
+    _this.lastPlayerArr = [];
 
     _this.state = {
       srcTileSize: 16,
@@ -285,70 +287,81 @@ var ItemLayer = function (_React$Component) {
     value: function drawItems(timestamp) {
       if (!timeRef) timeRef = timestamp;
 
-      var pIndex = (timestamp - timeRef) % 1000 * .06 > 29 ? 1 : 0,
-          _props2 = this.props,
-          tileSize = _props2.tileSize,
-          stageSize = _props2.stageSize,
-          itemArr = _props2.itemArr,
-          playerArr = _props2.playerArr,
-          itemPaletteArrMap = _props2.itemPaletteArrMap,
-          itemPalettes = _props2.itemPalettes,
-          displayedItems = this.state.displayedItems,
-          iLen = itemArr.length,
-          rLen = stageSize / tileSize;
-      var _state = this.state,
-          renderArr = _state.renderArr,
-          tempCanv = _state.tempCanv,
-          dCtx = document.getElementById('item-layer').getContext('2d'),
-          tempCtx = tempCanv.getContext('2d'),
-          palette = '',
-          img = null,
-          item = undefined,
-          el = 0,
-          srcX = 0,
-          srcY = 0,
-          dX = 0,
-          dY = 0,
-          i = 0,
-          j = 0;
+      var playerArr = this.props.playerArr,
+          frame = (timestamp - timeRef) % 1000 * .06 > 29 ? 1 : 0;
 
-      var _calcRenderPadding = calcRenderPadding(playerArr, iLen, rLen, tileSize),
-          startRow = _calcRenderPadding.startRow,
-          startCol = _calcRenderPadding.startCol,
-          renderArrHeight = _calcRenderPadding.renderArrHeight,
-          renderArrWidth = _calcRenderPadding.renderArrWidth,
-          sX = _calcRenderPadding.sX,
-          sY = _calcRenderPadding.sY;
 
-      while (i < renderArrHeight) {
-        while (j < renderArrWidth) {
-          renderArr[i][j] = itemArr[startRow + i][startCol + j], j++;
+      var lastArr = this.lastPlayerArr,
+          lastFrame = this.lastRenderFrame;
+
+      if (playerArr[0] !== lastArr[0] || playerArr[1] !== lastArr[1] || lastFrame !== frame) {
+        this.lastPlayerArr = playerArr.slice(0);
+        this.lastRenderFrame = frame;
+
+        var _props2 = this.props,
+            tileSize = _props2.tileSize,
+            stageSize = _props2.stageSize,
+            itemArr = _props2.itemArr,
+            itemPaletteArrMap = _props2.itemPaletteArrMap,
+            itemPalettes = _props2.itemPalettes,
+            displayedItems = this.state.displayedItems,
+            iLen = itemArr.length,
+            rLen = stageSize / tileSize;
+        var _state = this.state,
+            renderArr = _state.renderArr,
+            tempCanv = _state.tempCanv,
+            dCtx = document.getElementById('item-layer').getContext('2d'),
+            tempCtx = tempCanv.getContext('2d'),
+            palette = '',
+            img = null,
+            item = undefined,
+            el = 0,
+            srcX = 0,
+            srcY = 0,
+            dX = 0,
+            dY = 0,
+            i = 0,
+            j = 0;
+
+        var _calcRenderPadding = calcRenderPadding(playerArr, iLen, rLen, tileSize),
+            startRow = _calcRenderPadding.startRow,
+            startCol = _calcRenderPadding.startCol,
+            renderArrHeight = _calcRenderPadding.renderArrHeight,
+            renderArrWidth = _calcRenderPadding.renderArrWidth,
+            sX = _calcRenderPadding.sX,
+            sY = _calcRenderPadding.sY;
+
+        while (i < renderArrHeight) {
+          while (j < renderArrWidth) {
+            renderArr[i][j] = itemArr[startRow + i][startCol + j], j++;
+          }
+          j = 0, i++;
         }
-        j = 0, i++;
-      }
 
-      tempCtx.clearRect(0, 0, stageSize, stageSize);
+        tempCtx.clearRect(0, 0, stageSize, stageSize);
 
-      for (i = 0; i < renderArrHeight; i++) {
-        for (j = 0; j < renderArrWidth; j++) {
-          el = renderArr[i][j];
-          if (el) {
-            item = displayedItems.includes(itemPaletteArrMap['' + el].type) ? itemPaletteArrMap['' + el] : chestConsumables.closedChest;
-            palette = item.type === 'door' ? item.palette[pIndex] : item.palette;
-            img = itemPalettes[palette];
+        for (i = 0; i < renderArrHeight; i++) {
+          for (j = 0; j < renderArrWidth; j++) {
+            el = renderArr[i][j];
+            if (el) {
+              item = displayedItems.includes(itemPaletteArrMap['' + el].type) ? itemPaletteArrMap['' + el] : chestConsumables.closedChest;
+              palette = item.type === 'door' ? item.palette[frame] : item.palette;
+              img = itemPalettes[palette];
 
-            srcX = item.iconLoc[0];
-            srcY = item.iconLoc[1];
-            dX = sX + j * tileSize;
-            dY = sY + i * tileSize;
+              srcX = item.iconLoc[0];
+              srcY = item.iconLoc[1];
+              dX = sX + j * tileSize;
+              dY = sY + i * tileSize;
 
-            tempCtx.drawImage(img, srcX, srcY, tileSize, tileSize, dX, dY, tileSize, tileSize);
+              tempCtx.drawImage(img, srcX, srcY, tileSize, tileSize, dX, dY, tileSize, tileSize);
+            }
           }
         }
+
+        dCtx.clearRect(0, 0, stageSize, stageSize);
+        dCtx.drawImage(tempCanv, 0, 0, stageSize, stageSize);
       }
 
-      dCtx.clearRect(0, 0, stageSize, stageSize);
-      dCtx.drawImage(tempCanv, 0, 0, stageSize, stageSize);
       window.requestAnimationFrame(this.drawItems);
     }
   }, {
@@ -358,7 +371,6 @@ var ItemLayer = function (_React$Component) {
       this.initItemArr();
       this.initTempCanvas();
       this.setPaletteArrMap();
-      console.log('ItemArr Mounted');
     }
   }, {
     key: 'componentWillUpdate',

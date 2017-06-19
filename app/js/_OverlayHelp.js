@@ -79,6 +79,11 @@ var OverlayHelp = function (_React$Component) {
       this.maintainFocus();
     }
   }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      return false;
+    }
+  }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
       this.endFocus();

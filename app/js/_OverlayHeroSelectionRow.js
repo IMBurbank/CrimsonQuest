@@ -62,6 +62,15 @@ var OverlayHeroSelectionRow = function (_React$Component) {
       }
     }
   }, {
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      if (this.propscurrentSelection !== nextProps.currentSelection) {
+        return true;
+      }
+
+      return false;
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _props = this.props,
