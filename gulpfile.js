@@ -30,19 +30,19 @@ gulp.task('reload', function(){
 });
 
 gulp.task('sass', function() {
-  return gulp.src('app/sass/*.sass')
+  return gulp.src('app/styles/sass/*.sass')
     .pipe(sass())
     .pipe(sourcemaps.init())
     .pipe(postcss([ autoprefixer() ]))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('app/css'))
+    .pipe(gulp.dest('app/styles/css'))
 })
 
 gulp.task('babel', function() {
-  return gulp.src('app/js/*.es6')
+  return gulp.src('app/scripts/es6/**/*.es6')
     .pipe(cache('linting'))
     .pipe(babel())
-    .pipe(gulp.dest('app/js'))
+    .pipe(gulp.dest('app/scripts/js'))
 })
 
 gulp.task('clean:dist', function() {
@@ -52,49 +52,82 @@ gulp.task('clean:dist', function() {
 gulp.task('useref', function(){
   return gulp.src('app/*.html')
     .pipe(useref())
-    .pipe(gulpIf('app/js/*.js', uglify()))
-    .pipe(gulpIf('app/css/*.css', cssnano()))
+    .pipe(gulpIf('app/scripts/js/**/*.js', uglify()))
+    .pipe(gulpIf('app/styles/css/*.css', cssnano()))
     .pipe(gulp.dest('dist'))
 });
 
+gulp.task('minifyJS', function(){
+  return gulp.src('dist/scripts/js/**/*.js')
+    .pipe(uglify({compress: true, mangle: true}))
+    .pipe(gulp.dest('dist/scripts/js/'))
+});
+
+gulp.task('minifyCSS', function(){
+  return gulp.src('dist/styles/css/**/*.css')
+    .pipe(cssnano())
+    .pipe(gulp.dest('dist/styles/css/'))
+});
+
 gulp.task('images', function(){
-  return gulp.src('app/img/**')
+  return gulp.src('app/assets/img/**')
     .pipe(gulp.dest('dist/img/'))
 });
 
 gulp.task('sounds', function(){
-  return gulp.src('app/sounds/**')
+  return gulp.src('app/assets/sounds/**')
     .pipe(gulp.dest('dist/sounds/'))
 });
 
 gulp.task('fonts', function(){
-  return gulp.src('app/fonts/**')
-    .pipe(gulp.dest('dist/css/fonts/'))
+  return gulp.src('app/assets/fonts/**')
+    .pipe(gulp.dest('dist/styles/css/fonts/'))
 });
 
-gulp.task('update', function (callback) {
+gulp.task('updateDev', function (callback) {
   runSequence('clean:dist', 'sounds', 'images', 'fonts', 'useref', 'reload',
     callback
   )
 })
 
-gulp.task('watch', ['browserSync'], function(){
-  gulp.watch('app/sass/*.sass', ['sass']);
-  gulp.watch('app/js/*.es6', ['babel']);
-  gulp.watch('app/*.html', ['update']);
-  gulp.watch('app/css/**/*.css', ['update']);
-  gulp.watch('app/js/**/*.js', ['update']);
+gulp.task('updateProd', function (callback) {
+  runSequence('clean:dist', 'sounds', 'images', 'fonts', 'useref', 'minifyJS', 'minifyCSS', 'reload',
+    callback
+  )
+})
+
+gulp.task('watchDev', ['browserSync'], function(){
+  gulp.watch('app/styles/**/*.sass', ['sass']);
+  gulp.watch('app/scripts/**/*.es6', ['babel']);
+  gulp.watch('app/*.html', ['updateDev']);
+  gulp.watch('app/styles/**/*.css', ['updateDev']);
+  gulp.watch('app/scripts/**/*.js', ['updateDev']);
+  // Other watchers
+})
+
+gulp.task('watchProd', ['browserSync'], function(){
+  gulp.watch('app/styles/**/*.sass', ['sass']);
+  gulp.watch('app/scripts/**/*.es6', ['babel']);
+  gulp.watch('app/*.html', ['updateProd']);
+  gulp.watch('app/styles/**/*.css', ['updateProd']);
+  gulp.watch('app/scripts/**/*.js', ['updateProd']);
   // Other watchers
 })
 
 gulp.task('default', function (callback) {
-  runSequence('sass', 'babel', 'update', ['watch'],
+  runSequence('sass', 'babel', 'updateDev', ['watchDev'],
+    callback
+  )
+})
+
+gulp.task('gulpProd', function (callback) {
+  runSequence('sass', 'babel', 'updateProd', ['watchProd'],
     callback
   )
 })
 
 gulp.task('build', function (callback) {
-  runSequence('sass', 'babel', ['update'],
+  runSequence('sass', 'babel', ['updateProd'],
     callback
   )
 })
