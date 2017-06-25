@@ -131,7 +131,6 @@ h4 {
             justify-content: center;
     width: 100%;
     text-align: center;
-    background: -webkit-radial-gradient(circle, #dc0000, #000);
     background: radial-gradient(circle, #dc0000, #000); }
   .pg-footer > *:first-child {
     margin-right: 8px; }
@@ -226,7 +225,6 @@ h4 {
   text-align: left; }
   .equip-row .equip-canv {
     border: 2px inset #888;
-    background: -webkit-linear-gradient(bottom right, #e0e0e0, #949494);
     background: linear-gradient(to top left, #e0e0e0, #949494); }
   .equip-row .equip-name {
     margin-left: 8px; }
@@ -411,7 +409,6 @@ h4 {
 .consumable-canvas {
   margin: 4px 0;
   border: 2px inset #888;
-  background: -webkit-linear-gradient(bottom right, #e0e0e0, #949494);
   background: linear-gradient(to top left, #e0e0e0, #949494); }
 
 .col-rgt {
