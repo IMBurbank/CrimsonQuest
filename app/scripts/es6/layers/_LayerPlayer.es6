@@ -1,5 +1,22 @@
-//props: stageSize, tileSize, hero, heroFacing, gameLevel, bgArr, playerArr, updateGameClassState,
-//floorCoords, bgLevelProcessed, playerPalettes
+/**
+  *		@desc GameStage canvas layer responsible for hero rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.bgLevelProcessed - Updated as LayerBackground processes a level.
+	*		@param {string} props.hero - Name of chosen hero.
+	*		@param {string} props.heroFacing - Current hero direction.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.floorcoords - Floor coords which haven't been take by hero/item/enemy.
+	*		@param {object} props.playerPalettes - Hero sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {boolean} drawingStart - Component canvas rAF drawing state.
+  *   @property {boolean} startHeroIcon - Stores whether method setHeroIcon has been called.
+  *		@returns HTML canvas layer for hero.
+  */
+
 class LayerPlayer extends React.Component {
   constructor(props) {
     super(props);

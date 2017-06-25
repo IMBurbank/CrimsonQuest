@@ -1,5 +1,5 @@
 
-//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, enemyDisplayArr, updateEnemyDisplayArr, updateEnemyManager, displayCount,
+//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, enemyDisplayArr, updateEnemyDisplayArr, updateEnemyManager,
 //updateGameClassState, pollCount, incrementPollCount, enemyTurn, updateEnemyTurn, enemyDead, enemyPalettes, roundCount, roundEnemyArr, exchangeAttacks
 class Enemy extends React.Component {
   constructor(props) {
@@ -88,6 +88,7 @@ class Enemy extends React.Component {
       maxHealth,
       level,
       icon,
+      source,
       name: source.name,
       type: source.type
     };
@@ -288,10 +289,11 @@ class Enemy extends React.Component {
 
     curHealth = curHealth - damage > 0 ? curHealth - damage : 0;
 
+    //console.log('Hit health - damage: ', curHealth, damage);
+
     if (!curHealth) this.die();
 
     this.updateEnemyDisplay(this.state.position, curHealth);
-    this.props.updateEnemyManager({displayCount: this.props.displayCount + 1});
     this.setState({ curHealth });
   }
 

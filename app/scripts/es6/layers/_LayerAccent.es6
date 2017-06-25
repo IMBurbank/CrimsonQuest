@@ -1,4 +1,22 @@
-//stageSize, boardSize, tileSize, gameLevel, playerArr, bgArr, accArr, updateAccArr, enemyDead, bgLevelProcessed
+/**
+  *		@desc GameStage canvas layer responsible for accent rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.bgLevelProcessed - Updated as LayerBackground processes a level.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.accArr - Square array holds level accent layer state.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {function} props.updateAccArr - Update GameStage component state accArr.
+  *   @property {number} enemyDeadCount - Counter for dead enemies processed by component.
+  *   @property {number} lastRenderFrame - Last frame drawn. Either 1 or 0.
+  *   @property {array} lastPlayerArr - Last processed playerArr coord.
+  *		@returns HTML canvas layer for accent.
+  */
+
 class LayerAccent extends React.Component {
   constructor(props) {
     super(props);

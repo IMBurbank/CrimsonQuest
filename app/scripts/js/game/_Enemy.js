@@ -10,7 +10,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, enemyDisplayArr, updateEnemyDisplayArr, updateEnemyManager, displayCount,
+//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, enemyDisplayArr, updateEnemyDisplayArr, updateEnemyManager,
 //updateGameClassState, pollCount, incrementPollCount, enemyTurn, updateEnemyTurn, enemyDead, enemyPalettes, roundCount, roundEnemyArr, exchangeAttacks
 var Enemy = function (_React$Component) {
   _inherits(Enemy, _React$Component);
@@ -106,6 +106,7 @@ var Enemy = function (_React$Component) {
         maxHealth: maxHealth,
         level: level,
         icon: icon,
+        source: source,
         name: source.name,
         type: source.type
       };
@@ -322,10 +323,11 @@ var Enemy = function (_React$Component) {
 
       curHealth = curHealth - damage > 0 ? curHealth - damage : 0;
 
+      //console.log('Hit health - damage: ', curHealth, damage);
+
       if (!curHealth) this.die();
 
       this.updateEnemyDisplay(this.state.position, curHealth);
-      this.props.updateEnemyManager({ displayCount: this.props.displayCount + 1 });
       this.setState({ curHealth: curHealth });
     }
   }, {

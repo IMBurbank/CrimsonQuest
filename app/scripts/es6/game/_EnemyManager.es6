@@ -1,8 +1,11 @@
-//gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks,
+//gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks, portalObjective
 //moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, itemLevelProcessed
 class EnemyManager extends React.Component {
   constructor(props) {
     super(props);
+    this.getManagerImages = this.getManagerImages.bind(this);
+    this.setPalettes = this.setPalettes.bind(this);
+    this.resetMerchantInventories = this.resetMerchantInventories.bind(this);
     this.setLevelEnemies = this.setLevelEnemies.bind(this);
     this.runEnemyRound = this.runEnemyRound.bind(this);
     this.handleEnemyDead = this.handleEnemyDead.bind(this);
@@ -20,20 +23,95 @@ class EnemyManager extends React.Component {
     //type: 'move', 'stay', 'attack', 'die'
 
     this.enemyDisplayArr = [];
-    //{name: '', type: '', icon: <memCanvas>, level: 0, curHealth: 0, maxHealth: 0, position: []}
+    //{name: '', type: '', icon: <memCanvas>, level: 0, curHealth: 0, maxHealth: 0, position: [], source: {}}
     this.enemyDisplay = {};
+
+    this.bossDead = false;
+
+    this.srcTileSize = 16;
+    this.renderSmoothing = false;
+    this.imgArrowCropDimensions = {
+      srcX: 2,
+      srcY: 41,
+      firstRowTiles: 5,
+      tileCount: 8,
+      arrowOrder: [2, 6, 4, 0, 1, 7, 3, 5]
+    };
 
     this.state = ({
       roundCount: 0,
-      displayCount: 0,
       levelProcessed: 0,
       enemiesRemaining: 0,
       currentIndex: 0,
+      displayUpdateCount: 0,
       levelEnemies: [],
       roundEnemyArr: [],
       nextKey: 0,
-
+      interfaceImage: null,
+      arrowCanvases: []
     });
+  }
+
+  getManagerImages() {
+    const that = this;
+
+    let interfaceImage = new Image();
+
+    const handleManagerLoad = function handleManagerImageLoad() {
+      that.setState({ interfaceImage });
+      that.setPalettes(interfaceImage);
+    }
+
+    interfaceImage.src = 'img/gui/ToenTileSet.png';
+    interfaceImage.addEventListener('load', handleManagerLoad);
+  }
+
+  resetMerchantInventories() {
+    for (let merchant in merchantInventories) {
+      enemyHumanoid[merchant].inventory = Object.assign({}, merchantInventories[merchant]);
+    }
+  }
+
+  setPalettes(img) {
+    const {tileSize} = this.props,
+      srcTs = this.srcTileSize,
+      renderSmoothing = this.renderSmoothing;
+
+    let {arrowCanvases} = this.state,
+      {srcX, srcY, firstRowTiles, tileCount, arrowOrder} = this.imgArrowCropDimensions,
+      canv = null,
+      ctx = null,
+      i = 0;
+
+    if (arrowCanvases.length < tileCount) arrowCanvases.length = tileCount;
+
+    for (; i < tileCount; i++) {
+      canv = document.createElement('canvas');
+      canv.width = tileSize;
+      canv.height = tileSize;
+
+      ctx = canv.getContext('2d');
+      ctx.imageSmoothingEnabled = renderSmoothing;
+
+      if (i === firstRowTiles) srcY++, srcX = 0;
+
+      ctx.drawImage(
+        img,
+        srcTs * srcX,
+        srcTs * srcY,
+        srcTs,
+        srcTs,
+        0,
+        0,
+        tileSize,
+        tileSize
+      );
+
+      arrowCanvases[arrowOrder[i]] = canv;
+      srcX++;
+    }
+
+    this.setState({ arrowCanvases });
   }
 
   incrementPollCount() {
@@ -49,7 +127,20 @@ class EnemyManager extends React.Component {
   }
 
   updateEnemyDisplayArr(enemy, index) {
+    let setDisplay = false;
+
+    if (enemy.curHealth !== enemy.maxHealth &&
+      this.enemyDisplayArr[index] &&
+      this.enemyDisplayArr[index].curHealth !== enemy.curHealth) {
+      setDisplay = true;
+    }
+
     this.enemyDisplayArr[index] = enemy;
+
+    if (setDisplay) {
+      //console.log('re-set display');
+      this.setEnemyDisplay();
+    }
   }
 
   setLevelEnemies() {
@@ -115,6 +206,7 @@ class EnemyManager extends React.Component {
     this.enemyTurn.length = enemiesRemaining;
     this.enemyDisplayArr.length = enemiesRemaining;
 
+    this.bossDead = false;
     this.props.updateGameClassState({ floorCoords, enemyArr});
 
     this.setState({
@@ -178,14 +270,16 @@ class EnemyManager extends React.Component {
 
   handleEnemyDead(nextProps) {
     const {enemyDead} = nextProps,
-      {coord, count} = enemyDead;
+      {coord} = enemyDead;
 
     let {enemyArr} = nextProps,
       {roundEnemyArr} = this.state;
 
     roundEnemyArr[coord[0]][coord[1]] = 0;
     enemyArr = [...roundEnemyArr];
-    this.enemyDeadCount = count;
+    this.enemyDeadCount = enemyDead.count;
+
+    if (enemyDead.source.boss) this.bossDead = true;
 
     nextProps.updateGameClassState({ enemyArr });
     this.setState({ roundEnemyArr});
@@ -205,12 +299,17 @@ class EnemyManager extends React.Component {
     if (icon) ctx.drawImage(icon, 0, 0);
   }
 
-  setEnemyDisplay(nextProps, nextState) {
-    const {playerArr} = nextProps,
-      enemyDisplayArr = this.enemyDisplayArr;
+  setEnemyDisplay(props = this.props) {
+    const {playerArr, portalObjective} = props,
+      {arrowCanvases} = this.state,
+      {coord, discovered} = portalObjective,
+      enemyDisplayArr = this.enemyDisplayArr,
+      pi = Math.PI,
+      radOffset = pi / 8;
 
     let displayRange = 5,
       displayChoice = {},
+      source = {},
       position = [],
       icon = null,
       updateDisplayChoice = false,
@@ -218,7 +317,10 @@ class EnemyManager extends React.Component {
       healthLost = 0,
       maxHealth = 0,
       curHealth = 0,
-      index = 0;
+      index = 0,
+      dY = 0,
+      dX = 0,
+      angle = 0;
 
     enemyDisplayArr.forEach(
       (el, i) => {
@@ -238,6 +340,7 @@ class EnemyManager extends React.Component {
             maxHealth = el.maxHealth;
             curHealth = el.curHealth;
             healthLost = maxHealth - curHealth;
+            source = el.source;
 
             if (!displayChoice.maxHealth || distance < displayChoice.distance) {
               updateDisplayChoice = true;
@@ -250,7 +353,7 @@ class EnemyManager extends React.Component {
             }
 
             if (updateDisplayChoice) {
-              displayChoice = {position, distance, index, maxHealth, curHealth, healthLost};
+              displayChoice = {position, distance, index, maxHealth, curHealth, healthLost, source};
             }
           }
         }
@@ -262,11 +365,37 @@ class EnemyManager extends React.Component {
       enemyDisplayArr[displayChoice.index].name === this.enemyDisplay.name &&
       enemyDisplayArr[displayChoice.index].level === this.enemyDisplay.level)) {
 
+
       this.enemyDisplay = displayChoice.curHealth ? enemyDisplayArr[displayChoice.index] : {};
       icon = this.enemyDisplay.icon ? this.enemyDisplay.icon : false;
 
+      //console.log('if this.enemyDisplay: ', this.enemyDisplay);
+
       this.drawEnemyIcon(icon);
+
+      this.setState({ displayUpdateCount: this.state.displayUpdateCount + 1 })
     }
+
+
+    if (!Object.keys(this.enemyDisplay).length && this.bossDead && discovered) {
+      dY = playerArr[0] - coord[0];
+      dX = playerArr[1] - coord[1];
+      angle = dX >= 0 && dY >= 0 ? Math.atan(dX / dY) :
+        dX >= 0 && dY < 0 ? pi / 2 + Math.atan(dY / dX * -1) :
+        dX < 0 && dY < 0 ? pi + Math.atan(dX / dY) :
+        3 * pi / 2 + Math.atan(dY / dX * -1);
+
+      index = ~~((angle + radOffset ) / (pi / 4)) % arrowCanvases.length;
+
+      this.drawEnemyIcon(arrowCanvases[index]);
+    }
+
+
+  }
+
+  componentDidMount() {
+    this.getManagerImages();
+    this.resetMerchantInventories();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -278,24 +407,9 @@ class EnemyManager extends React.Component {
     if (this.enemyDeadCount !== nextProps.enemyDead.count) {
       this.handleEnemyDead(nextProps);
     }
-  }
+    if (this.props.moveCount !== nextProps.moveCount) {
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (this.props.moveCount !== nextProps.moveCount ||
-      this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count ||
-      this.state.roundCount !== nextState.roundCount ||
-      this.state.displayCount !== nextState.displayCount ||
-      nextState.levelProcessed !== nextProps.itemLevelProcessed) {
-
-      return true;
-    }
-    return false;
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.props.moveCount !== nextProps.moveCount ||
-      this.state.displayCount !== nextState.displayCount) {
-      this.setEnemyDisplay(nextProps, nextState);
+      this.setEnemyDisplay(nextProps);
     }
   }
 
@@ -309,6 +423,7 @@ class EnemyManager extends React.Component {
 
   render() {
     const {levelEnemies} = this.state,
+      {portalObjective} = this.props,
       ts = this.props.tileSize,
       enemyDisplay = this.enemyDisplay,
       healthMaxWidth = 10;
@@ -343,7 +458,6 @@ class EnemyManager extends React.Component {
             bgArr = {this.props.bgArr}
             playerArr = {this.props.playerArr}
             moveCount = {this.props.moveCount}
-            displayCount = {this.state.displayCount}
             enemyArr = {this.props.enemyArr}
             roundEnemyArr = {this.state.roundEnemyArr}
             enemyPalettes = {this.props.enemyPalettes}
@@ -374,12 +488,15 @@ class EnemyManager extends React.Component {
       healthWidth = healthPercent + `%`;
       healthColor = healthPercent > 70 ? 'rgba(0,255,0,.8)' :
         healthPercent > 30 ? 'rgba(255,255,0,.8)' :
-        'rgba(255,0,0,.7)'
+        'rgba(255,0,0,.7)';
+
+    } else if (this.bossDead && portalObjective.discovered) {
+      containerHeader = 'To Portal';
     }
 
 
     return (
-      <div className='enemy-manager'>
+      <div className={enemyDisplay.name && enemyDisplay.source.boss ? 'enemy-manager enemy-manager-boss' : 'enemy-manager'}>
         <p className='enemy-manager-title'>
           {containerHeader}
         </p>

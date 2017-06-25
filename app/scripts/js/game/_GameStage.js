@@ -8,9 +8,36 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: boardSize, tileSize, floor, gameLevel, levels, hero, playerArr, bgArr, floorCoords,
-//updateFloorCoords, itemArr, itemPalettes, updateGameClassState, itemPaletteArrMap
-//inventory, interactItem, heroFacing, enemyArr, enemyPalettes, enemyDead, bgLevelProcessed, playerPalettes, toggleMute
+/**
+  *		@desc Stage for all game animation layers.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.floor - First integer of floor value range in bgArr.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.levels - Total game levels.
+	*		@param {number} props.bgLevelProcessed - Updated as LayerBackground processes a level.
+	*		@param {string} props.hero - Name of chosen hero.
+	*		@param {string} props.heroFacing - Current hero direction.
+	*		@param {string} props.overlayMode - Current GameStage overlay.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.itemArr - Square array holds level item layer state.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {array} props.floorcoords - Floor coords which haven't been take by hero/item/enemy.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.portalObjective - Portal location and current discovery state.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {object} props.itemPaletteArrMap - Maps itemArr numbers to their corresponding object.
+	*		@param {object} props.itemPalettes - Item sprite sheets on canvas.
+	*		@param {object} props.enemyPalettes - Enemy sprite sheets on canvas.
+	*		@param {object} props.playerPalettes - Hero sprite sheets on canvas.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *		@returns Game layer stage.
+  */
+
 var GameStage = function (_React$Component) {
   _inherits(GameStage, _React$Component);
 
@@ -42,23 +69,23 @@ var GameStage = function (_React$Component) {
         React.createElement(LayerPlayer, {
           stageSize: this.state.stageSize,
           tileSize: this.props.tileSize,
-          hero: this.props.hero,
-          heroFacing: this.props.heroFacing,
-          playerPalettes: this.props.playerPalettes,
           gameLevel: this.props.gameLevel,
           bgLevelProcessed: this.props.bgLevelProcessed,
-          bgArr: this.props.bgArr,
+          hero: this.props.hero,
+          heroFacing: this.props.heroFacing,
           playerArr: this.props.playerArr,
+          bgArr: this.props.bgArr,
           floorCoords: this.props.floorCoords,
+          playerPalettes: this.props.playerPalettes,
           updateGameClassState: this.props.updateGameClassState }),
         React.createElement(LayerBackground, {
-          stageSize: this.state.stageSize,
           boardSize: this.props.boardSize,
+          stageSize: this.state.stageSize,
           tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
           bgLevelProcessed: this.props.bgLevelProcessed,
-          bgArr: this.props.bgArr,
           playerArr: this.props.playerArr,
+          bgArr: this.props.bgArr,
           updateGameClassState: this.props.updateGameClassState }),
         React.createElement(LayerAccent, {
           stageSize: this.state.stageSize,
@@ -102,7 +129,9 @@ var GameStage = function (_React$Component) {
           boardSize: this.props.boardSize,
           tileSize: this.props.tileSize,
           gameLevel: this.props.gameLevel,
-          playerArr: this.props.playerArr }),
+          playerArr: this.props.playerArr,
+          portalObjective: this.props.portalObjective,
+          updateGameClassState: this.props.updateGameClassState }),
         React.createElement(LayerOverlays, {
           tileSize: this.props.tileSize,
           playerArr: this.props.playerArr,

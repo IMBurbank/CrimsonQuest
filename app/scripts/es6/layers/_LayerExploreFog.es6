@@ -1,5 +1,5 @@
-//props: stageSize, tileSize, boardSize, playerArr, gameLevel
-
+//props: stageSize, tileSize, boardSize, playerArr, gameLevel, portalObjective
+//updateGameClassState
 class LayerExploreFog extends React.Component {
   constructor(props) {
     super(props);
@@ -99,12 +99,13 @@ class LayerExploreFog extends React.Component {
       this.lastPlayerArr = playerArr.slice(0);
 
       const {fogSquareCanvas} = this.state,
-        {stageSize, boardSize, tileSize} = this.props,
+        {stageSize, boardSize, tileSize, portalObjective} = this.props,
         rLen = stageSize / tileSize;
 
       let {fogArr, renderArr, tempCanvas} = this.state,
         dCtx = document.getElementById('layer-explore-fog').getContext('2d'),
         tempCtx = tempCanvas.getContext('2d'),
+        nState = {},
         dX = 0,
         dY = 0,
         i = 0,
@@ -137,6 +138,11 @@ class LayerExploreFog extends React.Component {
 
       dCtx.clearRect(0, 0, stageSize, stageSize);
       dCtx.drawImage(tempCanvas, 0, 0, stageSize, stageSize);
+
+      if (!fogArr[portalObjective.coord[0]][portalObjective.coord[1]]) {
+        portalObjective.discovered = true;
+        this.props.updateGameClassState({ portalObjective });
+      }
 
       this.setState({ fogArr });
     }

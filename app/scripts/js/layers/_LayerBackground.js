@@ -8,8 +8,21 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: stageSize, boardSize, tileSize, gameLevel, bgArr, playerArr,
-//bgLevelProcessed, updateGameClassState
+/**
+  *		@desc GameStage canvas layer responsible for background rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.bgLevelProcessed - Updated as LayerBackground processes a level.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {array} lastPlayerArr - Last processed playerArr coord.
+  *		@returns HTML canvas layer for background.
+  */
+
 var LayerBackground = function (_React$Component) {
   _inherits(LayerBackground, _React$Component);
 

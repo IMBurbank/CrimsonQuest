@@ -1,5 +1,24 @@
-//props: tileSize, hero, heroIcon, inventory, itemPalettes, interactItem, updateGameClassState
-//useStatPoint, increasedStat, enemyAttack, exchangeAttacks, enemyDead, gameOver
+/**
+  *		@desc Chosen game hero.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {string} props.hero - Name of chosen hero.
+	*		@param {html} props.heroIcon - Image of chosen hero on square tileSize canvas.
+	*		@param {boolean} props.gameOver - Boolean gameover state.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.useStatPoint - Game component keydown attmept to use hero stat point.
+	*		@param {object} props.increasedStat - Updated when useStatPoint is successfull.
+	*		@param {object} props.enemyAttack - Enemy attack details. Prompts exchangeAttacks update.
+	*		@param {object} props.exchangeAttacks - Hero/Enemy attack details.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {object} props.itemPalettes - Item sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+	*		@property {number} enemyDeadCount - Current count of enemies killed.
+	*		@property {boolean} heroDead - Hero death status.
+  *		@returns Character Info pane.
+  */
+
 class Hero extends React.Component {
   constructor(props) {
     super(props);

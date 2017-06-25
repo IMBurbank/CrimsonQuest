@@ -1,5 +1,22 @@
-//props: gameOver, gameLevel, gameMuted, levels, levelUpCount, interactItem, useStatPoint,
-//exchangeAttacks, enemyDead, overlayMode
+/**
+  *		@desc Game sound controller.
+	*		@param {object} props - Component props.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.levels - Total game levels.
+	*		@param {number} props.levelUpCount - Current hero level.
+	*		@param {string} props.overlayMode - Current GameStage overlay.
+	*		@param {boolean} props.gameOver - Boolean gameover state.
+	*		@param {boolean} props.gameMuted - Game volume state.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.increasedStat - Updated when useStatPoint is successfull.
+	*		@param {object} props.exchangeAttacks - Hero/Enemy attack details.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@property {object} soundKeys - Sound file path mapping object.
+	*		@property {object} musicOverlays - Overlays with background music.
+	*		@property {object} effectOverlays - Overlays with transition sound effects.
+	*		@property {number} enemyDeadCount - Current count of enemies killed.
+  *		@returns Game background music and sound effects.
+  */
 
 class GameSounds extends React.Component {
   constructor(props) {
@@ -225,7 +242,7 @@ class GameSounds extends React.Component {
     if (this.props.interactItem.count !== nextProps.interactItem.count) {
       this.handleInteractItem(nextProps);
     }
-    if (this.props.useStatPoint.count !== nextProps.useStatPoint.count) {
+    if (this.props.increasedStat.count !== nextProps.increasedStat.count) {
       this.playEffect('useStatPoint');
     }
     if (this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count) {

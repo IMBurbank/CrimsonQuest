@@ -10,7 +10,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks,
+//gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks, portalObjective
 //moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, itemLevelProcessed
 var EnemyManager = function (_React$Component) {
   _inherits(EnemyManager, _React$Component);
@@ -20,6 +20,9 @@ var EnemyManager = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (EnemyManager.__proto__ || Object.getPrototypeOf(EnemyManager)).call(this, props));
 
+    _this.getManagerImages = _this.getManagerImages.bind(_this);
+    _this.setPalettes = _this.setPalettes.bind(_this);
+    _this.resetMerchantInventories = _this.resetMerchantInventories.bind(_this);
     _this.setLevelEnemies = _this.setLevelEnemies.bind(_this);
     _this.runEnemyRound = _this.runEnemyRound.bind(_this);
     _this.handleEnemyDead = _this.handleEnemyDead.bind(_this);
@@ -37,24 +40,97 @@ var EnemyManager = function (_React$Component) {
     //type: 'move', 'stay', 'attack', 'die'
 
     _this.enemyDisplayArr = [];
-    //{name: '', type: '', icon: <memCanvas>, level: 0, curHealth: 0, maxHealth: 0, position: []}
+    //{name: '', type: '', icon: <memCanvas>, level: 0, curHealth: 0, maxHealth: 0, position: [], source: {}}
     _this.enemyDisplay = {};
+
+    _this.bossDead = false;
+
+    _this.srcTileSize = 16;
+    _this.renderSmoothing = false;
+    _this.imgArrowCropDimensions = {
+      srcX: 2,
+      srcY: 41,
+      firstRowTiles: 5,
+      tileCount: 8,
+      arrowOrder: [2, 6, 4, 0, 1, 7, 3, 5]
+    };
 
     _this.state = {
       roundCount: 0,
-      displayCount: 0,
       levelProcessed: 0,
       enemiesRemaining: 0,
       currentIndex: 0,
+      displayUpdateCount: 0,
       levelEnemies: [],
       roundEnemyArr: [],
-      nextKey: 0
-
+      nextKey: 0,
+      interfaceImage: null,
+      arrowCanvases: []
     };
     return _this;
   }
 
   _createClass(EnemyManager, [{
+    key: 'getManagerImages',
+    value: function getManagerImages() {
+      var that = this;
+
+      var interfaceImage = new Image();
+
+      var handleManagerLoad = function handleManagerImageLoad() {
+        that.setState({ interfaceImage: interfaceImage });
+        that.setPalettes(interfaceImage);
+      };
+
+      interfaceImage.src = 'img/gui/ToenTileSet.png';
+      interfaceImage.addEventListener('load', handleManagerLoad);
+    }
+  }, {
+    key: 'resetMerchantInventories',
+    value: function resetMerchantInventories() {
+      for (var merchant in merchantInventories) {
+        enemyHumanoid[merchant].inventory = Object.assign({}, merchantInventories[merchant]);
+      }
+    }
+  }, {
+    key: 'setPalettes',
+    value: function setPalettes(img) {
+      var tileSize = this.props.tileSize,
+          srcTs = this.srcTileSize,
+          renderSmoothing = this.renderSmoothing;
+      var arrowCanvases = this.state.arrowCanvases,
+          _imgArrowCropDimensio = this.imgArrowCropDimensions,
+          srcX = _imgArrowCropDimensio.srcX,
+          srcY = _imgArrowCropDimensio.srcY,
+          firstRowTiles = _imgArrowCropDimensio.firstRowTiles,
+          tileCount = _imgArrowCropDimensio.tileCount,
+          arrowOrder = _imgArrowCropDimensio.arrowOrder,
+          canv = null,
+          ctx = null,
+          i = 0;
+
+
+      if (arrowCanvases.length < tileCount) arrowCanvases.length = tileCount;
+
+      for (; i < tileCount; i++) {
+        canv = document.createElement('canvas');
+        canv.width = tileSize;
+        canv.height = tileSize;
+
+        ctx = canv.getContext('2d');
+        ctx.imageSmoothingEnabled = renderSmoothing;
+
+        if (i === firstRowTiles) srcY++, srcX = 0;
+
+        ctx.drawImage(img, srcTs * srcX, srcTs * srcY, srcTs, srcTs, 0, 0, tileSize, tileSize);
+
+        arrowCanvases[arrowOrder[i]] = canv;
+        srcX++;
+      }
+
+      this.setState({ arrowCanvases: arrowCanvases });
+    }
+  }, {
     key: 'incrementPollCount',
     value: function incrementPollCount() {
       this.pollCount++;
@@ -71,7 +147,18 @@ var EnemyManager = function (_React$Component) {
   }, {
     key: 'updateEnemyDisplayArr',
     value: function updateEnemyDisplayArr(enemy, index) {
+      var setDisplay = false;
+
+      if (enemy.curHealth !== enemy.maxHealth && this.enemyDisplayArr[index] && this.enemyDisplayArr[index].curHealth !== enemy.curHealth) {
+        setDisplay = true;
+      }
+
       this.enemyDisplayArr[index] = enemy;
+
+      if (setDisplay) {
+        //console.log('re-set display');
+        this.setEnemyDisplay();
+      }
     }
   }, {
     key: 'setLevelEnemies',
@@ -130,6 +217,7 @@ var EnemyManager = function (_React$Component) {
       this.enemyTurn.length = enemiesRemaining;
       this.enemyDisplayArr.length = enemiesRemaining;
 
+      this.bossDead = false;
       this.props.updateGameClassState({ floorCoords: floorCoords, enemyArr: enemyArr });
 
       this.setState({
@@ -205,15 +293,16 @@ var EnemyManager = function (_React$Component) {
     key: 'handleEnemyDead',
     value: function handleEnemyDead(nextProps) {
       var enemyDead = nextProps.enemyDead,
-          coord = enemyDead.coord,
-          count = enemyDead.count;
+          coord = enemyDead.coord;
       var enemyArr = nextProps.enemyArr,
           roundEnemyArr = this.state.roundEnemyArr;
 
 
       roundEnemyArr[coord[0]][coord[1]] = 0;
       enemyArr = [].concat(_toConsumableArray(roundEnemyArr));
-      this.enemyDeadCount = count;
+      this.enemyDeadCount = enemyDead.count;
+
+      if (enemyDead.source.boss) this.bossDead = true;
 
       nextProps.updateGameClassState({ enemyArr: enemyArr });
       this.setState({ roundEnemyArr: roundEnemyArr });
@@ -238,13 +327,21 @@ var EnemyManager = function (_React$Component) {
     }
   }, {
     key: 'setEnemyDisplay',
-    value: function setEnemyDisplay(nextProps, nextState) {
-      var playerArr = nextProps.playerArr,
-          enemyDisplayArr = this.enemyDisplayArr;
+    value: function setEnemyDisplay() {
+      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
+      var playerArr = props.playerArr,
+          portalObjective = props.portalObjective,
+          arrowCanvases = this.state.arrowCanvases,
+          coord = portalObjective.coord,
+          discovered = portalObjective.discovered,
+          enemyDisplayArr = this.enemyDisplayArr,
+          pi = Math.PI,
+          radOffset = pi / 8;
 
 
       var displayRange = 5,
           displayChoice = {},
+          source = {},
           position = [],
           icon = null,
           updateDisplayChoice = false,
@@ -252,7 +349,10 @@ var EnemyManager = function (_React$Component) {
           healthLost = 0,
           maxHealth = 0,
           curHealth = 0,
-          index = 0;
+          index = 0,
+          dY = 0,
+          dX = 0,
+          angle = 0;
 
       enemyDisplayArr.forEach(function (el, i) {
         if (el && el.curHealth) {
@@ -271,6 +371,7 @@ var EnemyManager = function (_React$Component) {
             maxHealth = el.maxHealth;
             curHealth = el.curHealth;
             healthLost = maxHealth - curHealth;
+            source = el.source;
 
             if (!displayChoice.maxHealth || distance < displayChoice.distance) {
               updateDisplayChoice = true;
@@ -283,7 +384,7 @@ var EnemyManager = function (_React$Component) {
             }
 
             if (updateDisplayChoice) {
-              displayChoice = { position: position, distance: distance, index: index, maxHealth: maxHealth, curHealth: curHealth, healthLost: healthLost };
+              displayChoice = { position: position, distance: distance, index: index, maxHealth: maxHealth, curHealth: curHealth, healthLost: healthLost, source: source };
             }
           }
         }
@@ -294,8 +395,28 @@ var EnemyManager = function (_React$Component) {
         this.enemyDisplay = displayChoice.curHealth ? enemyDisplayArr[displayChoice.index] : {};
         icon = this.enemyDisplay.icon ? this.enemyDisplay.icon : false;
 
+        //console.log('if this.enemyDisplay: ', this.enemyDisplay);
+
         this.drawEnemyIcon(icon);
+
+        this.setState({ displayUpdateCount: this.state.displayUpdateCount + 1 });
       }
+
+      if (!Object.keys(this.enemyDisplay).length && this.bossDead && discovered) {
+        dY = playerArr[0] - coord[0];
+        dX = playerArr[1] - coord[1];
+        angle = dX >= 0 && dY >= 0 ? Math.atan(dX / dY) : dX >= 0 && dY < 0 ? pi / 2 + Math.atan(dY / dX * -1) : dX < 0 && dY < 0 ? pi + Math.atan(dX / dY) : 3 * pi / 2 + Math.atan(dY / dX * -1);
+
+        index = ~~((angle + radOffset) / (pi / 4)) % arrowCanvases.length;
+
+        this.drawEnemyIcon(arrowCanvases[index]);
+      }
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      this.getManagerImages();
+      this.resetMerchantInventories();
     }
   }, {
     key: 'componentWillReceiveProps',
@@ -306,21 +427,9 @@ var EnemyManager = function (_React$Component) {
       if (this.enemyDeadCount !== nextProps.enemyDead.count) {
         this.handleEnemyDead(nextProps);
       }
-    }
-  }, {
-    key: 'shouldComponentUpdate',
-    value: function shouldComponentUpdate(nextProps, nextState) {
-      if (this.props.moveCount !== nextProps.moveCount || this.props.exchangeAttacks.count !== nextProps.exchangeAttacks.count || this.state.roundCount !== nextState.roundCount || this.state.displayCount !== nextState.displayCount || nextState.levelProcessed !== nextProps.itemLevelProcessed) {
+      if (this.props.moveCount !== nextProps.moveCount) {
 
-        return true;
-      }
-      return false;
-    }
-  }, {
-    key: 'componentWillUpdate',
-    value: function componentWillUpdate(nextProps, nextState) {
-      if (this.props.moveCount !== nextProps.moveCount || this.state.displayCount !== nextState.displayCount) {
-        this.setEnemyDisplay(nextProps, nextState);
+        this.setEnemyDisplay(nextProps);
       }
     }
   }, {
@@ -337,6 +446,7 @@ var EnemyManager = function (_React$Component) {
       var _this2 = this;
 
       var levelEnemies = this.state.levelEnemies,
+          portalObjective = this.props.portalObjective,
           ts = this.props.tileSize,
           enemyDisplay = this.enemyDisplay,
           healthMaxWidth = 10;
@@ -374,7 +484,6 @@ var EnemyManager = function (_React$Component) {
           bgArr: _this2.props.bgArr,
           playerArr: _this2.props.playerArr,
           moveCount: _this2.props.moveCount,
-          displayCount: _this2.state.displayCount,
           enemyArr: _this2.props.enemyArr,
           roundEnemyArr: _this2.state.roundEnemyArr,
           enemyPalettes: _this2.props.enemyPalettes,
@@ -403,11 +512,13 @@ var EnemyManager = function (_React$Component) {
         healthPercent = ~~(enemyDisplay.curHealth / enemyDisplay.maxHealth * 100);
         healthWidth = healthPercent + '%';
         healthColor = healthPercent > 70 ? 'rgba(0,255,0,.8)' : healthPercent > 30 ? 'rgba(255,255,0,.8)' : 'rgba(255,0,0,.7)';
+      } else if (this.bossDead && portalObjective.discovered) {
+        containerHeader = 'To Portal';
       }
 
       return React.createElement(
         'div',
-        { className: 'enemy-manager' },
+        { className: enemyDisplay.name && enemyDisplay.source.boss ? 'enemy-manager enemy-manager-boss' : 'enemy-manager' },
         React.createElement(
           'p',
           { className: 'enemy-manager-title' },

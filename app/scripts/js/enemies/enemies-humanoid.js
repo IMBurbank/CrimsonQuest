@@ -186,34 +186,39 @@ var enemyHumanoid = {
       bStrength: 2,
       bAgility: 3
     },
-    inventory: {
-      'Potion': {
-        name: 'Potion',
-        type: 'consumable',
-        count: 5,
-        equipped: false,
-        itemArrVal: 200,
-        palette: 'potionPalette',
-        iconLoc: [0, 0, 32, 32],
-        buy: 20,
-        sell: 10,
-        stats: { curHealth: 50 },
-        spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
-      },
-      'Hi Potion': {
-        name: 'Hi Potion',
-        type: 'consumable',
-        count: 3,
-        equipped: false,
-        itemArrVal: 201,
-        palette: 'potionPalette',
-        iconLoc: [64, 0, 32, 32],
-        buy: 50,
-        sell: 25,
-        stats: { curHealth: 150 },
-        spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
-      }
-    }
+    inventory: {}
+  },
+  outlawMerchant: {
+    name: 'Outlaw Merchant',
+    type: 'merchant',
+    palette: ['humanoid0Palette', 'humanoid1Palette'],
+    iconLoc: [96, 160],
+    spawnQuant: { '3': 1 },
+    boss: false,
+    aggression: 0,
+    levelRange: [6, 8],
+    baseStats: {
+      bHealth: 10,
+      bAttack: 0,
+      bDefense: 150,
+      bHit: 60,
+      bCrit: 5,
+      bDodge: 15,
+      bVitality: 2,
+      bDurability: 4,
+      bStrength: 5,
+      bAgility: 10
+    },
+    onLevelUp: {
+      bHealth: 6,
+      bAttack: 0,
+      bDefense: 4,
+      bVitality: 2,
+      bDurability: 2,
+      bStrength: 2,
+      bAgility: 3
+    },
+    inventory: {}
   },
   seedyMerchant: {
     name: 'Seedy Merchant',
@@ -245,34 +250,39 @@ var enemyHumanoid = {
       bStrength: 2,
       bAgility: 3
     },
-    inventory: {
-      'Potion': {
-        name: 'Potion',
-        type: 'consumable',
-        count: 5,
-        equipped: false,
-        itemArrVal: 200,
-        palette: 'potionPalette',
-        iconLoc: [0, 0, 32, 32],
-        buy: 20,
-        sell: 10,
-        stats: { curHealth: 50 },
-        spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
-      },
-      'Hi Potion': {
-        name: 'Hi Potion',
-        type: 'consumable',
-        count: 5,
-        equipped: false,
-        itemArrVal: 201,
-        palette: 'potionPalette',
-        iconLoc: [64, 0, 32, 32],
-        buy: 50,
-        sell: 25,
-        stats: { curHealth: 150 },
-        spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
-      }
-    }
+    inventory: {}
+  },
+  soullessMerchant: {
+    name: 'Soulless Merchant',
+    type: 'merchant',
+    palette: ['humanoid0Palette', 'humanoid1Palette'],
+    iconLoc: [128, 160],
+    spawnQuant: { '7': 1 },
+    boss: false,
+    aggression: 0,
+    levelRange: [9, 11],
+    baseStats: {
+      bHealth: 10,
+      bAttack: 0,
+      bDefense: 150,
+      bHit: 60,
+      bCrit: 5,
+      bDodge: 15,
+      bVitality: 2,
+      bDurability: 4,
+      bStrength: 5,
+      bAgility: 10
+    },
+    onLevelUp: {
+      bHealth: 6,
+      bAttack: 0,
+      bDefense: 4,
+      bVitality: 2,
+      bDurability: 2,
+      bStrength: 2,
+      bAgility: 3
+    },
+    inventory: {}
   },
   darkMerchant: {
     name: 'Dark Merchant',
@@ -304,46 +314,6 @@ var enemyHumanoid = {
       bStrength: 2,
       bAgility: 3
     },
-    inventory: {
-      'Potion': {
-        name: 'Potion',
-        type: 'consumable',
-        count: 5,
-        equipped: false,
-        itemArrVal: 200,
-        palette: 'potionPalette',
-        iconLoc: [0, 0, 32, 32],
-        buy: 20,
-        sell: 10,
-        stats: { curHealth: 50 },
-        spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
-      },
-      'Hi Potion': {
-        name: 'Hi Potion',
-        type: 'consumable',
-        count: 3,
-        equipped: false,
-        itemArrVal: 201,
-        palette: 'potionPalette',
-        iconLoc: [64, 0, 32, 32],
-        buy: 50,
-        sell: 25,
-        stats: { curHealth: 150 },
-        spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
-      },
-      xPotion: {
-        name: 'X Potion',
-        type: 'consumable',
-        count: 5,
-        equipped: false,
-        itemArrVal: 202,
-        palette: 'potionPalette',
-        iconLoc: [96, 64, 32, 32],
-        buy: 150,
-        sell: 75,
-        stats: { curHealth: 500 },
-        spawnQuant: { '10': 1 }
-      }
-    }
+    inventory: {}
   }
 };

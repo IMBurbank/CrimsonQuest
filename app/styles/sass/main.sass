@@ -4,8 +4,8 @@ $gm-height: 640px
 $stg-size: 480px
 $side-col: 224px
 $tile-size: 32px
-$font-size-md: .8rem
-$font-size-sm: .7rem
+$font-size-md: 0.8rem
+$font-size-sm: 0.7rem
 $prim-color: rgb(16, 16, 16)
 $head-font-color: #fff
 $focus-color: #00f
@@ -14,7 +14,7 @@ $std-silver: #ccc
 $std-gray: #888
 $std-black: #000
 $retro-border: 2px outset rgb(188, 148, 138)
-$retro-background-texture: rgb(232, 232, 232) url('../../img/ConcreteTextureBackground.png') repeat
+$retro-background-texture: rgb(232, 232, 232) url("../../img/gui/ConcreteTextureBackground.png") repeat
 $item-canvas-background: linear-gradient(to top left, rgb(224, 224, 224), rgb(148, 148, 148))
 $item-canvas-border: 2px inset $std-gray
 $log-level-color: rgb(255, 172, 99)
@@ -22,25 +22,23 @@ $log-item-color: rgb(85, 219, 101)
 $log-stat-color: rgb(76, 182, 192)
 $log-attack-color: rgb(255, 107, 99)
 
-
 //
 //    Font Variants
 //
 
 @font-face
-  font-family: 'game-font-6'
-  src: url('fonts/SDS_6x6.ttf') format('truetype')
+  font-family: "game-font-6"
+  src: url("fonts/SDS_6x6.ttf") format("truetype")
 
 @font-face
-  font-family: 'game-font-8'
-  src: url('fonts/SDS_8x8.ttf') format('truetype')
+  font-family: "game-font-8"
+  src: url("fonts/SDS_8x8.ttf") format("truetype")
 
 @font-face
-  font-family: 'font-stat-icon'
+  font-family: "font-stat-icon"
   font-weight: normal
   font-style: normal
-  src: url('fonts/font-stat-icon.eot') format('embedded-opentype'), url('fonts/font-stat-icon.woff2') format('woff2'), url('fonts/font-stat-icon.woff') format('woff'), url('fonts/font-stat-icon.ttf') format('truetype'), url('fonts/font-stat-icon.svg?21663751#font-stat-icon') format('svg')
-
+  src: url("fonts/font-stat-icon.eot") format("embedded-opentype"), url("fonts/font-stat-icon.woff2") format("woff2"), url("fonts/font-stat-icon.woff") format("woff"), url("fonts/font-stat-icon.ttf") format("truetype"), url("fonts/font-stat-icon.svg?21663751#font-stat-icon") format("svg")
 
 //
 //    Mixins
@@ -52,8 +50,8 @@ $log-attack-color: rgb(255, 107, 99)
 
 =full-canvas-style($index)
   @extend %full-canvas
-  z-index: $index
 
+  z-index: $index
 
 //
 //		Classes to @extend
@@ -77,10 +75,10 @@ $log-attack-color: rgb(255, 107, 99)
   border: $retro-border
   background: $retro-background-texture
 
-  &> :first-child
-    font-size: .9rem
+  & > :first-child
+    font-size: 0.9rem
 
-  &> :nth-child(2)
+  & > :nth-child(2)
     font-size: $font-size-md
 
 %full-canvas
@@ -96,23 +94,22 @@ $log-attack-color: rgb(255, 107, 99)
 %percent-gauge-style
   position: relative
   display: inline-block
-  height: .65rem
+  height: 0.65rem
   margin-bottom: -2px
 
-  &> :first-child
+  & > :first-child
     position: absolute
     top: 0
     left: 0
     z-index: 2
     height: 100%
 
-  &> :nth-child(2)
+  & > :nth-child(2)
     position: absolute
     bottom: 2px
     left: 4px
     z-index: 2
-    font-size: .75rem
-
+    font-size: 0.75rem
 
 //
 //    Icons
@@ -122,22 +119,21 @@ $log-attack-color: rgb(255, 107, 99)
   display: inline-block
   width: 1em
   margin: 0 1rem
-  font-family: 'font-stat-icon'
-  font-size: 75%
+  font-family: "font-stat-icon"
+  font-size: 0.6rem
   font-weight: normal
   color: #f00
   text-transform: none
   text-align: center
   text-decoration: inherit
-  line-height: $font-size-sm
+  vertical-align: top
   font-variant: normal
   font-style: normal
   speak: none
 
 .icon-plus-squared
   &::before
-    content: '\f0fe'
-
+    content: ""
 
 //
 //		Styling
@@ -190,10 +186,10 @@ h4
   margin: auto
   padding: $tile-size / 4
   border: $std-border
-  font-family: 'game-font-6', sans-serif
+  font-family: "game-font-6", sans-serif
   background: $std-silver
   border-radius: $tile-size / 4
-  box-shadow: inset 2px 2px 1px rgba(255, 255, 255, .8), inset 2px 0 2px 1px rgba(0, 0, 0, .5), inset -2px 0 2px 1px rgba(0, 0, 0, .5), 2px 2px 3px 1px rgba(0, 0, 0, .6)
+  box-shadow: inset 2px 2px 1px rgba(255, 255, 255, 0.8), inset 2px 0 2px 1px rgba(0, 0, 0, 0.5), inset -2px 0 2px 1px rgba(0, 0, 0, 0.5), 2px 2px 3px 1px rgba(0, 0, 0, 0.6)
 
   &:focus
     outline: none
@@ -211,7 +207,7 @@ h4
   flex-direction: column
   justify-content: space-between
   align-items: center
-  margin: $tile-size / 8 0
+  margin: ($tile-size / 8) 0
 
 .level
   @extend %outer-col-head
@@ -229,7 +225,7 @@ h4
   display: flex
   justify-content: center
   align-items: center
-  font-size: .85rem
+  font-size: 0.85rem
   margin: 4px 0
 
 .stat-col
@@ -262,7 +258,7 @@ h4
   display: flex
   align-items: center
   height: 1.15 * $tile-size
-  margin: $tile-size / 4 0 0 $tile-size / 4
+  margin: ($tile-size / 4) 0 0 ($tile-size / 4)
   font-size: $font-size-sm
   text-align: left
 
@@ -278,12 +274,17 @@ h4
   flex-direction: column
   justify-content: space-between
   align-items: center
-  margin: $tile-size / 8 0
+  margin: ($tile-size / 8) 0
 
 .title
+  display: inline-block
   width: $stg-size
-  margin-top: $tile-size / 4
+  height: 1.25 * $tile-size
+  border: 2px outset rgb(200, 0, 0)
   background: $std-black
+
+  img
+    margin: 6px 0 0 0
 
 .stage
   position: relative
@@ -313,6 +314,7 @@ h4
 
 .stage-overlay
   +full-canvas-style(20)
+
   width: $stg-size
   height: $stg-size
   font-size: $font-size-md
@@ -322,7 +324,7 @@ h4
 
   .inv-header,
   .merchant-header
-    margin: $tile-size / 2 0
+    margin: ($tile-size / 2) 0
 
   .game-over-header,
   .gameOverMessage,
@@ -331,15 +333,13 @@ h4
   .hero-selection-message
     margin: $tile-size 0
 
-
   .interact-type
-    margin: $tile-size / 2 $tile-size / 4
+    margin: ($tile-size / 2) ($tile-size / 4)
 
   .inv-categories
     display: flex
     justify-content: space-around
-    margin: $tile-size / 2 0
-
+    margin: ($tile-size / 2) 0
 
   .interact-category0
     margin-right: $tile-size / 2
@@ -363,22 +363,22 @@ h4
   .equipped-col,
   .quantity-col
     width: 7rem
-    margin: 0 .5rem 0 3rem
+    margin: 0 0.5rem 0 3rem
     text-align: center
 
   .quant-buy-sell-col
     width: 9rem
-    margin: 0 .5rem 0 4rem
+    margin: 0 0.5rem 0 4rem
     text-align: center
 
   .name-col
     width: 20rem
-    margin: 0 .5rem
+    margin: 0 0.5rem
     text-align: center
 
   .stats-col
     width: 15rem
-    margin: 0 .5rem
+    margin: 0 0.5rem
     text-align: center
 
   .hero-selection-row
@@ -390,7 +390,7 @@ h4
     border: 2px solid $std-gray
 
   .hero-description
-    margin: $tile-size / 8 $tile-size / 4
+    margin: ($tile-size / 8) ($tile-size / 4)
 
     .label-col
       display: inline-block
@@ -412,17 +412,16 @@ h4
     border: 3px solid $focus-color
 
   .help-details
-    margin: $tile-size * 2 $tile-size / 2
+    margin: ($tile-size * 2) ($tile-size / 2)
     text-align: left
 
   .help-row
-    margin: $tile-size / 2 0
+    margin: ($tile-size / 2) 0
 
     .help-action
       display: inline-block
       width: 11.5rem
       margin-right: 1.5rem
-
 
 .optFocus
   background: $focus-color
@@ -441,7 +440,7 @@ h4
   text-align: center
 
 .consumable-canvas
-  margin: $tile-size / 8 0
+  margin: ($tile-size / 8) 0
   border: $item-canvas-border
   background: $item-canvas-background
 
@@ -449,7 +448,7 @@ h4
   display: flex
   flex-direction: column
   justify-content: space-between
-  margin: $tile-size / 8 0
+  margin: ($tile-size / 8) 0
 
 .current-objective
   @extend %outer-col-head
@@ -463,8 +462,11 @@ h4
   div
     font-size: $font-size-md
 
+.enemy-manager-boss
+  background-color: rgba(255, 107, 99, .5)
+
 .enemy-icon
-  margin: $tile-size / 2 0
+  margin: ($tile-size / 2)
 
 .enemy-health-row
   display: flex
@@ -486,7 +488,6 @@ h4
       display: inline-block
       height: 100%
 
-
 .enemy-health
   position: relative
   display: inline-block
@@ -505,7 +506,7 @@ h4
   &-gauge
     position: absolute
     top: 0
-    left: .5px
+    left: 0.5px
     z-index: 1
     display: inline-block
     height: 100%
@@ -525,7 +526,7 @@ h4
   text-align: left
 
 .log
-  padding: .1rem .2rem
+  padding: 0.1rem 0.2rem
 
 .log-level
   +log-item-color($log-level-color)

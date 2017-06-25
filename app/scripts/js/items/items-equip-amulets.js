@@ -120,7 +120,7 @@ var itemAmulets = {
     spawnQuant: { '5': 1 }
   },
   paladinAmu3: {
-    name: "EnchantedAmulet of Life",
+    name: "Enchanted Amulet of Life",
     type: 'amulet',
     palette: 'amuletPalette',
     iconLoc: [64, 32, 32, 32],
@@ -128,5 +128,26 @@ var itemAmulets = {
     sell: 30,
     stats: { iVitality: 4, iStrength: 1, iDurabilty: 2 },
     spawnQuant: { '7': 1 }
+  },
+  //Special Amulets
+  specialAmu1: {
+    name: "Cracked Ancient Amulet",
+    type: 'amulet',
+    palette: 'amuletPalette',
+    iconLoc: [160, 32, 32, 32],
+    buy: 120,
+    sell: 60,
+    stats: { iDurability: 2, iAgility: 2 },
+    spawnQuant: {}
+  },
+  specialAmu2: {
+    name: "Dark Amulet",
+    type: 'amulet',
+    palette: 'amuletPalette',
+    iconLoc: [128, 32, 32, 32],
+    buy: 400,
+    sell: 200,
+    stats: { iStrength: 5, iAgility: 4 },
+    spawnQuant: {}
   }
 };

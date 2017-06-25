@@ -62,8 +62,8 @@ var statConversion = {
   agiToCrit: 0.5,
   atkToHpRange: [3, 5],
   defToHpRange: [1, 3],
-  lvlToExpRange: [9, 12],
-  lvlToGoldRange: [2, 3],
+  lvlToExpRange: [6, 9],
+  lvlToGoldRange: [1, 3],
   expLevelMult: 1.75,
   lvlUpSkillPoints: 2,
   bossMultiplier: 2.5
@@ -165,5 +165,342 @@ var heroTypeStats = {
       agility: 1
     },
     description: 'Well-rounded. Fierce. Fairly agile. You don\'t need health if your enemy is dead.'
+  }
+
+  /**
+    *   Merchant Inventories
+    */
+
+};var merchantInventories = {
+  travelingMerchant: {
+    'Potion': {
+      name: 'Potion',
+      type: 'consumable',
+      count: 5,
+      equipped: false,
+      itemArrVal: 200,
+      palette: 'potionPalette',
+      iconLoc: [0, 0, 32, 32],
+      buy: 20,
+      sell: 10,
+      stats: { curHealth: 50 },
+      spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
+    },
+    specialAmu1: {
+      name: "Cracked Ancient Amulet",
+      type: 'amulet',
+      count: 1,
+      equipped: false,
+      palette: 'amuletPalette',
+      iconLoc: [160, 32, 32, 32],
+      buy: 120,
+      sell: 60,
+      stats: { iDurability: 2, iAgility: 2 },
+      spawnQuant: {}
+    }
+  },
+  outlawMerchant: {
+    'Potion': {
+      name: 'Potion',
+      type: 'consumable',
+      count: 4,
+      equipped: false,
+      itemArrVal: 200,
+      palette: 'potionPalette',
+      iconLoc: [0, 0, 32, 32],
+      buy: 20,
+      sell: 10,
+      stats: { curHealth: 50 },
+      spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
+    },
+    'Hi Potion': {
+      name: 'Hi Potion',
+      type: 'consumable',
+      count: 4,
+      equipped: false,
+      itemArrVal: 201,
+      palette: 'potionPalette',
+      iconLoc: [64, 0, 32, 32],
+      buy: 50,
+      sell: 25,
+      stats: { curHealth: 150 },
+      spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
+    },
+    tomeOfWisdom: {
+      name: 'Tome of Wisdom',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 207,
+      palette: 'bookPalette',
+      iconLoc: [0, 160, 32, 32],
+      buy: 200,
+      sell: 100,
+      stats: { statPoints: 1 },
+      spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
+    }
+  },
+  seedyMerchant: {
+    'Potion': {
+      name: 'Potion',
+      type: 'consumable',
+      count: 5,
+      equipped: false,
+      itemArrVal: 200,
+      palette: 'potionPalette',
+      iconLoc: [0, 0, 32, 32],
+      buy: 20,
+      sell: 10,
+      stats: { curHealth: 50 },
+      spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
+    },
+    'Hi Potion': {
+      name: 'Hi Potion',
+      type: 'consumable',
+      count: 5,
+      equipped: false,
+      itemArrVal: 201,
+      palette: 'potionPalette',
+      iconLoc: [64, 0, 32, 32],
+      buy: 50,
+      sell: 25,
+      stats: { curHealth: 150 },
+      spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
+    },
+    tomeOfVitality: {
+      name: 'Tome of Vitality',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 203,
+      palette: 'bookPalette',
+      iconLoc: [192, 160, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iVitality: 1 },
+      spawnQuant: { '3': 1, '6': 1, '9': 1 }
+    },
+    tomeOfDurability: {
+      name: 'Tome of Durability',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 204,
+      palette: 'bookPalette',
+      iconLoc: [192, 192, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iDurability: 1 },
+      spawnQuant: { '2': 1, '5': 1, '8': 1 }
+    },
+    tomeOfStrength: {
+      name: 'Tome of Strength',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 205,
+      palette: 'bookPalette',
+      iconLoc: [0, 224, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iStrength: 1 },
+      spawnQuant: { '1': 1, '4': 1, '8': 1 }
+    },
+    tomeOfAgility: {
+      name: 'Tome of Agility',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 206,
+      palette: 'bookPalette',
+      iconLoc: [64, 224, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iAgility: 1 },
+      spawnQuant: { '2': 1, '5': 1, '9': 1 }
+    },
+    tomeOfWisdom: {
+      name: 'Tome of Wisdom',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 207,
+      palette: 'bookPalette',
+      iconLoc: [0, 160, 32, 32],
+      buy: 200,
+      sell: 100,
+      stats: { statPoints: 1 },
+      spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
+    },
+    specialRng1: {
+      name: "Dark Ring",
+      type: 'ring',
+      count: 1,
+      equipped: false,
+      palette: 'ringPalette',
+      iconLoc: [128, 96, 32, 32],
+      buy: 200,
+      sell: 100,
+      stats: { iStrength: 2, iAgility: 2 },
+      spawnQuant: {}
+    }
+  },
+  soullessMerchant: {
+    'Hi Potion': {
+      name: 'Hi Potion',
+      type: 'consumable',
+      count: 5,
+      equipped: false,
+      itemArrVal: 201,
+      palette: 'potionPalette',
+      iconLoc: [64, 0, 32, 32],
+      buy: 50,
+      sell: 25,
+      stats: { curHealth: 150 },
+      spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
+    },
+    xPotion: {
+      name: 'X Potion',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 202,
+      palette: 'potionPalette',
+      iconLoc: [96, 64, 32, 32],
+      buy: 150,
+      sell: 75,
+      stats: { curHealth: 500 },
+      spawnQuant: { '10': 1 }
+    },
+    tomeOfWisdom: {
+      name: 'Tome of Wisdom',
+      type: 'consumable',
+      count: 3,
+      equipped: false,
+      itemArrVal: 207,
+      palette: 'bookPalette',
+      iconLoc: [0, 160, 32, 32],
+      buy: 200,
+      sell: 100,
+      stats: { statPoints: 1 },
+      spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
+    },
+    specialRng2: {
+      name: "Dark Glowing Ring",
+      type: 'ring',
+      count: 1,
+      equipped: false,
+      palette: 'ringPalette',
+      iconLoc: [32, 128, 32, 32],
+      buy: 400,
+      sell: 200,
+      stats: { iStrength: 4, iAgility: 3 },
+      spawnQuant: {}
+    }
+  },
+  darkMerchant: {
+    'Hi Potion': {
+      name: 'Hi Potion',
+      type: 'consumable',
+      count: 5,
+      equipped: false,
+      itemArrVal: 201,
+      palette: 'potionPalette',
+      iconLoc: [64, 0, 32, 32],
+      buy: 50,
+      sell: 25,
+      stats: { curHealth: 150 },
+      spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
+    },
+    xPotion: {
+      name: 'X Potion',
+      type: 'consumable',
+      count: 5,
+      equipped: false,
+      itemArrVal: 202,
+      palette: 'potionPalette',
+      iconLoc: [96, 64, 32, 32],
+      buy: 150,
+      sell: 75,
+      stats: { curHealth: 500 },
+      spawnQuant: { '10': 1 }
+    },
+    tomeOfVitality: {
+      name: 'Tome of Vitality',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 203,
+      palette: 'bookPalette',
+      iconLoc: [192, 160, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iVitality: 1 },
+      spawnQuant: { '3': 1, '6': 1, '9': 1 }
+    },
+    tomeOfDurability: {
+      name: 'Tome of Durability',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 204,
+      palette: 'bookPalette',
+      iconLoc: [192, 192, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iDurability: 1 },
+      spawnQuant: { '2': 1, '5': 1, '8': 1 }
+    },
+    tomeOfStrength: {
+      name: 'Tome of Strength',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 205,
+      palette: 'bookPalette',
+      iconLoc: [0, 224, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iStrength: 1 },
+      spawnQuant: { '1': 1, '4': 1, '8': 1 }
+    },
+    tomeOfAgility: {
+      name: 'Tome of Agility',
+      type: 'consumable',
+      count: 1,
+      equipped: false,
+      itemArrVal: 206,
+      palette: 'bookPalette',
+      iconLoc: [64, 224, 32, 32],
+      buy: 100,
+      sell: 50,
+      stats: { iAgility: 1 },
+      spawnQuant: { '2': 1, '5': 1, '9': 1 }
+    },
+    tomeOfWisdom: {
+      name: 'Tome of Wisdom',
+      type: 'consumable',
+      count: 2,
+      equipped: false,
+      itemArrVal: 207,
+      palette: 'bookPalette',
+      iconLoc: [0, 160, 32, 32],
+      buy: 200,
+      sell: 100,
+      stats: { statPoints: 1 },
+      spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
+    },
+    specialAmu2: {
+      name: "Dark Amulet",
+      type: 'amulet',
+      count: 1,
+      equipped: false,
+      palette: 'amuletPalette',
+      iconLoc: [128, 32, 32, 32],
+      buy: 400,
+      sell: 200,
+      stats: { iStrength: 5, iAgility: 4 },
+      spawnQuant: {}
+    }
   }
 };

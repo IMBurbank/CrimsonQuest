@@ -1,5 +1,18 @@
-//props: stageSize, boardSize, tileSize, gameLevel, bgArr, playerArr,
-//bgLevelProcessed, updateGameClassState
+/**
+  *		@desc GameStage canvas layer responsible for background rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.bgLevelProcessed - Updated as LayerBackground processes a level.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {array} lastPlayerArr - Last processed playerArr coord.
+  *		@returns HTML canvas layer for background.
+  */
+
 class LayerBackground extends React.Component {
   constructor(props) {
     super(props);

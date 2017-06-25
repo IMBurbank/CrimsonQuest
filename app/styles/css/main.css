@@ -1,13 +1,14 @@
+@charset "UTF-8";
 @font-face {
-  font-family: 'game-font-6';
+  font-family: "game-font-6";
   src: url("fonts/SDS_6x6.ttf") format("truetype"); }
 
 @font-face {
-  font-family: 'game-font-8';
+  font-family: "game-font-8";
   src: url("fonts/SDS_8x8.ttf") format("truetype"); }
 
 @font-face {
-  font-family: 'font-stat-icon';
+  font-family: "font-stat-icon";
   font-weight: normal;
   font-style: normal;
   src: url("fonts/font-stat-icon.eot") format("embedded-opentype"), url("fonts/font-stat-icon.woff2") format("woff2"), url("fonts/font-stat-icon.woff") format("woff"), url("fonts/font-stat-icon.ttf") format("truetype"), url("fonts/font-stat-icon.svg?21663751#font-stat-icon") format("svg"); }
@@ -34,9 +35,9 @@
   width: 224px;
   height: 32px;
   border: 2px outset #bc948a;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat; }
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat; }
   .level > :first-child, .current-objective > :first-child {
-    font-size: .9rem; }
+    font-size: 0.9rem; }
   .level > :nth-child(2), .current-objective > :nth-child(2) {
     font-size: 0.8rem; }
 
@@ -52,7 +53,7 @@
 .stat-row .hero-health, .stat-row .hero-experience {
   position: relative;
   display: inline-block;
-  height: .65rem;
+  height: 0.65rem;
   margin-bottom: -2px; }
   .stat-row .hero-health > :first-child, .stat-row .hero-experience > :first-child {
     position: absolute;
@@ -65,26 +66,26 @@
     bottom: 2px;
     left: 4px;
     z-index: 2;
-    font-size: .75rem; }
+    font-size: 0.75rem; }
 
 .stat-icon {
   display: inline-block;
   width: 1em;
   margin: 0 1rem;
-  font-family: 'font-stat-icon';
-  font-size: 75%;
+  font-family: "font-stat-icon";
+  font-size: 0.6rem;
   font-weight: normal;
   color: #f00;
   text-transform: none;
   text-align: center;
   text-decoration: inherit;
-  line-height: 0.7rem;
+  vertical-align: top;
   font-variant: normal;
   font-style: normal;
   speak: none; }
 
 .icon-plus-squared::before {
-  content: '\f0fe'; }
+  content: ""; }
 
 html,
 body,
@@ -139,7 +140,7 @@ h4 {
   margin: auto;
   padding: 8px;
   border: 1px solid #000;
-  font-family: 'game-font-6', sans-serif;
+  font-family: "game-font-6", sans-serif;
   background: #ccc;
   border-radius: 8px;
   box-shadow: inset 2px 2px 1px rgba(255, 255, 255, 0.8), inset 2px 0 2px 1px rgba(0, 0, 0, 0.5), inset -2px 0 2px 1px rgba(0, 0, 0, 0.5), 2px 2px 3px 1px rgba(0, 0, 0, 0.6); }
@@ -177,7 +178,7 @@ h4 {
   width: 224px;
   height: 572px;
   border: 2px outset #bc948a;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat; }
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat; }
   .hero .hero-heading {
     margin-top: 4px; }
 
@@ -191,7 +192,7 @@ h4 {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  font-size: .85rem;
+  font-size: 0.85rem;
   margin: 4px 0; }
 
 .stat-col {
@@ -247,9 +248,13 @@ h4 {
   margin: 4px 0; }
 
 .title {
+  display: inline-block;
   width: 480px;
-  margin-top: 8px;
+  height: 40px;
+  border: 2px outset #c80000;
   background: #000; }
+  .title img {
+    margin: 6px 0 0 0; }
 
 .stage {
   position: relative;
@@ -327,19 +332,19 @@ h4 {
   .stage-overlay .equipped-col,
   .stage-overlay .quantity-col {
     width: 7rem;
-    margin: 0 .5rem 0 3rem;
+    margin: 0 0.5rem 0 3rem;
     text-align: center; }
   .stage-overlay .quant-buy-sell-col {
     width: 9rem;
-    margin: 0 .5rem 0 4rem;
+    margin: 0 0.5rem 0 4rem;
     text-align: center; }
   .stage-overlay .name-col {
     width: 20rem;
-    margin: 0 .5rem;
+    margin: 0 0.5rem;
     text-align: center; }
   .stage-overlay .stats-col {
     width: 15rem;
-    margin: 0 .5rem;
+    margin: 0 0.5rem;
     text-align: center; }
   .stage-overlay .hero-selection-row {
     display: -webkit-box;
@@ -397,7 +402,7 @@ h4 {
   width: 480px;
   border: 2px outset #bc948a;
   font-size: 0.8rem;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat; }
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat; }
 
 .consumable-col {
   margin: 4px;
@@ -426,12 +431,15 @@ h4 {
   width: 224px;
   height: 160px;
   border: 2px outset #bc948a;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat; }
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat; }
   .enemy-manager div {
     font-size: 0.8rem; }
 
+.enemy-manager-boss {
+  background-color: rgba(255, 107, 99, 0.5); }
+
 .enemy-icon {
-  margin: 16px 0; }
+  margin: 16px; }
 
 .enemy-health-row {
   display: -webkit-box;
@@ -474,7 +482,7 @@ h4 {
   .enemy-health-gauge {
     position: absolute;
     top: 0;
-    left: .5px;
+    left: 0.5px;
     z-index: 1;
     display: inline-block;
     height: 100%; }
@@ -489,7 +497,7 @@ h4 {
   width: 224px;
   height: 320px;
   border: 2px outset #bc948a;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat;
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat;
   overflow-y: hidden; }
 
 .log-content {
@@ -498,7 +506,7 @@ h4 {
   text-align: left; }
 
 .log {
-  padding: .1rem .2rem; }
+  padding: 0.1rem 0.2rem; }
 
 .log-level {
   border: 1px solid #ff9130;
@@ -520,7 +528,7 @@ h4 {
   width: 224px;
   height: 160px;
   border: 2px outset #bc948a;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat; }
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat; }
 
 .tips {
   display: -webkit-box;
@@ -536,6 +544,6 @@ h4 {
   height: 32px;
   border: 2px outset #bc948a;
   font-size: 0.8rem;
-  background: #e8e8e8 url("../../img/ConcreteTextureBackground.png") repeat; }
+  background: #e8e8e8 url("../../img/gui/ConcreteTextureBackground.png") repeat; }
 
 /*# sourceMappingURL=main.css.map */

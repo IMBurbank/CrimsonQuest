@@ -41,7 +41,7 @@ var OverlayGameOver = function (_React$Component) {
     value: function optKeyDown(e) {
       var el = e.nativeEvent.code;
 
-      if (el === 'Space' || el === 'Enter' || el === 'Escape') {
+      if (el === 'Space' || el === 'Enter' || el === 'NumpadEnter' || el === 'Escape') {
         this.props.updateGameClassState({ overlayMode: 'hero-selection-overlay' });
       } else if (el === 'KeyQ' || el === 'KeyP') {
         this.props.toggleMute();

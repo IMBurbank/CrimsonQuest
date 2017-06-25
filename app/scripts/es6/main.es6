@@ -3,6 +3,11 @@
   */
 
 
+  /**
+  	*		@desc Parent Game class. Controls all game components.
+  	*		@returns Full game.
+  	*/
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -31,16 +36,7 @@ class Game extends React.Component {
       KeyN: 'bStrength',
       KeyM: 'bAgility'
     };
-    this.consumeDigits = [
-      'Digit1',
-      'Digit2',
-      'Digit3',
-      'Digit4',
-      'Digit5',
-      'Digit6',
-      'Digit7',
-      'Digit8',
-    ];
+    this.consumeDigits = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
     this.state = ({
       boardSize: 120,
@@ -48,18 +44,23 @@ class Game extends React.Component {
       wall: 20,
       floor: 40,
       gameLevel: 1,
+      levels: 10,
+      levelUpCount: 1,
+      moveCount: 0,
       bgLevelProcessed: 0,
       itemLevelProcessed: 0,
-      levels: 10,
       hero: '',
       heroIcon: null,
       heroFacing: '',
-      playerPalettes: {},
-      moveCount: 0,
-      levelUpCount: 1,
+      overlayMode: 'hero-selection-overlay', //off, inv-overlay, help-overlay, merchant-overlay, game-over-overlay, game-win-overlay, hero-selection-overlay
       gameOver: false,
       gameMuted: false,
-      inventory: {
+      playerArr: [],
+      bgArr: [],
+      itemArr: [],
+      enemyArr: [],
+      floorCoords: [],
+      inventory: {/*
         Potion: {
           name: 'Potion',
           type: 'consumable',
@@ -448,21 +449,13 @@ class Game extends React.Component {
           sell: 70,
           stats: {iAttack: 92, iStrength: 3, iAgility: 9},
           spawnQuant: {'10': 1}
-        },
+        },*/
       },
-      playerArr: [],
-      bgArr: [],
-      itemArr: [],
-      floorCoords: [],
-      itemPalettes: {},
-      itemPaletteArrMap: {},
-      interactItem: {count: 0, type: '', item: {}, source: {}},
-      //type: pickup, use, equip, unequip, buy, buySuccess, buyFail, sell
+      interactItem: {count: 0, type: '', item: {}, source: {}}, //type: pickup, use, equip, unequip, buy, buySuccess, buyFail, sell
+      portalObjective: {coord: [], discovered: false},
       useStatPoint: {count: 0, type: '', item: {}, source: {}},
       increasedStat: {count: 0, type: '', stat: '', quant: 0},
       quickConsume: {count: 0, num: 0},
-      enemyArr: [],
-      enemyPalettes: {},
       enemyAttack: {count: 0, roundCount: 0, spawnIndex: 0, stats: {}, source: {}},
       exchangeAttacks: {count: 0, spawnIndex: 0, attacks: []},
       enemyDead: {
@@ -474,8 +467,10 @@ class Game extends React.Component {
         experience: 0,
         gold: 0
       },
-      overlayMode: 'hero-selection-overlay'
-      //off, inv-overlay, help-overlay, merchant-overlay, game-over-overlay, game-win-overlay, hero-selection-overlay
+      itemPaletteArrMap: {},
+      itemPalettes: {},
+      enemyPalettes: {},
+      playerPalettes: {},
     });
   }
 
@@ -563,6 +558,7 @@ class Game extends React.Component {
     if (this.state.overlayMode === 'off' && !e.nativeEvent.repeat) {
 
       const el = e.nativeEvent.code,
+        key = e.nativeEvent.key,
         {boardSize, floor, levels,  playerArr, bgArr, itemArr, itemPaletteArrMap, enemyArr, heroFacing} = this.state;
 
       let {gameLevel, moveCount} = this.state,
@@ -570,6 +566,8 @@ class Game extends React.Component {
         direction = '',
         row = 0,
         col = 0;
+
+      if (el === 'KeyK') console.log(playerArr, this.state.portalObjective);
 
       if (this.directionKeys[el]) {
         moveCount++;
@@ -620,7 +618,7 @@ class Game extends React.Component {
         this.setState({overlayMode: 'inv-overlay'});
       } else if (el === 'KeyH') {
         this.setState({overlayMode: 'help-overlay'});
-      } else if (this.consumeDigits.includes(el)) {
+      } else if (this.consumeDigits.includes(key)) {
         this.setState({quickConsume: {count: this.state.quickConsume.count + 1,num: el.slice(-1)}});
       } else if (this.statIncreaseKeys[el]) {
         this.setState({useStatPoint: {count: this.state.useStatPoint.count + 1, stat: this.statIncreaseKeys[el]}});
@@ -673,16 +671,16 @@ class Game extends React.Component {
       <div className='game' tabIndex='0' onKeyDown={this.handleKeyDown}>
         { gameOver ? null :
         <GameSounds
-          gameOver = {this.state.gameOver}
           gameLevel =  {this.state.gameLevel}
-          gameMuted = {this.state.gameMuted}
           levels = {this.state.levels}
           levelUpCount = {this.state.levelUpCount}
+          overlayMode = {this.state.overlayMode}
+          gameOver = {this.state.gameOver}
+          gameMuted = {this.state.gameMuted}
           interactItem = {this.state.interactItem}
-          useStatPoint = {this.state.useStatPoint}
+          increasedStat = {this.state.increasedStat}
           exchangeAttacks = {this.state.exchangeAttacks}
-          enemyDead = {this.state.enemyDead}
-          overlayMode = {this.state.overlayMode}  />
+          enemyDead = {this.state.enemyDead}  />
         }
         <div className='game-display'>
           <div className='col-lft'>
@@ -695,21 +693,21 @@ class Game extends React.Component {
               tileSize = {this.state.tileSize}
               hero = {this.state.hero}
               heroIcon = {this.state.heroIcon}
+              gameOver = {this.state.gameOver}
               inventory = {this.state.inventory}
-              itemPalettes = {this.state.itemPalettes}
               interactItem = {this.state.interactItem}
               useStatPoint = {this.state.useStatPoint}
               increasedStat = {this.state.increasedStat}
               enemyAttack = {this.state.enemyAttack}
               exchangeAttacks = {this.state.exchangeAttacks}
               enemyDead = {this.state.enemyDead}
-              gameOver = {this.state.gameOver}
+              itemPalettes = {this.state.itemPalettes}
               updateGameClassState = {this.updateGameClassState}  />
             }
           </div>
           <div className='col-mid'>
             <div className='title'>
-              <img src="img/CrimsonQuestTitle.png" />
+              <img src="img/gui/CrimsonQuestTitle.png" />
             </div>
             { gameOver ? null :
             <GameStage
@@ -717,23 +715,24 @@ class Game extends React.Component {
               tileSize = {this.state.tileSize}
               floor = {this.state.floor}
               gameLevel =  {this.state.gameLevel}
-              bgLevelProcessed = {this.state.bgLevelProcessed}
               levels = {this.state.levels}
+              bgLevelProcessed = {this.state.bgLevelProcessed}
               hero = {this.state.hero}
-              playerPalettes = {this.state.playerPalettes}
-              playerArr = {this.state.playerArr}
               heroFacing = {this.state.heroFacing}
+              overlayMode = {this.state.overlayMode}
+              playerArr = {this.state.playerArr}
               bgArr = {this.state.bgArr}
-              floorCoords = {this.state.floorCoords}
               itemArr = {this.state.itemArr}
-              itemPalettes = {this.state.itemPalettes}
-              itemPaletteArrMap = {this.state.itemPaletteArrMap}
+              enemyArr = {this.state.enemyArr}
+              floorCoords = {this.state.floorCoords}
               inventory = {this.state.inventory}
               interactItem = {this.state.interactItem}
-              overlayMode = {this.state.overlayMode}
-              enemyArr = {this.state.enemyArr}
-              enemyPalettes = {this.state.enemyPalettes}
+              portalObjective = {this.state.portalObjective}
               enemyDead = {this.state.enemyDead}
+              itemPaletteArrMap = {this.state.itemPaletteArrMap}
+              itemPalettes = {this.state.itemPalettes}
+              enemyPalettes = {this.state.enemyPalettes}
+              playerPalettes = {this.state.playerPalettes}
               toggleMute = {this.toggleMute}
               updateGameClassState = {this.updateGameClassState}  />
             }
@@ -741,9 +740,9 @@ class Game extends React.Component {
             <ConsumableItems
               tileSize = {this.state.tileSize}
               inventory = {this.state.inventory}
-              itemPalettes = {this.state.itemPalettes}
               interactItem = {this.state.interactItem}
               quickConsume = {this.state.quickConsume}
+              itemPalettes = {this.state.itemPalettes}
               updateGameClassState = {this.updateGameClassState} />
             }
           </div>
@@ -760,6 +759,7 @@ class Game extends React.Component {
               gameLevel =  {this.state.gameLevel}
               itemLevelProcessed = {this.state.itemLevelProcessed}
               playerArr = {this.state.playerArr}
+              portalObjective = {this.state.portalObjective}
               moveCount = {this.state.moveCount}
               bgArr = {this.state.bgArr}
               floorCoords = {this.state.floorCoords}
@@ -775,7 +775,6 @@ class Game extends React.Component {
               gameLevel =  {this.state.gameLevel}
               levelUpCount = {this.state.levelUpCount}
               interactItem = {this.state.interactItem}
-              useStatPoint = {this.state.useStatPoint}
               increasedStat = {this.state.increasedStat}
               exchangeAttacks = {this.state.exchangeAttacks}
               enemyDead = {this.state.enemyDead}  />

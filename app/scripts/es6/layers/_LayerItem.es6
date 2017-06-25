@@ -228,7 +228,7 @@ class LayerItem extends React.Component {
     spawnQuants[gameLevel - 1].forEach(
       el => {
         for (i = 0; i < el[1]; i++) {
-          index = randInt(0, fLen);
+          index = randInt(0, fLen - 1);
           coord = floorCoords[index];
           itemArr[coord[0]][coord[1]] = el[0];
           floorCoords.splice(index, 1);
@@ -247,7 +247,12 @@ class LayerItem extends React.Component {
     itemArr[coord[0]][coord[1]] = interactivePortals['inactivePortal'].itemArrVal;
 
     this.setState({ portalCoord: coord });
-    this.props.updateGameClassState({ floorCoords, itemArr, itemLevelProcessed: gameLevel });
+    this.props.updateGameClassState({
+      floorCoords,
+      itemArr,
+      itemLevelProcessed: gameLevel,
+      portalObjective: {coord, discovered: false}
+    });
   }
 
   activatePortal() {

@@ -1,4 +1,9 @@
-//props: gameLevel, levels
+/**
+  *		@desc Game level component.
+	*		@param {object} props - Component props.
+	*		@param {number} props.gameLevel - Current game level.
+  *		@returns Game level container with level number and name.
+  */
 
 class GameLevel extends React.Component {
   constructor(props) {

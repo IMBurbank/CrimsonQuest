@@ -10,8 +10,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: stageSize, tileSize, boardSize, playerArr, gameLevel
-
+//props: stageSize, tileSize, boardSize, playerArr, gameLevel, portalObjective
+//updateGameClassState
 var LayerExploreFog = function (_React$Component) {
   _inherits(LayerExploreFog, _React$Component);
 
@@ -137,6 +137,7 @@ var LayerExploreFog = function (_React$Component) {
             stageSize = _props2.stageSize,
             boardSize = _props2.boardSize,
             tileSize = _props2.tileSize,
+            portalObjective = _props2.portalObjective,
             rLen = stageSize / tileSize;
         var _state2 = this.state,
             fogArr = _state2.fogArr,
@@ -144,6 +145,7 @@ var LayerExploreFog = function (_React$Component) {
             tempCanvas = _state2.tempCanvas,
             dCtx = document.getElementById('layer-explore-fog').getContext('2d'),
             tempCtx = tempCanvas.getContext('2d'),
+            nState = {},
             dX = 0,
             dY = 0,
             i = 0,
@@ -181,6 +183,11 @@ var LayerExploreFog = function (_React$Component) {
 
         dCtx.clearRect(0, 0, stageSize, stageSize);
         dCtx.drawImage(tempCanvas, 0, 0, stageSize, stageSize);
+
+        if (!fogArr[portalObjective.coord[0]][portalObjective.coord[1]]) {
+          portalObjective.discovered = true;
+          this.props.updateGameClassState({ portalObjective: portalObjective });
+        }
 
         this.setState({ fogArr: fogArr });
       }

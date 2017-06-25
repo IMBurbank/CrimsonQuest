@@ -121,10 +121,31 @@
      name: "Enchanted Ring of Life",
      type: 'ring',
      palette: 'ringPalette',
-     iconLoc: [192, 32, 32, 32],
-     buy: 20,
-     sell: 10,
+     iconLoc: [32, 64, 32, 32],
+     buy: 50,
+     sell: 25,
      stats: {iVitality: 2, iDurability: 2, iStrength: 1},
      spawnQuant: {'9': 1}
-   }
+   },
+   //Special rings
+   specialRng1: {
+     name: "Dark Ring",
+     type: 'ring',
+     palette: 'ringPalette',
+     iconLoc: [128, 96, 32, 32],
+     buy: 200,
+     sell: 100,
+     stats: {iStrength: 2, iAgility: 2},
+     spawnQuant: {}
+   },
+   specialRng2: {
+     name: "Dark Glowing Ring",
+     type: 'ring',
+     palette: 'ringPalette',
+     iconLoc: [32, 128, 32, 32],
+     buy: 400,
+     sell: 200,
+     stats: {iStrength: 4, iAgility: 3},
+     spawnQuant: {}
+   },
  };
