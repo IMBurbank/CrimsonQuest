@@ -63,8 +63,6 @@ var OverlayHeroSelection = function (_React$Component) {
         this.props.updateGameClassState({ hero: currentSelection });
       } else if (el === 'KeyQ' || el === 'KeyP') {
         this.props.toggleMute();
-      } else {
-        console.log(el);
       }
     }
   }, {

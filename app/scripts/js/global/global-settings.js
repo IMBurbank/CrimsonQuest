@@ -186,7 +186,7 @@ var heroTypeStats = {
       stats: { curHealth: 50 },
       spawnQuant: { '1': 2, '2': 3, '3': 3, '4': 2, '5': 1 }
     },
-    specialAmu1: {
+    "Cracked Ancient Amulet": {
       name: "Cracked Ancient Amulet",
       type: 'amulet',
       count: 1,
@@ -226,7 +226,7 @@ var heroTypeStats = {
       stats: { curHealth: 150 },
       spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
     },
-    tomeOfWisdom: {
+    'Tome of Wisdom': {
       name: 'Tome of Wisdom',
       type: 'consumable',
       count: 1,
@@ -267,7 +267,7 @@ var heroTypeStats = {
       stats: { curHealth: 150 },
       spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
     },
-    tomeOfVitality: {
+    'Tome of Vitality': {
       name: 'Tome of Vitality',
       type: 'consumable',
       count: 1,
@@ -280,7 +280,7 @@ var heroTypeStats = {
       stats: { iVitality: 1 },
       spawnQuant: { '3': 1, '6': 1, '9': 1 }
     },
-    tomeOfDurability: {
+    'Tome of Durability': {
       name: 'Tome of Durability',
       type: 'consumable',
       count: 1,
@@ -293,7 +293,7 @@ var heroTypeStats = {
       stats: { iDurability: 1 },
       spawnQuant: { '2': 1, '5': 1, '8': 1 }
     },
-    tomeOfStrength: {
+    'Tome of Strength': {
       name: 'Tome of Strength',
       type: 'consumable',
       count: 1,
@@ -306,7 +306,7 @@ var heroTypeStats = {
       stats: { iStrength: 1 },
       spawnQuant: { '1': 1, '4': 1, '8': 1 }
     },
-    tomeOfAgility: {
+    'Tome of Agility': {
       name: 'Tome of Agility',
       type: 'consumable',
       count: 1,
@@ -319,7 +319,7 @@ var heroTypeStats = {
       stats: { iAgility: 1 },
       spawnQuant: { '2': 1, '5': 1, '9': 1 }
     },
-    tomeOfWisdom: {
+    'Tome of Wisdom': {
       name: 'Tome of Wisdom',
       type: 'consumable',
       count: 1,
@@ -332,8 +332,8 @@ var heroTypeStats = {
       stats: { statPoints: 1 },
       spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
     },
-    specialRng1: {
-      name: "Dark Ring",
+    'Dark Ring': {
+      name: 'Dark Ring',
       type: 'ring',
       count: 1,
       equipped: false,
@@ -359,7 +359,7 @@ var heroTypeStats = {
       stats: { curHealth: 150 },
       spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
     },
-    xPotion: {
+    'X Potion': {
       name: 'X Potion',
       type: 'consumable',
       count: 1,
@@ -372,7 +372,7 @@ var heroTypeStats = {
       stats: { curHealth: 500 },
       spawnQuant: { '10': 1 }
     },
-    tomeOfWisdom: {
+    'Tome of Wisdom': {
       name: 'Tome of Wisdom',
       type: 'consumable',
       count: 3,
@@ -385,8 +385,8 @@ var heroTypeStats = {
       stats: { statPoints: 1 },
       spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
     },
-    specialRng2: {
-      name: "Dark Glowing Ring",
+    'Dark Glowing Ring': {
+      name: 'Dark Glowing Ring',
       type: 'ring',
       count: 1,
       equipped: false,
@@ -412,7 +412,7 @@ var heroTypeStats = {
       stats: { curHealth: 150 },
       spawnQuant: { '4': 1, '5': 1, '6': 2, '7': 3, '8': 2, '9': 2, '10': 2 }
     },
-    xPotion: {
+    'X Potion': {
       name: 'X Potion',
       type: 'consumable',
       count: 5,
@@ -425,7 +425,7 @@ var heroTypeStats = {
       stats: { curHealth: 500 },
       spawnQuant: { '10': 1 }
     },
-    tomeOfVitality: {
+    'Tome of Vitality': {
       name: 'Tome of Vitality',
       type: 'consumable',
       count: 1,
@@ -438,7 +438,7 @@ var heroTypeStats = {
       stats: { iVitality: 1 },
       spawnQuant: { '3': 1, '6': 1, '9': 1 }
     },
-    tomeOfDurability: {
+    'Tome of Durability': {
       name: 'Tome of Durability',
       type: 'consumable',
       count: 1,
@@ -451,7 +451,7 @@ var heroTypeStats = {
       stats: { iDurability: 1 },
       spawnQuant: { '2': 1, '5': 1, '8': 1 }
     },
-    tomeOfStrength: {
+    'Tome of Strength': {
       name: 'Tome of Strength',
       type: 'consumable',
       count: 1,
@@ -464,7 +464,7 @@ var heroTypeStats = {
       stats: { iStrength: 1 },
       spawnQuant: { '1': 1, '4': 1, '8': 1 }
     },
-    tomeOfAgility: {
+    'Tome of Agility': {
       name: 'Tome of Agility',
       type: 'consumable',
       count: 1,
@@ -477,7 +477,7 @@ var heroTypeStats = {
       stats: { iAgility: 1 },
       spawnQuant: { '2': 1, '5': 1, '9': 1 }
     },
-    tomeOfWisdom: {
+    'Tome of Wisdom': {
       name: 'Tome of Wisdom',
       type: 'consumable',
       count: 2,
@@ -490,8 +490,8 @@ var heroTypeStats = {
       stats: { statPoints: 1 },
       spawnQuant: { '4': 1, '6': 1, '8': 1, '10': 1 }
     },
-    specialAmu2: {
-      name: "Dark Amulet",
+    'Dark Amulet': {
+      name: 'Dark Amulet',
       type: 'amulet',
       count: 1,
       equipped: false,
