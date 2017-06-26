@@ -823,10 +823,11 @@ class PageFooter extends React.Component {
       <div className='pg-footer'>
         <span>© 2017 Isaac Burbank.</span>
         <span>
-          Tiles By&nbsp;
-          <a href='http://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181' target='_blank'>
-            DragonDePlatino
+          &nbsp;
+          <a href='https://github.com/IMBurbank/crimson-quest/tree/master' target='_blank'>
+            Click here
           </a>
+          &nbsp;for details and credits.
         </span>
       </div>
     );

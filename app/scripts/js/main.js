@@ -892,12 +892,13 @@ var PageFooter = function (_React$Component3) {
         React.createElement(
           'span',
           null,
-          'Tiles By\xA0',
+          '\xA0',
           React.createElement(
             'a',
-            { href: 'http://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181', target: '_blank' },
-            'DragonDePlatino'
-          )
+            { href: 'https://github.com/IMBurbank/crimson-quest/tree/master', target: '_blank' },
+            'Click here'
+          ),
+          '\xA0for details and credits.'
         )
       );
     }
