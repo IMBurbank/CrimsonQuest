@@ -575,7 +575,7 @@ var Game = function (_React$Component) {
   }, {
     key: 'handleKeyDown',
     value: function handleKeyDown(e) {
-      if (this.state.overlayMode === 'off' && !e.nativeEvent.repeat) {
+      if (this.state.overlayMode === 'off') {
         var el = e.nativeEvent.code,
             key = e.nativeEvent.key,
             _state = this.state,

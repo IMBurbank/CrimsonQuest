@@ -555,7 +555,7 @@ class Game extends React.Component {
   }
 
   handleKeyDown(e) {
-    if (this.state.overlayMode === 'off' && !e.nativeEvent.repeat) {
+    if (this.state.overlayMode === 'off') {
 
       const el = e.nativeEvent.code,
         key = e.nativeEvent.key,
