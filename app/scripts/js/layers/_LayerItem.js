@@ -10,8 +10,30 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: boardSize, stageSize, tileSize, gameLevel, levels, bgArr, itemArr, updateGameClassState
-//playerArr, itemPalettes, floorCoords, itemPaletteArrMap, enemyDead, bgLevelProcessed
+/**
+  *		@desc GameStage canvas layer responsible for item rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.levels - Total game levels.
+	*		@param {number} props.bgLevelProcessed - Updated as LayerBackground processes a level.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.itemArr - Square array holds level item layer state.
+	*		@param {array} props.floorCoords - Coords which haven't been take by hero/item/enemy.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {object} props.itemPaletteArrMap - Maps itemArr numbers to their corresponding object.
+	*		@param {object} props.itemPalettes - Item sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {number} enemyDeadCount - Counter for dead enemies processed by component.
+  *   @property {number} levelProcessed - Counter for most recent level processed by component.
+  *   @property {number} lastRenderFrame - Last frame drawn. Either 1 or 0.
+  *   @property {array} lastPlayerArr - Last processed playerArr coord.
+  *		@returns HTML canvas layer for items.
+  */
+
 var LayerItem = function (_React$Component) {
   _inherits(LayerItem, _React$Component);
 

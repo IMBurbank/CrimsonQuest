@@ -10,8 +10,17 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: playerArr, enemyArr, inventory, interactItem, updateGameClassState, toggleMute
-
+/**
+  *		@desc GameStage overlay for merchant interaction.
+	*		@param {object} props - Component props.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @returns HTML GameStage overlay for merchant buy/sell screen.
+  */
 
 var OverlayMerchant = function (_React$Component) {
   _inherits(OverlayMerchant, _React$Component);

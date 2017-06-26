@@ -8,7 +8,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: updateGameClassState, toggleMute
+/**
+  *		@desc GameStage overlay for hero death game over.
+	*		@param {object} props - Component props.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @returns HTML GameStage overlay for game over.
+  */
 
 var OverlayGameOver = function (_React$Component) {
   _inherits(OverlayGameOver, _React$Component);

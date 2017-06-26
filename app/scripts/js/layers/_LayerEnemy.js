@@ -8,8 +8,21 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//stageSize, boardSize, tileSize, playerArr, enemyArr, enemyPalettes, updateGameClassState
-//
+/**
+  *		@desc GameStage canvas layer responsible for enemy rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {object} props.enemyPalettes - Enemy sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {number} lastRenderFrame - Last frame drawn. Either 1 or 0.
+  *   @property {array} lastPlayerArr - Last processed playerArr coord.
+  *		@returns HTML canvas layer for enemies.
+  */
+
 var LayerEnemy = function (_React$Component) {
   _inherits(LayerEnemy, _React$Component);
 

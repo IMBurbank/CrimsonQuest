@@ -8,7 +8,21 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: gameLevel, levelUpCount, interactItem, increasedStat, exchangeAttacks, enemyDead
+/**
+  *		@desc Game component logs and displays game activity.
+	*		@param {object} props - Component props.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.levelUpCount - Current hero level.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.increasedStat - Updated when useStatPoint is successfull.
+	*		@param {object} props.exchangeAttacks - Hero/Enemy attack details.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+  *   @property {number} logLen - Max length of log array.
+  *   @property {number} renderLen - Max umber of log items returned for render..
+  *   @property {number} logArrayPadding - Index positions from end of log before recycling.
+  *   @property {number} enemyDeadCount - Number of dead enemies processed by component.
+  *   @returns Color-coded log of game activity.
+  */
 
 var ActivityLog = function (_React$Component) {
   _inherits(ActivityLog, _React$Component);

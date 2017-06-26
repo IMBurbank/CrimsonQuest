@@ -1,5 +1,13 @@
+/**
+  *		@desc GameStage overlay for hero inventory interaction.
+	*		@param {object} props - Component props.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @returns HTML GameStage overlay for hero inventory management.
+  */
 
-//props: inventory, interactItem, updateGameClassState, toggleMute
 class OverlayInventory extends React.Component {
   constructor(props) {
     super(props);

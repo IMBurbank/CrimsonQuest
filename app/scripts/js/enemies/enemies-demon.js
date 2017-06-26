@@ -195,7 +195,7 @@ var enemyDemon = {
     spawnQuant: { '6': 1 },
     boss: true,
     aggression: 3,
-    levelRange: [8, 8],
+    levelRange: [10, 10],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -226,7 +226,7 @@ var enemyDemon = {
     spawnQuant: { '7': 1 },
     boss: true,
     aggression: 4,
-    levelRange: [9, 9],
+    levelRange: [12, 12],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -257,7 +257,7 @@ var enemyDemon = {
     spawnQuant: { '8': 1 },
     boss: true,
     aggression: 5,
-    levelRange: [10, 10],
+    levelRange: [13, 13],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -288,7 +288,7 @@ var enemyDemon = {
     spawnQuant: { '9': 1 },
     boss: true,
     aggression: 5,
-    levelRange: [12, 12],
+    levelRange: [15, 15],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -319,7 +319,7 @@ var enemyDemon = {
     spawnQuant: { '10': 1 },
     boss: true,
     aggression: 5,
-    levelRange: [13, 13],
+    levelRange: [17, 17],
     baseStats: {
       bHealth: 10,
       bAttack: 4,

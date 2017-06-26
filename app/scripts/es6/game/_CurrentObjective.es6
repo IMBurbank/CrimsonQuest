@@ -1,4 +1,10 @@
-//props: enemyDead, gameLevel
+/**
+  *		@desc Game component displays current hero objective.
+	*		@param {object} props - Component props.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@returns Current objective Game component.
+  */
 
 class CurrentObjective extends React.Component {
   constructor(props) {

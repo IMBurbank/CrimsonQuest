@@ -10,8 +10,36 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks, portalObjective
-//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, itemLevelProcessed
+/**
+  *		@desc Game component manages enemies/merchants, and displays enemy & objective details.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.floor - First integer of floor value range in bgArr.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.itemLevelProcessed - Updated as LayerItem processes a level.
+	*		@param {number} props.moveCount - Hero move counter.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {array} props.floorCoords - Coords which haven't been take by hero/item/enemy.
+	*		@param {object} props.portalObjective - Portal location and current discovery state.
+	*		@param {object} props.enemyAttack - Enemy attack details. Prompts exchangeAttacks update.
+	*		@param {object} props.exchangeAttacks - Hero/Enemy attack details.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {object} props.enemyPalettes - Enemy sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {number} pollCount - Enemies which have selected their round move.
+  *   @property {number} enemyDeadCount - Number of dead enemies processed by component.
+  *   @property {array} enemyTurn - Updated by Enemy subcomponents. Holds full round of enemy moves.
+	*		@property {array} enemyDisplayArr - Display details for all enemies/merchants on level.
+	*		@property {object} enemyDisplay - Current enemy/merchant details displayed in component.
+	*		@property {boolean} bossDead - Whether level boss has been killed.
+  *   @property {number} srcTileSize - Size of tiles in images uploaded to component.
+  *   @property {boolean} renderSmoothing - Selection for canvas context imageSmoothingEnabled.
+  *   @property {object} imgArrowCropDimensions - Properties for drawing arrows from img to canvas.
+	*		@returns Level Enemies/merchants, and displays enemy & objective details.
+  */
+
 var EnemyManager = function (_React$Component) {
   _inherits(EnemyManager, _React$Component);
 
@@ -479,23 +507,23 @@ var EnemyManager = function (_React$Component) {
           source: source,
           spawnIndex: enemies.length,
           spawnCoord: spawnCoord,
-          floor: _this2.props.floor,
-          tileSize: _this2.props.tileSize,
-          bgArr: _this2.props.bgArr,
-          playerArr: _this2.props.playerArr,
-          moveCount: _this2.props.moveCount,
-          enemyArr: _this2.props.enemyArr,
-          roundEnemyArr: _this2.state.roundEnemyArr,
-          enemyPalettes: _this2.props.enemyPalettes,
-          enemyDead: _this2.props.enemyDead,
           pollCount: _this2.pollCount,
-          incrementPollCount: _this2.incrementPollCount,
           roundCount: _this2.state.roundCount,
           enemyTurn: _this2.enemyTurn,
+          roundEnemyArr: _this2.state.roundEnemyArr,
           enemyDisplayArr: _this2.enemyDisplayArr,
+          tileSize: _this2.props.tileSize,
+          floor: _this2.props.floor,
+          moveCount: _this2.props.moveCount,
+          playerArr: _this2.props.playerArr,
+          bgArr: _this2.props.bgArr,
+          enemyArr: _this2.props.enemyArr,
+          exchangeAttacks: _this2.props.exchangeAttacks,
+          enemyDead: _this2.props.enemyDead,
+          enemyPalettes: _this2.props.enemyPalettes,
+          incrementPollCount: _this2.incrementPollCount,
           updateEnemyTurn: _this2.updateEnemyTurn,
           updateEnemyDisplayArr: _this2.updateEnemyDisplayArr,
-          exchangeAttacks: _this2.props.exchangeAttacks,
           updateEnemyManager: _this2.updateEnemyManager,
           updateGameClassState: _this2.props.updateGameClassState }));
       });

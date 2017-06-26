@@ -1,6 +1,18 @@
+/**
+  *		@desc GameStage component responsible for managing stage HTML overlays.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {string} props.overlayMode - Current GameStage overlay.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.playerPalettes - Hero sprite sheets on canvas.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *		@returns Current GameStage overlay, if applicable.
+  */
 
-//props: playerArr, enemyArr, inventory, interactItem, overlayMode, updateGameClassState,
-//playerPalettes, tileSize, toggleMute
 class LayerOverlays extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {

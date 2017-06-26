@@ -45,10 +45,10 @@ class Game extends React.Component {
       floor: 40,
       gameLevel: 1,
       levels: 10,
-      levelUpCount: 1,
-      moveCount: 0,
       bgLevelProcessed: 0,
       itemLevelProcessed: 0,
+      moveCount: 0,
+      levelUpCount: 1,
       hero: '',
       heroIcon: null,
       heroFacing: '',
@@ -758,16 +758,16 @@ class Game extends React.Component {
               floor = {this.state.floor}
               gameLevel =  {this.state.gameLevel}
               itemLevelProcessed = {this.state.itemLevelProcessed}
-              playerArr = {this.state.playerArr}
-              portalObjective = {this.state.portalObjective}
               moveCount = {this.state.moveCount}
+              playerArr = {this.state.playerArr}
               bgArr = {this.state.bgArr}
-              floorCoords = {this.state.floorCoords}
               enemyArr = {this.state.enemyArr}
-              enemyPalettes = {this.state.enemyPalettes}
+              floorCoords = {this.state.floorCoords}
+              portalObjective = {this.state.portalObjective}
               enemyAttack = {this.state.enemyAttack}
               exchangeAttacks = {this.state.exchangeAttacks}
               enemyDead = {this.state.enemyDead}
+              enemyPalettes = {this.state.enemyPalettes}
               updateGameClassState = {this.updateGameClassState}  />
             }
             { gameOver ? null :

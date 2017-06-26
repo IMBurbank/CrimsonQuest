@@ -82,19 +82,19 @@ class GameStage extends React.Component {
           boardSize = {this.props.boardSize}
           tileSize =  {this.props.tileSize}
           gameLevel = {this.props.gameLevel}
-          bgLevelProcessed = {this.props.bgLevelProcessed}
           levels = {this.props.levels}
+          bgLevelProcessed = {this.props.bgLevelProcessed}
           playerArr = {this.props.playerArr}
           bgArr = {this.props.bgArr}
-          floorCoords = {this.props.floorCoords}
           itemArr = {this.props.itemArr}
-        	itemPalettes = {this.props.itemPalettes}
-          itemPaletteArrMap = {this.props.itemPaletteArrMap}
+          floorCoords = {this.props.floorCoords}
           enemyDead = {this.props.enemyDead}
+          itemPaletteArrMap = {this.props.itemPaletteArrMap}
+        	itemPalettes = {this.props.itemPalettes}
         	updateGameClassState = {this.props.updateGameClassState} />
         <LayerEnemy
-          stageSize = {this.state.stageSize}
           boardSize = {this.props.boardSize}
+          stageSize = {this.state.stageSize}
           tileSize =  {this.props.tileSize}
           playerArr = {this.props.playerArr}
           enemyArr = {this.props.enemyArr}
@@ -104,8 +104,8 @@ class GameStage extends React.Component {
           stageSize = {this.state.stageSize}
           tileSize =  {this.props.tileSize}  />
         <LayerExploreFog
-          stageSize = {this.state.stageSize}
           boardSize = {this.props.boardSize}
+          stageSize = {this.state.stageSize}
           tileSize =  {this.props.tileSize}
           gameLevel = {this.props.gameLevel}
           playerArr = {this.props.playerArr}
@@ -113,12 +113,12 @@ class GameStage extends React.Component {
           updateGameClassState = {this.props.updateGameClassState}  />
         <LayerOverlays
           tileSize =  {this.props.tileSize}
+          overlayMode = {this.props.overlayMode}
           playerArr = {this.props.playerArr}
           enemyArr = {this.props.enemyArr}
           inventory = {this.props.inventory}
           interactItem = {this.props.interactItem}
           playerPalettes = {this.props.playerPalettes}
-          overlayMode = {this.props.overlayMode}
           toggleMute = {this.props.toggleMute}
           updateGameClassState = {this.props.updateGameClassState}  />
       </div>

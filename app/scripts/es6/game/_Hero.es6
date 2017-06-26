@@ -43,7 +43,7 @@ class Hero extends React.Component {
       experience: 0,
       expToLevel: 0,
       charLevel: 0,
-      gold: 200,
+      gold: 0,
       curHealth: 0,
       bHealth: 0,
       bAttack: 0,

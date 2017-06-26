@@ -1,5 +1,33 @@
-//gameLevel, bgArr, floorCoords, playerArr, enemyArr, enemyAttack, exchangeAttacks, portalObjective
-//moveCount, updateGameClassState, tileSize, floor, enemyPalettes, enemyDead, itemLevelProcessed
+/**
+  *		@desc Game component manages enemies/merchants, and displays enemy & objective details.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.floor - First integer of floor value range in bgArr.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {number} props.itemLevelProcessed - Updated as LayerItem processes a level.
+	*		@param {number} props.moveCount - Hero move counter.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {array} props.floorCoords - Coords which haven't been take by hero/item/enemy.
+	*		@param {object} props.portalObjective - Portal location and current discovery state.
+	*		@param {object} props.enemyAttack - Enemy attack details. Prompts exchangeAttacks update.
+	*		@param {object} props.exchangeAttacks - Hero/Enemy attack details.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {object} props.enemyPalettes - Enemy sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {number} pollCount - Enemies which have selected their round move.
+  *   @property {number} enemyDeadCount - Number of dead enemies processed by component.
+  *   @property {array} enemyTurn - Updated by Enemy subcomponents. Holds full round of enemy moves.
+	*		@property {array} enemyDisplayArr - Display details for all enemies/merchants on level.
+	*		@property {object} enemyDisplay - Current enemy/merchant details displayed in component.
+	*		@property {boolean} bossDead - Whether level boss has been killed.
+  *   @property {number} srcTileSize - Size of tiles in images uploaded to component.
+  *   @property {boolean} renderSmoothing - Selection for canvas context imageSmoothingEnabled.
+  *   @property {object} imgArrowCropDimensions - Properties for drawing arrows from img to canvas.
+	*		@returns Level Enemies/merchants, and displays enemy & objective details.
+  */
+
 class EnemyManager extends React.Component {
   constructor(props) {
     super(props);
@@ -453,23 +481,23 @@ class EnemyManager extends React.Component {
             source = {source}
             spawnIndex = {enemies.length}
             spawnCoord = {spawnCoord}
-            floor = {this.props.floor}
-            tileSize = {this.props.tileSize}
-            bgArr = {this.props.bgArr}
-            playerArr = {this.props.playerArr}
-            moveCount = {this.props.moveCount}
-            enemyArr = {this.props.enemyArr}
-            roundEnemyArr = {this.state.roundEnemyArr}
-            enemyPalettes = {this.props.enemyPalettes}
-            enemyDead = {this.props.enemyDead}
             pollCount = {this.pollCount}
-            incrementPollCount = {this.incrementPollCount}
             roundCount = {this.state.roundCount}
             enemyTurn = {this.enemyTurn}
+            roundEnemyArr = {this.state.roundEnemyArr}
             enemyDisplayArr = {this.enemyDisplayArr}
+            tileSize = {this.props.tileSize}
+            floor = {this.props.floor}
+            moveCount = {this.props.moveCount}
+            playerArr = {this.props.playerArr}
+            bgArr = {this.props.bgArr}
+            enemyArr = {this.props.enemyArr}
+            exchangeAttacks = {this.props.exchangeAttacks}
+            enemyDead = {this.props.enemyDead}
+            enemyPalettes = {this.props.enemyPalettes}
+            incrementPollCount = {this.incrementPollCount}
             updateEnemyTurn = {this.updateEnemyTurn}
             updateEnemyDisplayArr = {this.updateEnemyDisplayArr}
-            exchangeAttacks = {this.props.exchangeAttacks}
             updateEnemyManager = {this.updateEnemyManager}
             updateGameClassState = {this.props.updateGameClassState}  />
         );

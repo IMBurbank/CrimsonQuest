@@ -1,7 +1,14 @@
+/**
+  *		@desc Game component to display QuickConsume consumable items.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.itemPalettes - Item sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+	*		@returns QuickConsume game component.
+  */
 
-
-
-//props: tileSize, inventory, itemPalettes, interactItem, quickConsume, updateGameClassState
 class ConsumableItems extends React.Component {
   constructor(props) {
     super(props);

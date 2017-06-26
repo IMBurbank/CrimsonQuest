@@ -1,4 +1,14 @@
-//props: position, heroType, currentSelection, playerPalettes, tileSize
+/**
+  *		@desc OverlayHeroSelection single hero row with description.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {string} props.heroType - Type of hero.
+	*		@param {object} props.playerPalettes - Hero sprite sheets on canvas.
+	*		@param {string} props.key - React rendering property.
+	*		@param {number} props.position - Rendered row number, zero-based.
+	*		@param {string} props.currentSelection - heroType of hero row in current focus.
+  *   @returns Hero row with description.
+  */
 
 class OverlayHeroSelectionRow extends React.Component {
   constructor(props) {

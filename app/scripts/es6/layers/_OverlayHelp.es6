@@ -1,4 +1,10 @@
-//props: updateGameClassState, toggleMute
+/**
+  *		@desc GameStage overlay for help and key bindings.
+	*		@param {object} props - Component props.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @returns HTML GameStage overlay for help screen.
+  */
 
 class OverlayHelp extends React.Component {
   constructor(props) {

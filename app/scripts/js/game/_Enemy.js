@@ -10,8 +10,34 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//tileSize, floor, source, spawnIndex, spawnCoord, bgArr, playerArr, moveCount, enemyArr, enemyDisplayArr, updateEnemyDisplayArr, updateEnemyManager,
-//updateGameClassState, pollCount, incrementPollCount, enemyTurn, updateEnemyTurn, enemyDead, enemyPalettes, roundCount, roundEnemyArr, exchangeAttacks
+/**
+  *		@desc EnemyManager subcomponents holds state for a individual enemy or merchant.
+	*		@param {object} props - Component props.
+	*		@param {string} props.key - React render property.
+	*		@param {object} props.source - Pointer to default enemy object details.
+	*		@param {array} props.spawnCoord - Location of Enemy spawn.
+	*		@param {number} props.pollCount - Current number of Enemy components to send their round move.
+	*		@param {number} props.roundCount - Number of move rounds initiated this game.
+	*		@param {array} props.enemyTurn - Updated by Enemy subcomponents. Holds full round of enemy moves.
+	*		@param {array} props.roundEnemyArr - Array of all Enemy components rendered on current level.
+	*		@param {array} props.enemyDisplayArr - Display details for all enemies/merchants on level.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.floor - First integer of floor value range in bgArr.
+	*		@param {number} props.moveCount - Hero move counter.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {array} props.bgArr - Square array holds level background layer state.
+	*		@param {array} props.enemyArr - Square array holds level enemy layer state.
+	*		@param {object} props.exchangeAttacks - Hero/Enemy attack details.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@param {object} props.enemyPalettes - Enemy sprite sheets on canvas.
+	*		@param {function} props.incrementPollCount - Increment parent component pollCount.
+	*		@param {function} props.updateEnemyTurn - Update parent enemyTurn array with chosen move.
+	*		@param {function} props.updateEnemydisplayArr - Send details to parent enemyDisplayArr.
+	*		@param {function} props.updateEnemyManager - Update selected EnemyManager state properties.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @returns NA - Each instance represents an enemy or merchant.
+  */
+
 var Enemy = function (_React$Component) {
   _inherits(Enemy, _React$Component);
 
@@ -30,9 +56,6 @@ var Enemy = function (_React$Component) {
     _this.takeDamage = _this.takeDamage.bind(_this);
     _this.startTurn = _this.startTurn.bind(_this);
     _this.updateEnemyDisplay = _this.updateEnemyDisplay.bind(_this);
-
-    _this.attemptMoveCoefficient = 19;
-    _this.positionsTaken = [0, 0, 0, 0];
 
     _this.state = {
       level: 0,

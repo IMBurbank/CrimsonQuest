@@ -8,7 +8,17 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: position, heroType, currentSelection, playerPalettes, tileSize
+/**
+  *		@desc OverlayHeroSelection single hero row with description.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {string} props.heroType - Type of hero.
+	*		@param {object} props.playerPalettes - Hero sprite sheets on canvas.
+	*		@param {string} props.key - React rendering property.
+	*		@param {number} props.position - Rendered row number, zero-based.
+	*		@param {string} props.currentSelection - heroType of hero row in current focus.
+  *   @returns Hero row with description.
+  */
 
 var OverlayHeroSelectionRow = function (_React$Component) {
   _inherits(OverlayHeroSelectionRow, _React$Component);

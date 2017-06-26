@@ -1,4 +1,7 @@
-
+/**
+  *		@desc Game component provides basic game tips.
+	*		@returns Basic game tips.
+  */
 
 class GameTips extends React.Component {
   render() {

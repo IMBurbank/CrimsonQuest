@@ -1,4 +1,14 @@
-//props: stageSize, tileSize,
+/**
+  *		@desc GameStage canvas layer responsible for distance fog rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+  *   @property {array} renderPadArr - Additional inset padding for hero view range.
+  *   @property {number} renderInset - Number of tiles inset or hero view range.
+  *   @property {number} fogColor - Color of distance fog.
+  *   @property {boolean} smoothingEnabled - Setting for canvas context imageSmoothingEnabled.
+  *		@returns HTML canvas layer for distance fog.
+  */
 
 class LayerDistanceFog extends React.Component {
   constructor(props) {

@@ -8,7 +8,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: enemyDead, gameLevel
+/**
+  *		@desc Game component displays current hero objective.
+	*		@param {object} props - Component props.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {object} props.enemyDead - Most recent dead enemy details.
+	*		@returns Current objective Game component.
+  */
 
 var CurrentObjective = function (_React$Component) {
   _inherits(CurrentObjective, _React$Component);

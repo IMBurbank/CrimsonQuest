@@ -1,5 +1,21 @@
-//props: stageSize, tileSize, boardSize, playerArr, gameLevel, portalObjective
-//updateGameClassState
+/**
+  *		@desc GameStage canvas layer responsible for explore fog rendering.
+	*		@param {object} props - Component props.
+	*		@param {number} props.boardSize - Length of square game state arrays.
+	*		@param {number} props.stageSize - Pixel dimension of square GameStage.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {number} props.gameLevel - Current game level.
+	*		@param {array} props.playerArr - Hero's coordinates on the game board.
+	*		@param {object} props.portalObjective - Portal location and current discovery state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @property {array} lastPlayerArr - Last processed playerArr coord.
+  *   @property {boolean} smoothingEnabled - Setting for canvas context imageSmoothingEnabled.
+  *		@property {number} fogVal - Value in fogArr when explore fog is present at tile index.
+  *		@property {number} sightRadius - Hero signt radius.
+  *   @property {number} sightDecrement - Tile inset to sight radius.
+  *   @returns HTML canvas layer for explore fog.
+  */
+
 class LayerExploreFog extends React.Component {
   constructor(props) {
     super(props);

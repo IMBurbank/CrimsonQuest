@@ -8,7 +8,17 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: tileSize, inventory, itemPalettes, interactItem, quickConsume, updateGameClassState
+/**
+  *		@desc Game component to display QuickConsume consumable items.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {object} props.inventory - Current hero item inventory.
+	*		@param {object} props.interactItem - Hero/Item interaction details.
+	*		@param {object} props.itemPalettes - Item sprite sheets on canvas.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+	*		@returns QuickConsume game component.
+  */
+
 var ConsumableItems = function (_React$Component) {
   _inherits(ConsumableItems, _React$Component);
 

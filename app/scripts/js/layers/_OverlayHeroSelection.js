@@ -8,7 +8,15 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//props: updateGameClassState, playerPalettes, tileSize, toggleMute
+/**
+  *		@desc GameStage overlay for hero selection.
+	*		@param {object} props - Component props.
+	*		@param {number} props.tileSize - Pixel dimension of rendered game tiles.
+	*		@param {object} props.playerPalettes - Hero sprite sheets on canvas.
+	*		@param {function} props.toggleMute - Toggle Game component gameMuted state.
+	*		@param {function} props.updateGameClassState - Update Game component state.
+  *   @returns HTML GameStage overlay for hero selection.
+  */
 
 var OverlayHeroSelection = function (_React$Component) {
   _inherits(OverlayHeroSelection, _React$Component);
@@ -113,12 +121,12 @@ var OverlayHeroSelection = function (_React$Component) {
 
       var heroSelectionRows = heroTypes.map(function (type, i) {
         return React.createElement(OverlayHeroSelectionRow, {
+          tileSize: _this3.props.tileSize,
+          heroType: type,
+          playerPalettes: playerPalettes,
           key: type + i,
           position: i,
-          heroType: type,
-          currentSelection: currentSelection,
-          playerPalettes: playerPalettes,
-          tileSize: _this3.props.tileSize });
+          currentSelection: currentSelection });
       });
 
       return React.createElement(
