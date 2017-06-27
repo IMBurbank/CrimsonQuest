@@ -23,10 +23,10 @@ var enemyElemental = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3
@@ -54,10 +54,10 @@ var enemyElemental = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3

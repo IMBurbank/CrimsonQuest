@@ -23,10 +23,10 @@ var enemyHumanoid = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3
@@ -54,10 +54,10 @@ var enemyHumanoid = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3
@@ -85,10 +85,10 @@ var enemyHumanoid = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3
@@ -116,10 +116,10 @@ var enemyHumanoid = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3
@@ -133,7 +133,7 @@ var enemyHumanoid = {
     spawnQuant: { '5': 1 },
     boss: true,
     aggression: 4,
-    levelRange: [9, 9],
+    levelRange: [10, 10],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -147,10 +147,10 @@ var enemyHumanoid = {
       bAgility: 10
     },
     onLevelUp: {
-      bHealth: 6,
+      bHealth: 10,
       bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bDefense: 5,
+      bVitality: 3,
       bDurability: 2,
       bStrength: 2,
       bAgility: 3
