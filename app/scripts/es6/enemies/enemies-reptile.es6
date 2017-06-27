@@ -23,13 +23,13 @@ const enemyReptile = {
       bAgility: 10,
     },
     onLevelUp: {
-      bHealth: 6,
-      bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bHealth: 8,
+      bAttack: 4,
+      bDefense: 2,
+      bVitality: 4,
       bDurability: 2,
       bStrength: 2,
-      bAgility: 3
+      bAgility: 4
     },
   },
   wingedViper: {
@@ -54,13 +54,13 @@ const enemyReptile = {
       bAgility: 10,
     },
     onLevelUp: {
-      bHealth: 6,
-      bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bHealth: 8,
+      bAttack: 4,
+      bDefense: 2,
+      bVitality: 4,
       bDurability: 2,
       bStrength: 2,
-      bAgility: 3
+      bAgility: 4
     },
   },
   abyssDragon: {
@@ -85,13 +85,13 @@ const enemyReptile = {
       bAgility: 10,
     },
     onLevelUp: {
-      bHealth: 6,
-      bAttack: 3,
-      bDefense: 4,
-      bVitality: 2,
+      bHealth: 8,
+      bAttack: 4,
+      bDefense: 2,
+      bVitality: 4,
       bDurability: 2,
       bStrength: 2,
-      bAgility: 3
+      bAgility: 4
     },
   },
 };
