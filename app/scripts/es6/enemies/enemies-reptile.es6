@@ -37,10 +37,10 @@ const enemyReptile = {
     type: 'reptile',
     palette: ['reptile0Palette', 'reptile1Palette'],
     iconLoc: [96,0],
-    spawnQuant: {'2': 15, '3': 25},
+    spawnQuant: {'2': 25, '3': 25},
     boss: false,
     aggression: 3,
-    levelRange: [2,4],
+    levelRange: [3,4],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -71,7 +71,7 @@ const enemyReptile = {
     spawnQuant: {'10': 20},
     boss: false,
     aggression: 4,
-    levelRange: [10,11],
+    levelRange: [13,16],
     baseStats: {
       bHealth: 10,
       bAttack: 4,

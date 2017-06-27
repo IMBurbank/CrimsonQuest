@@ -9,7 +9,7 @@ const enemyHumanoid = {
     spawnQuant: {'1': 1},
     boss: true,
     aggression: 3,
-    levelRange: [3,3],
+    levelRange: [4,4],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -40,7 +40,7 @@ const enemyHumanoid = {
     spawnQuant: {'2': 1},
     boss: true,
     aggression: 3,
-    levelRange: [5,5],
+    levelRange: [6,6],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -71,7 +71,7 @@ const enemyHumanoid = {
     spawnQuant: {'3': 1},
     boss: true,
     aggression: 3,
-    levelRange: [6,6],
+    levelRange: [7,7],
     baseStats: {
       bHealth: 10,
       bAttack: 4,

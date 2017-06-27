@@ -9,7 +9,7 @@ var enemyElemental = {
     spawnQuant: { '3': 20, '4': 35 },
     boss: false,
     aggression: 3,
-    levelRange: [3, 4],
+    levelRange: [5, 6],
     baseStats: {
       bHealth: 10,
       bAttack: 4,
@@ -37,10 +37,10 @@ var enemyElemental = {
     type: 'elemental',
     palette: ['elemental0Palette', 'elemental1Palette'],
     iconLoc: [64, 160],
-    spawnQuant: { '5': 20, '6': 35 },
+    spawnQuant: { '5': 25, '6': 35 },
     boss: false,
     aggression: 4,
-    levelRange: [5, 7],
+    levelRange: [6, 8],
     baseStats: {
       bHealth: 10,
       bAttack: 4,

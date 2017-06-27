@@ -6,10 +6,10 @@ const enemyUndead = {
     type: 'undead',
     palette: ['undead0Palette', 'undead1Palette'],
     iconLoc: [0,160],
-    spawnQuant: {'9': 25},
+    spawnQuant: {'9': 30},
     boss: false,
     aggression: 4,
-    levelRange: [8,10],
+    levelRange: [11,13],
     baseStats: {
       bHealth: 10,
       bAttack: 4,

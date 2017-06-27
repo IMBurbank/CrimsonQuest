@@ -209,11 +209,13 @@ class Hero extends React.Component {
 
   sellItem(item, inventory, merchantInventory, interactItem) {
     let {gold} = this.state,
-      nState = { gold: gold + item.sell };
+      nState = { gold: gold + item.sell },
+      removeEquipped = false;
 
     if (item.equipped) {
       inventory[item.name].equipped = false;
       nState[item.type] = null;
+      removeEquipped = true;
     }
 
     inventory[item.name].count -= 1;
@@ -225,7 +227,10 @@ class Hero extends React.Component {
       merchantInventory[item.name].count = 1;
     }
 
-    if (inventory[item.name].count === 0 && inventory[item.name].type !== 'consumable') {
+    if (inventory[item.name].count === 0 &&
+      inventory[item.name].type !== 'consumable' &&
+      removeEquipped) {
+        
       this.updateEquipCanvas(inventory[item.name]);
     }
 
